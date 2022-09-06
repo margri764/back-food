@@ -1,8 +1,8 @@
 const nodemailer = require('nodemailer');
 
 const mail = {
-    user: 'margri764@feintdevs.com',
-    pass: '@bulFeintdevs18'
+    user: 'development@feintdevs.com',
+    pass: 'bulFeintdevs#1820'
 }
 
 let transporter = nodemailer.createTransport({
@@ -21,9 +21,11 @@ let transporter = nodemailer.createTransport({
 
   const sendEmail = async (email, subject, html) => {
     try {
-        
+
+   
+
         await transporter.sendMail({
-            from: `dogID <${ mail.user }>`, // sender address
+            from: `Food-App <${ mail.user }>`, // sender address
             to: email, // list of receivers
             subject, // Subject line
             text: "Este es un email para confirmar identidad.", // plain text body

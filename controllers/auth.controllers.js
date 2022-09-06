@@ -1,13 +1,11 @@
 const {response} = require ('express');
 const { v4: uuidv4 } = require('uuid');
 const bcryptjs = require ('bcryptjs');
-
+const createSMS = require ('../config/sms')
 
 const UserLogin = require ('../models/user-login');
 const User = require ('../models/user');
 
-const Code = require ('../models/qr.js');
-const Pet = require ('../models/pet.js');
 
 
 const { getToken, getTokenData } = require('../config/jwt.config');
@@ -21,7 +19,7 @@ const signUp = async (req, res=response) => {
     try {
 
         // Obtener la data del usuario: name, email
-        const { email, password, codeQR } = req.body;
+        const { email, password } = req.body;
         console.log(req.body);
 
         // Verificar que el usuario no exista
@@ -45,30 +43,26 @@ const signUp = async (req, res=response) => {
     }
     
         // Generar el código
-        const code = uuidv4();
+        const code = Math.floor((Math.random()*(999999-123456 + 1))+123456);
   
 
         // Crear un nuevo usuario
-        userLogin = new UserLogin({ password, email, code, codeQR });
+        userLogin = new UserLogin({ password, email, code });
          
         
         // encriptar contraseña
         const salt = bcryptjs.genSaltSync();
         userLogin.password = bcryptjs.hashSync(password,salt);
 
-        // Generar token
-        const token = getToken({email, code });
-
-        // Obtener un template - es el cuerpo del email q se envia al usuario
-        const template = getTemplate(token);
-
-        // Enviar el email
-        await sendEmail(email, 'Este es un email de prueba', template);
+       
+        createSMS("+542302690139",code);
+            
+          
         await userLogin.save();
 
         res.status(200).json({
             success: true,
-            msg: 'Por favor verifica tu correo, te enviamos un email de verificación'
+            msg: 'Por favor verifica tu telefono, te enviamos un mensaje de texto de verificación'
         });
 
     } catch (error) {
@@ -85,7 +79,7 @@ const confirm = async (req, res) => {
 
        // Obtener el token
   
-       const { token } = req.params;
+       const { token } = req.body;
 
         
        
@@ -106,7 +100,7 @@ const confirm = async (req, res) => {
        
        
        //busco si existe el codigo en BD
-       const codeInDB = await Code.findById(user.codeQR);
+       const codeInDB = await Code.findById(use);
          
             console.log(codeInDB);
      
@@ -164,14 +158,13 @@ const confirm = async (req, res) => {
 
 const login = async (req, res=response)=>{
 
-    const {email, password} = req.body;
+    const {email, password, remember} = req.body;
     console.log(req.body);
 
    try {
        
-        const user = await User.findOne({email}) ;
-
-        const userNoAccount = await UserLogin.findOne({email});
+        const user = await UserLogin.findOne({email}) ;
+ 
         
         if(user){
             const checkPassword = bcryptjs.compareSync(password, user.password)
@@ -182,38 +175,21 @@ const login = async (req, res=response)=>{
                 })
             }
         }
-        if(userNoAccount){
-            const checkPasswordNoAcc= bcryptjs.compareSync(password, userNoAccount.password)
-            if(!checkPasswordNoAcc) {
-                return res.status(400).json({
-                    success: false,
-                    msg: 'Password incorrecto...'
-                })
-            }
-     } 
-
-        if(!user && userNoAccount) {
-            return res.json({
-                success: false,
-                msg: 'Falta crear Usuario'
-            });
-        }
-
+        
         if(!user) {
             return res.status(400).json({
                 success: false,
                 msg: 'Usuario no registrado, dirijase a Registro'
             });
         }
-
+        
         if(user.emailVerified == false) {
             return res.status(400).json({
                 success: false,
                 msg: 'Usuario en proceso de verificacion, revise su Email'
             })
         }
-
-        // const token = await setJWT(user.id);
+        
 
          res.status(200).json({
             success: true,

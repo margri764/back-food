@@ -1,0 +1,37 @@
+
+const User = require ('../models/user');
+const UserLogin = require ('../models/user-login');
+
+const checkEmail= async (req, res = response) => {
+    
+    
+    
+    try {
+        const q= req.query.q;
+        console.log(q);
+        const user = await UserLogin.findOne({email: q} || null);
+        
+        if( user == null){
+            res.status(200).json([]);
+
+        }else{    
+        res.status(200).json({
+            success:true,
+            msg:"El Usuario ya existe en Base de Datos"
+        })
+       }
+        
+    } catch (error) {
+
+        res.status(404).json({
+            success:false,
+            msg:"Ups! algo salió mal, reintentá mas tarde"
+        })
+        
+    }
+
+}
+
+
+
+module.exports={checkEmail}

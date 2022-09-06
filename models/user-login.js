@@ -18,12 +18,6 @@ const UserLoginSchema = Schema({
        required: true
    },
 
-   codeQR:{
-        type: Schema.Types.ObjectId,
-        ref: "Code",
-        required: true
-    },
-
     stateAccount :{
         type: Boolean,
         default: true
@@ -32,8 +26,10 @@ const UserLoginSchema = Schema({
     state: {
          type: String,
          required: true,
-         default: 'UNVERIFIED' }
-    
+         default: 'UNVERIFIED'
+    },
+
+ 
   
 });
 

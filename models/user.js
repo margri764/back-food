@@ -59,13 +59,6 @@ const UserSchema = Schema({
         required: true
      },
 
-    code:[
-        {
-        type: Schema.Types.ObjectId,
-        ref: "Code",
-        required: true
-        }
-    ], 
     }, { timestamps:true}
     );
 
