@@ -6,7 +6,7 @@ const { confirm, signUp, login} = require('../controllers/auth.controllers');
 
 
 
-router.get('/validate-email/:token',[
+router.post('/validate-code',[
 ],confirm); 
 
 router.post('/signup',[

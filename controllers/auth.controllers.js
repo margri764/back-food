@@ -8,8 +8,7 @@ const User = require ('../models/user');
 
 
 
-const { getToken, getTokenData } = require('../config/jwt.config');
-const { sendEmail, getTemplate } = require('../config/mail.config');
+
 
 
 
@@ -55,7 +54,8 @@ const signUp = async (req, res=response) => {
         userLogin.password = bcryptjs.hashSync(password,salt);
 
        
-        createSMS("+542302690139",code);
+        //envio los datos para q se envie el sms de confirmacion
+        // createSMS("+542302690139",code);
             
           
         await userLogin.save();
@@ -75,53 +75,29 @@ const signUp = async (req, res=response) => {
 }
 
 const confirm = async (req, res) => {
+    
     try {
 
        // Obtener el token
-  
-       const { token } = req.body;
-
-        
        
-       // Verificar la data
-       const data = await getTokenData(token);
+       const { email, code } = req.body;
 
-       if(data === null) {
-            return res.json({
-                success: false,
-                msg: 'Error al obtener data'
-            });
-       }
-
-       const { email, code } = data.data;
-
-       // Verificar existencia del usuario
+       console.log(req.body);
+       
+              
+       // Verificar existencia del usuario a confirmar
        const user = await UserLogin.findOne({ email })||null ;
        
-       
-       //busco si existe el codigo en BD
-       const codeInDB = await Code.findById(use);
-         
-            console.log(codeInDB);
-     
-        //response NO EXISTE
-        if(codeInDB == null){
-            return res.status(400).json({
-                success: false,
-                msg: 'Codigo QR no existe'
-            });
-        }
-    
-        let pathImage= codeInDB;
-    
- 
+       // Verificar la data
 
-       if(user===null ) {
-            return res.status(400).json({
+       if(user === null) {
+            return res.json({
                 success: false,
-                msg: 'Usuario no existe'
+                msg: 'No existe un usuario con ese email'
             });
        }
+
+              
 
     //    Verificar el código
        if(code !== user.code) {
@@ -129,20 +105,22 @@ const confirm = async (req, res) => {
             success: false,
             msg: 'Error en la confirmacion, vuelva a intentar'
         });
-       }
+       };
 
-       // Actualizar usuario
-       user.state = 'VERIFIED';
-       await user.save();
 
+        // Actualizar usuario
+        user.state = 'VERIFIED';
+        await user.save();
        
 
-       res.status(200).json({
-           success:true,
-           msg:'Cuenta verificada, te redirecionaremos para que cargues los datos de tu mascota',
-           user,
-           pathImage
-       })
+       if(code == user.code) {
+        return res.status(200).json({
+            success: true,
+            msg: 'Usuario autenticado correctamente'
+        });
+    
+       }
+
 
  
         
