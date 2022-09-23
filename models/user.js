@@ -8,32 +8,32 @@ const UserSchema = Schema({
 
     firstName:  {
         type:String,
-        required: [true, 'el nombre es obligatorio']
+        default:''
     },
     
     lastName:  {
         type:String,
-        required: [true, 'el apellido es obligatorio']
+        default:''
     },
 
     password: {
         type: String,
-        required: 'la contraseña es obligatoria',
+        default:''
     },
 
     email: {
         type: String,
-        required: [true,'el correo es obligatorio'],
-        // unique: true,
+        default:'',
+        unique: true,
     },
-    emailVerified: {
-        type: Boolean,
-        default: false
-    },
+    // emailVerified: {
+    //     type: Boolean,
+    //     default: false
+    // },
 
     phone:{
         type: Number,
-        required: true
+        default:''
     },
 
     role: {

@@ -26,7 +26,7 @@ const signUp = async (req, res=response) => {
         let userLogin = await UserLogin.findOne({ email }) || null;
 
        if(userLogin != null){
-        if(userLogin.state=='VERIFIED'  ) {
+        if(userLogin.state =='VERIFIED'  ) {
  
             return res.status(202).json({
                 success: true,
@@ -62,7 +62,8 @@ const signUp = async (req, res=response) => {
 
         res.status(200).json({
             success: true,
-            msg: 'Por favor verifica tu telefono, te enviamos un mensaje de texto de verificación'
+            msg: 'Por favor verifica tu telefono, te enviamos un mensaje de texto con un código para validar.',
+            userLogin
         });
 
     } catch (error) {
@@ -86,11 +87,11 @@ const confirm = async (req, res) => {
        
               
        // Verificar existencia del usuario a confirmar
-       const user = await UserLogin.findOne({ email })||null ;
+       const userToConfirm = await UserLogin.findOne({ email })||null ;
        
        // Verificar la data
 
-       if(user === null) {
+       if(userToConfirm === null) {
             return res.json({
                 success: false,
                 msg: 'No existe un usuario con ese email'
@@ -100,23 +101,36 @@ const confirm = async (req, res) => {
               
 
     //    Verificar el código
-       if(code !== user.code) {
+       if(code !== userToConfirm.code) {
         return res.status(400).json({
             success: false,
             msg: 'Error en la confirmacion, vuelva a intentar'
         });
        };
 
+       const newUser = {
+            email : userToConfirm.email,
+            password : userToConfirm.password,
+            user_login : userToConfirm._id
+
+       }
+
+    //    grabo el nuevo usuario confirmado
+       const user = new User (newUser);
+       await user.save();
 
         // Actualizar usuario
-        user.state = 'VERIFIED';
-        await user.save();
+        userToConfirm.state = 'VERIFIED';
+        await userToConfirm.save();
+
+
        
 
-       if(code == user.code) {
+       if(code == userToConfirm.code) {
         return res.status(200).json({
             success: true,
-            msg: 'Usuario autenticado correctamente'
+            msg: 'Usuario autenticado correctamente',
+            user
         });
     
        }
@@ -137,12 +151,10 @@ const confirm = async (req, res) => {
 const login = async (req, res=response)=>{
 
     const {email, password, remember} = req.body;
-    console.log(req.body);
 
-   try {
-       
+    try {
+        
         const user = await UserLogin.findOne({email}) ;
- 
         
         if(user){
             const checkPassword = bcryptjs.compareSync(password, user.password)
@@ -161,7 +173,7 @@ const login = async (req, res=response)=>{
             });
         }
         
-        if(user.emailVerified == false) {
+        if(user.state == false) {
             return res.status(400).json({
                 success: false,
                 msg: 'Usuario en proceso de verificacion, revise su Email'

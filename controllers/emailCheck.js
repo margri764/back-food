@@ -2,16 +2,13 @@
 const User = require ('../models/user');
 const UserLogin = require ('../models/user-login');
 
-const checkEmail= async (req, res = response) => {
-    
-    
+const checkEmailRegister= async (req, res = response) => {
     
     try {
         const q= req.query.q;
-        console.log(q);
         const user = await UserLogin.findOne({email: q} || null);
         
-        if( user == null){
+        if( user == null ){
             res.status(200).json([]);
 
         }else{    
@@ -34,4 +31,4 @@ const checkEmail= async (req, res = response) => {
 
 
 
-module.exports={checkEmail}
+module.exports={checkEmailRegister}
