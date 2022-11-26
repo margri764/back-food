@@ -166,16 +166,11 @@ const confirm = async (req, res) => {
         password : userToConfirm.password,
         phone: userToConfirm.phone,
         user_login : userToConfirm._id,
-        
-
-   }
+        }
 
         //grabo el nuevo usuario confirmado
         const user = new User (newUser);
         await user.save();
-
-
-
 
         return res.status(200).json({
             success: true,
@@ -184,16 +179,6 @@ const confirm = async (req, res) => {
         });
     
        }
-
-
-    
-
-
-       
-
-
- 
-        
     } catch (error) {
         console.log(error);
         return res.json({
@@ -211,8 +196,18 @@ const login = async (req, res=response)=>{
     
     try {
         
-        const userLogin = await UserSignUp.findOne({email}) ;
-        console.log(userLogin);
+        const userLogin = await User.findOne({email});
+
+        // userVerified solo es para ver si ya esta verificado
+        const userVerified = await UserSignUp.findOne({email});
+
+        if(userVerified.state === "UNVERIFIED") {
+            return res.status(400).json({
+                success: false,
+                msg: 'Usuario en proceso de verificacion, revise su Email'
+            })
+        }
+        
         
         if(userLogin){
             const checkPassword = bcryptjs.compareSync(password, userLogin.password)
@@ -231,17 +226,11 @@ const login = async (req, res=response)=>{
             });
         }
         
-        if(userLogin.state === "UNVERIFIED") {
-            return res.status(400).json({
-                success: false,
-                msg: 'Usuario en proceso de verificacion, revise su Email'
-            })
-        }
-        
+
         /* si llego hasta aca es xq el usuario login ya esta creado y entonces el usuario tambien ya se creo aunque
         me falten datos, como la app tiene delivery tengo mas instancias para recolectar datos*/ 
 
-        const userAccount = await User.findOne({user_login:user._id});
+        const userAccount = await User.findOne({user_login:userVerified._id});
 
          res.status(200).json({
             success: true,
