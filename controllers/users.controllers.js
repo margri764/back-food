@@ -53,6 +53,7 @@ const userPost= async (req, res = response) => {
                 })
             }
 
+            //si llego hasta axa xq es un usuario autenticado y verificado poer eso mando emailVerified
              userVerified={
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,

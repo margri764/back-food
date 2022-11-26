@@ -2,7 +2,7 @@ const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
 
-const { confirm, signUp, login} = require('../controllers/auth.controllers');
+const { confirm, signUp, login, phone} = require('../controllers/auth.controllers');
 
 
 
@@ -11,6 +11,9 @@ router.post('/validate-code',[
 
 router.post('/signup',[
 ],signUp);
+
+router.post('/signup/phone',[
+],phone);
 
 router.post('/login',[
 ],login);

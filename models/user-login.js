@@ -1,11 +1,26 @@
 const {Schema, model} = require ('mongoose');
 
-const UserLoginSchema = Schema({
+const userSignUpSchema = Schema({
 
+    firstName:  {
+        type:String,
+        default:''
+    },
+    
+    lastName:  {
+        type:String,
+        default:''
+    },
+    
     email: {
          type: String, 
          required: true,
          unique: true 
+    },
+    
+    phone:{
+        type: String,
+        default:''
     },
 
     password:{
@@ -29,11 +44,11 @@ const UserLoginSchema = Schema({
          default: 'UNVERIFIED'
     },
 
- 
+}, { timestamps:true}
+);
   
-});
 
-UserLoginSchema.methods.toJSON = function(){
+userSignUpSchema.methods.toJSON = function(){
     const {__v,...rest} = this.toObject();
     // const {__v,password,_id,...usuario} = this.toObject();
     // usuario.uid= _id;
@@ -41,4 +56,4 @@ UserLoginSchema.methods.toJSON = function(){
 }
 
 
-module.exports= model('UserLogin', UserLoginSchema);
+module.exports= model('UserSignUp', userSignUpSchema);

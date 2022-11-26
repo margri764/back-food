@@ -32,8 +32,13 @@ const UserSchema = Schema({
     // },
 
     phone:{
-        type: Number,
+        type: String,
         default:''
+    },
+
+    address :{
+        type: String,
+        default: ''
     },
 
     role: {

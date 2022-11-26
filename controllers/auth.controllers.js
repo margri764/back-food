@@ -3,13 +3,47 @@ const { v4: uuidv4 } = require('uuid');
 const bcryptjs = require ('bcryptjs');
 const createSMS = require ('../config/sms')
 
-const UserLogin = require ('../models/user-login');
+const UserSignUp = require ('../models/user-login');
 const User = require ('../models/user');
 
 
 
 
+const phone =  async (req, res=response) => {
 
+  try {
+
+const { _id, phone }  = req.body;  
+
+const userSignUp = await UserSignUp.findById(_id)||null ;
+
+if(userSignUp != null){
+
+//envio los datos para q se envie el sms de confirmacion
+createSMS(phone, userSignUp.code);
+
+// grabo el telefono en el usuario signUp
+userSignUp.phone = phone;
+await userSignUp.save();
+    
+}else{
+    return
+}
+
+res.status(200).json({
+    success: true,
+    msg: 'Por favor verifica tu telefono, te enviamos un mensaje de texto con un código para validar.',
+});
+   
+
+} catch (error) {
+    console.log(error);
+    return res.status(500).json({
+        success: false,
+        msg: 'Ups algo salió mal, hable con el administrador'
+    });
+}
+}
 
 
 
@@ -18,22 +52,24 @@ const signUp = async (req, res=response) => {
     try {
 
         // Obtener la data del usuario: name, email
-        const { email, password } = req.body;
-        console.log(req.body);
+        const { email, password, ...rest} = req.body;
+
+        console.log('signUp',req.body);
+      
 
         // Verificar que el usuario no exista
         //dice que busque un email y puede ser que este en null, dice "buscalo o sino devolve null"
-        let userLogin = await UserLogin.findOne({ email }) || null;
+        let userSignUp = await UserSignUp.findOne({ email }) || null;
 
-       if(userLogin != null){
-        if(userLogin.state =='VERIFIED'  ) {
+       if(userSignUp != null){
+        if(userSignUp.state =='VERIFIED'  ) {
  
             return res.status(202).json({
                 success: true,
                 msg: 'Usuario verificado, dirijase al Login'
             });
         }
-        if( userLogin.state=='UNVERIFIED'){
+        if( userSignUp.state=='UNVERIFIED'){
             return res.status(401).json({
                 success: false,
                 msg: 'Usuario en proceso de verificacion, consulte su email'
@@ -43,28 +79,27 @@ const signUp = async (req, res=response) => {
     
         // Generar el código
         const code = Math.floor((Math.random()*(999999-123456 + 1))+123456);
-  
+       
+ 
 
         // Crear un nuevo usuario
-        userLogin = new UserLogin({ password, email, code });
+        userSignUp = new UserSignUp({email, password, code, ...rest});
          
         
         // encriptar contraseña
         const salt = bcryptjs.genSaltSync();
-        userLogin.password = bcryptjs.hashSync(password,salt);
+        userSignUp.password = bcryptjs.hashSync(password,salt);
 
+    await userSignUp.save();
        
-        //envio los datos para q se envie el sms de confirmacion
-        // createSMS("+542302690139",code);
-            
-          
-        await userLogin.save();
+    res.status(200).json({
+        success: true,
+        msg: 'Cuenta creada, falta validar',
+        userSignUp
+    });
+    
+    
 
-        res.status(200).json({
-            success: true,
-            msg: 'Por favor verifica tu telefono, te enviamos un mensaje de texto con un código para validar.',
-            userLogin
-        });
 
     } catch (error) {
         console.log(error);
@@ -83,11 +118,11 @@ const confirm = async (req, res) => {
        
        const { email, code } = req.body;
 
-       console.log(req.body);
+    //    console.log(req.body);
        
               
        // Verificar existencia del usuario a confirmar
-       const userToConfirm = await UserLogin.findOne({ email })||null ;
+       const userToConfirm = await UserSignUp.findOne({ email })||null ;
        
        // Verificar la data
 
@@ -108,25 +143,40 @@ const confirm = async (req, res) => {
         });
        };
 
-       const newUser = {
-            email : userToConfirm.email,
-            password : userToConfirm.password,
-            user_login : userToConfirm._id
+       if(code == userToConfirm.code) {
 
-       }
-
-    //    grabo el nuevo usuario confirmado
-       const user = new User (newUser);
-       await user.save();
-
-        // Actualizar usuario
+        if(userToConfirm.state == 'VERIFIED'){
+        return res.status(400).json({
+            success: false,
+            msg: 'Usuario verificado, dirijase al login'
+        });
+        }
+        
+   // Actualizo el usario signUp
         userToConfirm.state = 'VERIFIED';
         await userToConfirm.save();
 
+        /*    asigno los datos del usuario login y de esa manera creo el nuevo Usuario (me van a faltar datos q en algun 
+    momento se les piden al usuario desde el FrontlineApi, por ejemplo para delivery) */
+    
+       const newUser = {
+        firstName : userToConfirm.firstName,
+        lastName : userToConfirm.lastName,
+        email : userToConfirm.email,
+        password : userToConfirm.password,
+        phone: userToConfirm.phone,
+        user_login : userToConfirm._id,
+        
 
-       
+   }
 
-       if(code == userToConfirm.code) {
+        //grabo el nuevo usuario confirmado
+        const user = new User (newUser);
+        await user.save();
+
+
+
+
         return res.status(200).json({
             success: true,
             msg: 'Usuario autenticado correctamente',
@@ -134,6 +184,12 @@ const confirm = async (req, res) => {
         });
     
        }
+
+
+    
+
+
+       
 
 
  
@@ -150,14 +206,16 @@ const confirm = async (req, res) => {
 
 const login = async (req, res=response)=>{
 
-    const {email, password, remember} = req.body;
+    const {email, password} = req.body;
 
+    
     try {
         
-        const user = await UserLogin.findOne({email}) ;
+        const userLogin = await UserSignUp.findOne({email}) ;
+        console.log(userLogin);
         
-        if(user){
-            const checkPassword = bcryptjs.compareSync(password, user.password)
+        if(userLogin){
+            const checkPassword = bcryptjs.compareSync(password, userLogin.password)
             if(!checkPassword) {
                 return res.status(400).json({
                     success: false,
@@ -166,24 +224,28 @@ const login = async (req, res=response)=>{
             }
         }
         
-        if(!user) {
+        if(!userLogin) {
             return res.status(400).json({
                 success: false,
                 msg: 'Usuario no registrado, dirijase a Registro'
             });
         }
         
-        if(user.state == false) {
+        if(userLogin.state === "UNVERIFIED") {
             return res.status(400).json({
                 success: false,
                 msg: 'Usuario en proceso de verificacion, revise su Email'
             })
         }
         
+        /* si llego hasta aca es xq el usuario login ya esta creado y entonces el usuario tambien ya se creo aunque
+        me falten datos, como la app tiene delivery tengo mas instancias para recolectar datos*/ 
+
+        const userAccount = await User.findOne({user_login:user._id});
 
          res.status(200).json({
             success: true,
-            user
+            userAccount
             })
 
 
@@ -217,6 +279,7 @@ module.exports={
     login, 
     signUp,
     confirm,
+    phone,
     revalidateJWToken
 }
 
