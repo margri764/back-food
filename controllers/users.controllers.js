@@ -1,7 +1,7 @@
 const {response} = require ('express');
 
 const User = require ('../models/user');
-const UserLogin = require ('../models/user-login');
+const UserSignUp = require ('../models/user-login');
 
 
 
@@ -22,6 +22,31 @@ const userGet = async (req,res=response)=>{
     });
 }
 
+const getUserById = async (req,res=response)=>{
+
+    const { id }  = req.params;
+
+    
+    console.log(id);
+
+    //busco al usuario de la req por id
+    const userId = await User.findById(id);
+   
+    if( !userId){
+        return res.status(400).json({
+            success: false,
+            msg: 'Usuario no encontrado'
+        });
+    }
+   
+
+    res.status(200).json({ 
+        success : true,
+        userId
+
+    });
+}
+
 const userPost= async (req, res = response) => {
     
  
@@ -29,7 +54,7 @@ const userPost= async (req, res = response) => {
     let userVerified;
     
     
-            const user_loginDB = await UserLogin.findOne({email: req.body.email});
+            const user_loginDB = await UserSignUp.findOne({email: req.body.email});
             const user = await User.findOne({email: req.body.email} || null);
 
             if( user !== null){
@@ -129,5 +154,6 @@ module.exports={
     userGet,
     userPost,
     userPut,
-    usersDelete
+    usersDelete,
+    getUserById
 }

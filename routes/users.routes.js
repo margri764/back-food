@@ -2,7 +2,7 @@
 const { Router } = require ('express');
 const {check} = require ('express-validator');
 const { checkEmailRegister } = require('../controllers/emailCheck');
-const { userPost, userPut } = require('../controllers/users.controllers');
+const { userPost, userPut, getUserById } = require('../controllers/users.controllers');
 const router = Router();
 
 
@@ -17,6 +17,9 @@ router.get('/checkemail',[
 
 router.put('/:id',[
 ],userPut);
+
+router.get('/:id',[
+],getUserById);
 
 
 module.exports= router;
