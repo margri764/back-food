@@ -1,6 +1,6 @@
 const {response} = require ('express');
 const { v4: uuidv4 } = require('uuid');
-const bcryptjs = require ('bcryptjs');
+
 const createSMS = require ('../config/sms')
 
 const UserSignUp = require ('../models/user-login');
@@ -15,19 +15,26 @@ const phone =  async (req, res=response) => {
 
 const { _id, phone }  = req.body;  
 
-const userSignUp = await UserSignUp.findById(_id)||null ;
+console.log(_id, phone);
 
-if(userSignUp != null){
+const user = await UserSignUp.findById(_id)||null ;
+
+if(user != null){
 
 //envio los datos para q se envie el sms de confirmacion
-createSMS(phone, userSignUp.code);
+createSMS(phone, user.code);
 
 // grabo el telefono en el usuario signUp
-userSignUp.phone = phone;
-await userSignUp.save();
+user.phone = phone;
+await user.save();
     
 }else{
-    return
+
+    return res.status(400).json({
+        success: false,
+        msg: 'No se encontro Usuario en proceso de verificacion'
+    });
+
 }
 
 res.status(200).json({
@@ -54,22 +61,22 @@ const signUp = async (req, res=response) => {
         // Obtener la data del usuario: name, email
         const { email, password, ...rest} = req.body;
 
-        console.log('signUp',req.body);
+        // console.log('signUp',req.body);
       
 
         // Verificar que el usuario no exista
         //dice que busque un email y puede ser que este en null, dice "buscalo o sino devolve null"
-        let userSignUp = await UserSignUp.findOne({ email }) || null;
+        let user = await User.findOne({ email }) || null;
 
-       if(userSignUp != null){
-        if(userSignUp.state =='VERIFIED'  ) {
+       if(user != null){
+        if(user.state =='VERIFIED'  ) {
  
             return res.status(202).json({
                 success: true,
                 msg: 'Usuario verificado, dirijase al Login'
             });
         }
-        if( userSignUp.state=='UNVERIFIED'){
+        if( user.state=='UNVERIFIED'){
             return res.status(401).json({
                 success: false,
                 msg: 'Usuario en proceso de verificacion, consulte su email'
@@ -83,19 +90,18 @@ const signUp = async (req, res=response) => {
  
 
         // Crear un nuevo usuario
-        userSignUp = new UserSignUp({email, password, code, ...rest});
+        user = new UserSignUp({email, password, code, ...rest});
          
         
         // encriptar contraseña
         const salt = bcryptjs.genSaltSync();
-        userSignUp.password = bcryptjs.hashSync(password,salt);
+        user.password = bcryptjs.hashSync(password,salt);
 
-    await userSignUp.save();
+    await user.save();
        
     res.status(200).json({
         success: true,
-        msg: 'Cuenta creada, falta validar',
-        userSignUp
+        user
     });
     
     
@@ -118,7 +124,7 @@ const confirm = async (req, res) => {
        
        const { email, code } = req.body;
 
-    //    console.log(req.body);
+       console.log(req.body);
        
               
        // Verificar existencia del usuario a confirmar
@@ -145,12 +151,13 @@ const confirm = async (req, res) => {
 
        if(code == userToConfirm.code) {
 
-        if(userToConfirm.state == 'VERIFIED'){
-        return res.status(400).json({
-            success: false,
-            msg: 'Usuario verificado, dirijase al login'
-        });
-        }
+        // VOLVER A PONER ESTO!!!!!!!!!!!!!!!!!!
+        // if(userToConfirm.state == 'VERIFIED'){
+        // return res.status(400).json({
+        //     success: false,
+        //     msg: 'Usuario verificado, dirijase al login'
+        // });
+        // }
         
    // Actualizo el usario signUp
         userToConfirm.state = 'VERIFIED';
@@ -192,11 +199,11 @@ const confirm = async (req, res) => {
 const login = async (req, res=response)=>{
 
     const {email, password} = req.body;
-
+    
     
     try {
         
-        const userLogin = await User.findOne({email});
+       let userLogin = await User.findOne({email});
 
         // userVerified solo es para ver si ya esta verificado
         const userVerified = await UserSignUp.findOne({email});
@@ -230,11 +237,11 @@ const login = async (req, res=response)=>{
         /* si llego hasta aca es xq el usuario login ya esta creado y entonces el usuario tambien ya se creo aunque
         me falten datos, como la app tiene delivery tengo mas instancias para recolectar datos*/ 
 
-        const userAccount = await User.findOne({user_login:userVerified._id});
+        const user = await User.findOne({user_login:userVerified._id});
 
          res.status(200).json({
             success: true,
-            userAccount
+            user
             })
 
 

@@ -1,10 +1,10 @@
+
+
 const {Schema, model} = require ('mongoose');
 
 
 
-
-
-const UserSchema = Schema({
+const EmployeeSchema = Schema({
 
     firstName:  {
         type:String,
@@ -30,15 +30,9 @@ const UserSchema = Schema({
     phone:{
         type: String,
         default:'',
-        unique: true,
     },
 
-    addressDelivery :{
-        type: Object,
-        default: []
-    },
-
-    addressFavorite :{
+    address :{
         type: String,
         default: ''
     },
@@ -55,26 +49,15 @@ const UserSchema = Schema({
         default: true
     },
 
-    google: {
-        type: Boolean,
-        default: false
-    },
-
-    user_login:{
-        type: Schema.Types.ObjectId,
-        ref: "UserLogin",
-        required: true
-     },
-
     }, { timestamps:true}
     );
 
-UserSchema.methods.toJSON = function(){
-    const {__v,password,...user} = this.toObject();
+    EmployeeSchema.methods.toJSON = function(){
+    const {__v,password, ...employee} = this.toObject();
     // const {__v,password,_id,...usuario} = this.toObject();
     // usuario.uid= _id;
-    return user; 
+    return employee; 
 }
 
 
-module.exports= model('User', UserSchema);
+module.exports= model('Employee', EmployeeSchema);

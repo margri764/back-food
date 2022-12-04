@@ -33,6 +33,13 @@ class Server{
     routes(){
         this.app.use('/api/auth', require('../routes/auth.routes'));
         this.app.use('/api/users', require('../routes/users.routes'));
+        this.app.use('/api/orders', require('../routes/orders.routes'));
+        this.app.use('/api/orderPurchase', require('../routes/purchaseOrders.routes'));
+        this.app.use('/api/employee', require('../routes/employee.routes'));
+        this.app.use('/api/product', require('../routes/product.routes'));
+
+
+
         
         // this.app.get('*', (req, res) => { 
         //     res.sendFile( path.resolve( __dirname,'../public/index.html') )

@@ -1,7 +1,45 @@
-const {response} = require ('express');
 
+
+const {response} = require ('express');
+const bcryptjs = require ('bcryptjs');
 const User = require ('../models/user');
-const UserSignUp = require ('../models/user-login');
+const Employee  = require ('../models/employee');
+
+
+
+const userPost= async (req, res = response) => {
+    
+ const { password, email, ...rest} = req.body;
+ console.log(password);
+    
+    
+let employee = await Employee.findOne({email: email}) || null;
+
+if( employee !== null){
+    res.status(400).json({
+        success:false,
+        msg:"El empleado ya existe en Base de Datos"
+    })
+}
+
+
+
+ employee = new Employee({ password, email, ...rest});
+
+// encriptar contraseña
+const salt = bcryptjs.genSaltSync();
+employee.password = bcryptjs.hashSync(password,salt);
+
+
+await employee.save();
+
+res.status(200).json({
+        success: true,
+        employee
+    })
+
+}
+
 
 
 
@@ -15,6 +53,17 @@ const userGet = async (req,res=response)=>{
             .limit( Number (limit))
     ])  
    
+    // NO SE PUEDE LLAMAR UN EMPLEADO QUE ESTA BLOQUEADO O ELIMINADO
+
+    // if(employee !== null){
+
+    //     if( employee.stateAccount == false){
+    //         res.status(400).json({
+    //             success:false,
+    //             msg:"Empleado eliminado o bloqueado"
+    //         })
+    //     }
+    // }
 
     res.json({ 
       usuarios
@@ -47,58 +96,6 @@ const getUserById = async (req,res=response)=>{
     });
 }
 
-const userPost= async (req, res = response) => {
-    
-let userVerified;
-
-const user_loginDB = await UserSignUp.findOne({email: req.body.email});
-const user = await User.findOne({email: req.body.email} || null);
-
-if( user !== null){
-    res.status(400).json({
-        success:false,
-        msg:"El Usuario ya existe en Base de Datos"
-    })
-}
-
-if( user_loginDB==null){
-    res.status(400).json({
-        success:false,
-        msg:"No existe un usuario logeado"
-    })
-}
-
-if(user_loginDB.stateAccount == false || user_loginDB == "UNVERIFIED") {
-    res.status(400).json({
-        success:false,
-        msg:"Usuario eliminado o sin verificar email, Hable con el admninistrador"
-    })
-}
-
-//si llego hasta axa xq es un usuario autenticado y verificado poer eso mando emailVerified
-    userVerified={
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    password:req.body.password,
-    email: req.body.email,
-    emailVerified: true,
-    phone: req.body.phone,
-    user_login: user_loginDB._id,
-}
-
-
-const userToSave = new User (userVerified);
-
- 
-    await userToSave.save();
-    res.json({
-        success: true,
-        msg:'Usuario creado correctamente',
-        userToSave
-    })
-
-
-}
 
 const userPut= async (req, res) => {
     
