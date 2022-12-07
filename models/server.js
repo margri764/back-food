@@ -32,11 +32,13 @@ class Server{
 
     routes(){
         this.app.use('/api/auth', require('../routes/auth.routes'));
-        this.app.use('/api/users', require('../routes/users.routes'));
-        this.app.use('/api/orders', require('../routes/orders.routes'));
-        this.app.use('/api/orderPurchase', require('../routes/purchaseOrders.routes'));
+        this.app.use('/api/user', require('../routes/user.routes'));
+        this.app.use('/api/order', require('../routes/order.routes'));
+        this.app.use('/api/orderPurchase', require('../routes/purchaseOrder.routes'));
         this.app.use('/api/employee', require('../routes/employee.routes'));
         this.app.use('/api/product', require('../routes/product.routes'));
+        this.app.use('/api/category', require('../routes/category.routes'));
+
 
 
 

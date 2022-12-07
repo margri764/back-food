@@ -12,7 +12,7 @@ const orderPost= async (req, res = response) => {
      
 
     const { id }  = req.params;
-
+  
     //busco al usuario de la req por id
     const user = await User.findById(id) || null;
 
@@ -23,6 +23,7 @@ const orderPost= async (req, res = response) => {
         })
     }
 
+    
 
     
     const order = {

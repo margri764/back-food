@@ -1,5 +1,8 @@
+
 const {response} = require ('express');
 const { v4: uuidv4 } = require('uuid');
+const bcryptjs = require('bcryptjs');
+
 
 const createSMS = require ('../config/sms')
 
@@ -200,14 +203,14 @@ const login = async (req, res=response)=>{
 
     const {email, password} = req.body;
     
-    
     try {
         
-       let userLogin = await User.findOne({email});
-
+        let user = await User.findOne({email});
+        
+        
         // userVerified solo es para ver si ya esta verificado
         const userVerified = await UserSignUp.findOne({email});
-
+        
         if(userVerified.state === "UNVERIFIED") {
             return res.status(400).json({
                 success: false,
@@ -216,8 +219,8 @@ const login = async (req, res=response)=>{
         }
         
         
-        if(userLogin){
-            const checkPassword = bcryptjs.compareSync(password, userLogin.password)
+        if(user){
+            const checkPassword = bcryptjs.compareSync(password, user.password)
             if(!checkPassword) {
                 return res.status(400).json({
                     success: false,
@@ -225,19 +228,23 @@ const login = async (req, res=response)=>{
                 })
             }
         }
+
         
-        if(!userLogin) {
-            return res.status(400).json({
+        if(!user) {
+            return res.status(401).json({
                 success: false,
                 msg: 'Usuario no registrado, dirijase a Registro'
             });
         }
         
-
+        
         /* si llego hasta aca es xq el usuario login ya esta creado y entonces el usuario tambien ya se creo aunque
         me falten datos, como la app tiene delivery tengo mas instancias para recolectar datos*/ 
-
-        const user = await User.findOne({user_login:userVerified._id});
+        
+        user = await User.findOne({ user_login : userVerified._id});
+        
+        //   pagina 58 de notas-node, era para usar en todos lados de la app al usuario aytenticado
+       req.userAuth = user;
 
          res.status(200).json({
             success: true,
@@ -247,7 +254,8 @@ const login = async (req, res=response)=>{
 
    } catch (error) {
         res.status(500).json({
-            msg: 'hable con el administrador'
+            msg: 'hable con el administrador',
+            success: false
         })       
     }
 }

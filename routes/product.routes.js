@@ -2,8 +2,8 @@
 
 const { Router } = require ('express');
 const {check} = require ('express-validator');
-const router = Router();
 const { postProduct } = require('../controllers/product.controllers');
+const router = Router();
 
 
 
