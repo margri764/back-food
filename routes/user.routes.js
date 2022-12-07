@@ -3,7 +3,7 @@ const { Router } = require ('express');
 const {check} = require ('express-validator');
 const { userPost, userPut, getUserById, usersDelete} = require('../controllers/user.controllers');
 const { checkEmailRegister } = require ('../controllers/emailCheck')
-const { checkFields, multiRole } = require('../middlewares');
+const { checkFields, multiRole, checkToken } = require('../middlewares');
 const { isRoleValid, checkEmail, checkId } = require('../helpers/db-validators');
 const role = require('../models/role');
 const router = Router();
@@ -35,9 +35,10 @@ router.put('/:id',[
 router.get('/:id',[
 ],getUserById);
 
+//el checkToken proteje esta ruta con los JWT para q no sea publica 
 router.delete('/:id',
 [
-    // checkToken,
+    checkToken,
     multiRole ('ADMIN_ROLE','USER_ROLE',''),
     check('id','No es un id valido de mongoDB').isMongoId(),
     check('id').custom( checkId ),

@@ -10,15 +10,15 @@ const Employee = require('../models/employee');
 
 
 
-const postProduct =  async (req, res = response) => {
+const createProduct =  async (req, res = response) => {
     
      
 
     const { id }  = req.params;
     const { name, ...rest } = req.body
 
-    console.log(id);
-    console.log(req.body);
+    // console.log(id);
+    // console.log(req.body);
 
     //busco al usuario de la req por id
     let product = await Product.findById(id) || null;
@@ -70,6 +70,6 @@ const postProduct =  async (req, res = response) => {
 
 
 module.exports={
-    postProduct,
+    createProduct,
 
 }

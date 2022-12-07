@@ -1,11 +1,8 @@
 
 const {response} = require ('express');
-const { v4: uuidv4 } = require('uuid');
 const bcryptjs = require('bcryptjs');
-
-
+const { JWTGenerator } = require('../helpers/jwt-generator');
 const createSMS = require ('../config/sms')
-
 const UserSignUp = require ('../models/user-login');
 const User = require ('../models/user');
 
@@ -18,7 +15,7 @@ const phone =  async (req, res=response) => {
 
 const { _id, phone }  = req.body;  
 
-console.log(_id, phone);
+// console.log(_id, phone);
 
 const user = await UserSignUp.findById(_id)||null ;
 
@@ -244,10 +241,13 @@ const login = async (req, res=response)=>{
         user = await User.findOne({ user_login : userVerified._id});
         
         //   pagina 58 de notas-node, era para usar en todos lados de la app al usuario aytenticado
-       req.userAuth = user;
+    //    req.userAuth = user;
+
+    const token = await JWTGenerator(user._id);
 
          res.status(200).json({
             success: true,
+            token,
             user
             })
 

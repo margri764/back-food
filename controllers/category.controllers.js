@@ -6,7 +6,9 @@ const Category = require ('../models/category');
 
 const createCategory =  async (req, res) => { 
 
-    const name= req.body.name.toUpperCase();  
+    const name= req.body.name.toUpperCase(); 
+    
+    console.log(name);
     
     const categoryDB = await Category.findOne({name});
     if(categoryDB){

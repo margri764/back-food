@@ -1,16 +1,14 @@
 
 const checkField = require('./check-fields');
-// const checkJwt = require('./check-jwt');
+const checkJwt = require('./check-jwt');
 const checkRole = require('./check-role');
-const checkElId = require('./checkElId')
 // const checkFileUp = require('./chech-file');
 
 
 module.exports={
     ...checkField,
-    // ...checkJwt,
+    ...checkJwt,
     ...checkRole,
-    ...checkElId
     // ...checkFileUp
 }
 

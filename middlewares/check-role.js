@@ -2,13 +2,13 @@
 
 const adminRole= ( req, res, next )=>{
 
-        if(!req.usuarioAuth){
+        if(!req.userAuth){
             return res.status(500).json({
                 msg: 'se intenta verificar el role sin validar el token primero'
             })
         }
 
-        const { role, name } = req.usuarioAuth;
+        const { role, name } = req.userAuth;
         if(role !== 'ADMIN_ROLE'){
             return res.status(401).json({
                 msg: `${name} no es un administrador`
@@ -17,16 +17,17 @@ const adminRole= ( req, res, next )=>{
     next();
 }
 
+
 const multiRole= (...roles) => {
      return (req, res, next) => {
 
-        if(!req.usuarioAuth){
+        if(!req.userAuth){
             return res.status(500).json({
                 msg: 'se intenta verificar el role sin validar el token primero'
             })
         }
 
-        if(!roles.includes(req.usuarioAuth.role)){
+        if(!roles.includes(req.userAuth.role)){
             return res.status(401).json({
                 msg: `el servicio requiere uno de estos roles: ${roles}`
             })
