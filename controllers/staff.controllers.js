@@ -3,19 +3,28 @@
 const {response} = require ('express');
 const bcryptjs = require ('bcryptjs');
 const User = require ('../models/user');
-const Employee  = require ('../models/employee');
+const Staff  = require ('../models/staff');
+const Role  = require ('../models/role');
 
 
 
 const userPost= async (req, res = response) => {
     
- const { password, email, ...rest} = req.body;
- console.log(password);
-    
-    
-let employee = await Employee.findOne({email: email}) || null;
+ const { password, email, role, ...rest} = req.body;
 
-if( employee !== null){
+ const roleValid = await Role.findOne({rol: role}) || null;
+
+ if( roleValid == null){
+    res.status(401).json({
+        success:false,
+        msg: `No existe el rol: ${role}  en Base de Datos`
+    })
+}
+
+    
+let staff = await Staff.findOne({email: email}) || null;
+
+if( staff !== null){
     res.status(400).json({
         success:false,
         msg:"El empleado ya existe en Base de Datos"
@@ -24,18 +33,18 @@ if( employee !== null){
 
 
 
- employee = new Employee({ password, email, ...rest});
+ staff = new Staff({ password, email, role, ...rest});
 
 // encriptar contraseña
 const salt = bcryptjs.genSaltSync();
-employee.password = bcryptjs.hashSync(password,salt);
+staff.password = bcryptjs.hashSync(password,salt);
 
 
-await employee.save();
+await staff.save();
 
 res.status(200).json({
         success: true,
-        employee
+        staff
     })
 
 }
@@ -55,9 +64,9 @@ const userGet = async (req,res=response)=>{
    
     // NO SE PUEDE LLAMAR UN EMPLEADO QUE ESTA BLOQUEADO O ELIMINADO
 
-    // if(employee !== null){
+    // if(staff !== null){
 
-    //     if( employee.stateAccount == false){
+    //     if( staff.stateAccount == false){
     //         res.status(400).json({
     //             success:false,
     //             msg:"Empleado eliminado o bloqueado"

@@ -12,16 +12,11 @@ const PurchaseOrderSchema = Schema({
         required: true
      },
 
-     employee:{
-        type: Schema.Types.ObjectId,
-        ref: "Employee",
-        default : ''
-     },
-
+ 
      products:{
         type: Schema.Types.ObjectId,
         ref: "Products",
-        // required: true
+        required: true
      },
      
      statesOrderPurchase:{

@@ -24,13 +24,14 @@ const userGet = async (req,res=response)=>{
 
 const getUserById = async (req,res=response)=>{
 
-    const { id }  = req.params;
+    // const { id }  = req.params;
+     const userToken = req.userAuth
 
     
-    console.log(id);
+    console.log(userToken);
 
     //busco al usuario de la req por id
-    let user = await User.findById(id);
+    let user = await User.findById(userToken._id);
    
     if( !user){
         return res.status(400).json({
@@ -104,13 +105,13 @@ const userPut= async (req, res) => {
     
 try {
     
-
-    const { id } = req.params;
+    // const { id } = req.params;
     const {...rest } = req.body;
-    // console.log(req.params,req.body);
+    const userToken = req.userAuth
+
     
     //busco al usuario de la req por id
-    let searchUser = await User.findOne({_id : id} ) || null;
+    let searchUser = await User.findOne({_id : userToken._id} ) || null;
     
     if(searchUser !== null){
       

@@ -4,7 +4,7 @@ const {Schema, model} = require ('mongoose');
 
 
 
-const EmployeeSchema = Schema({
+const StaffSchema = Schema({
 
     firstName:  {
         type:String,
@@ -52,12 +52,12 @@ const EmployeeSchema = Schema({
     }, { timestamps:true}
     );
 
-    EmployeeSchema.methods.toJSON = function(){
-    const {__v,password, ...employee} = this.toObject();
+    StaffSchema.methods.toJSON = function(){
+    const {__v,password, ...staff} = this.toObject();
     // const {__v,password,_id,...usuario} = this.toObject();
     // usuario.uid= _id;
-    return employee; 
+    return staff; 
 }
 
 
-module.exports= model('Employee', EmployeeSchema);
+module.exports= model('Staff', StaffSchema);

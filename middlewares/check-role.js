@@ -1,40 +1,67 @@
 
 
+
+
 const adminRole= ( req, res, next )=>{
 
-        if(!req.userAuth){
-            return res.status(500).json({
-                msg: 'se intenta verificar el role sin validar el token primero'
-            })
-        }
+    if(!req.staffAuth){
+        return res.status(500).json({
+            msg: 'se intenta verificar el role sin validar el token primero'
+        })
+    }
 
-        const { role, name } = req.userAuth;
-        if(role !== 'ADMIN_ROLE'){
-            return res.status(401).json({
-                msg: `${name} no es un administrador`
-            });
-        }
-    next();
+    const { role, name } = req.staffAuth;
+    if(role !== 'ADMIN_ROLE'){
+        return res.status(401).json({
+            msg: `${name} no es un administrador`
+        });
+    }
+next();
 }
+
+const superRole= ( req, res, next )=>{
+
+    if(!req.staffAuth){
+        return res.status(500).json({
+            msg: 'se intenta verificar el role sin validar el token primero'
+        })
+    }
+
+    const { role, name } = req.staffAuth;
+    if(role !== 'SUPER_ROLE'){
+        return res.status(401).json({
+            msg: `${name} no es un administrador`
+        });
+    }
+next();
+}
+
+
+
+
 
 
 const multiRole= (...roles) => {
-     return (req, res, next) => {
+ return (req, res, next) => {
 
-        if(!req.userAuth){
-            return res.status(500).json({
-                msg: 'se intenta verificar el role sin validar el token primero'
-            })
-        }
-
-        if(!roles.includes(req.userAuth.role)){
-            return res.status(401).json({
-                msg: `el servicio requiere uno de estos roles: ${roles}`
-            })
-        }
-        next();
+    if(!req.staffAuth){
+        return res.status(500).json({
+            msg: 'se intenta verificar el role sin validar el token primero'
+        })
     }
+
+    if(!roles.includes(req.staffAuth.role)){
+        return res.status(401).json({
+            msg: `el servicio requiere uno de estos roles: ${roles}`
+        })
+    }
+    next();
+}
 
 }
 
-module.exports= { adminRole, multiRole}
+module.exports= { 
+    adminRole,
+    multiRole,
+    superRole
+    }

@@ -24,9 +24,9 @@ const ProductSchema = Schema({
         default : true
     },
 
-    employee : {
+    staff : {
         type: Schema.Types.ObjectId,
-        ref: "Employee",
+        ref: "Staff",
         required: true
     }
 

@@ -11,12 +11,12 @@ const StatesPurchaseOrderSchema = Schema({
 
 statusOrder: {
     type: String,
-    default: 'PENDING',
+    default: 'RECEIVED',
     emun: [ 'PROCESSING','DELIVERY','PICK_UP_ORDER','COMPLETE','DELETE']
 },
 
 // en este estados solo figura la hora en la cual se hizo el pedido en la app 
-    pending:{
+    received:{
         type : String,
         default:''
     },

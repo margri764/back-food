@@ -6,7 +6,7 @@ const Category = require ('../models/category');
 const Product = require('../models/product');
 
 
-const isRoleValid = async (role='USER_ROLE')=>{
+const isRoleValid = async (role='USER_ROLE') => {
     const checkRol = await Role.findOne({role});
     if(!checkRol){
         throw new Error (`el role ${role} no esta regitrado en DB`)

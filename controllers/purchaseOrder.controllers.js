@@ -11,21 +11,19 @@ const orderPost= async (req, res = response) => {
     
      
 
-    const { id }  = req.params;
+     const user = req.userAuth
   
-    //busco al usuario de la req por id
-    const user = await User.findById(id) || null;
+    //NO HACE FALTA VERIFICAR MAS DATOS DEL USUARIO XQ EL CHECK TOKEN YA LO HACE
+    // const user = await User.findById(userToken._id) || null;
 
-    if( user == null){
-        return res.status(400).json({
-            success: false,
-            msg: 'Usuario no encontrado'
-        })
-    }
+    // if( user == null){
+    //     return res.status(400).json({
+    //         success: false,
+    //         msg: 'Usuario no encontrado'
+    //     })
+    // }
 
-    
-
-    
+        
     const order = {
         firstName : user.firstName,
         lastName : user.lastName,

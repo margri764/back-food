@@ -6,32 +6,33 @@ const {response} = require ('express');
 const User = require ('../models/user');
 const PurchaseOrder = require('../models/purchaseOrder');
 const Product = require('../models/product');
-const Employee = require('../models/employee');
+const Staff = require('../models/staff');
 
 
 
 const createProduct =  async (req, res = response) => {
     
-     
-
-    const { id }  = req.params;
+    // const { id }  = req.params;
     const { name, ...rest } = req.body
+    const user = req.staffAuth;
 
-    // console.log(id);
-    // console.log(req.body);
 
-    //busco al usuario de la req por id
-    let product = await Product.findById(id) || null;
-    const employee = await Employee.findById(id) || null;
+    //busco si el producto ya esta creado lo q puedo usar es el nombre
+    let product = await Product.findOne({name : name}) || null;
+    console.log(product);
 
-    if( employee == null){
+    const staff = await Staff.findById(user._id) || null;
+
+
+
+    if( staff == null){
         return res.status(400).json({
             success: false,
             msg: 'No se encuentra Empleado'
         })
     }
 
-    if( employee.stateAccount == false){
+    if( staff.stateAccount == false){
         return res.status(400).json({
             success: false,
             msg: 'Empleado eliminado o suspendido, hable con encargado'
@@ -50,7 +51,7 @@ const createProduct =  async (req, res = response) => {
     
     const tempProduct = {
         ...rest,
-           employee : employee._id,
+           staff : staff._id,
            name 
     }
 

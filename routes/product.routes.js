@@ -3,19 +3,21 @@
 const { Router } = require ('express');
 const {check} = require ('express-validator');
 const { createProduct } = require('../controllers/product.controllers');
-const { checkFields, checkToken } = require ('../middlewares');
-const { checkCategory } = require('../helpers/db-validators')
+const { checkFields, checkTokenStaff, multiRole} = require ('../middlewares');
+const { checkCategory  } = require('../helpers/db-validators')
 const router = Router();
 
 
 
 router.post('/',[ 
 
-    // checkToken,
-    // check('name','el nombre es obligatorio').not().isEmpty(),
+    checkTokenStaff,
+    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
+    check('name','el nombre es obligatorio').not().isEmpty(),
     // check('category','no es un id de Mongo valido').isMongoId(),
+   
     // check('category').custom( checkCategory),
-    // checkFields  
+    checkFields  
 ], createProduct );
 
 

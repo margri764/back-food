@@ -5,6 +5,7 @@ const { JWTGenerator } = require('../helpers/jwt-generator');
 const createSMS = require ('../config/sms')
 const UserSignUp = require ('../models/user-login');
 const User = require ('../models/user');
+const Staff = require('../models/staff');
 
 
 
@@ -260,6 +261,66 @@ const login = async (req, res=response)=>{
     }
 }
 
+const loginStaff = async (req, res=response)=>{
+
+    const {email, password} = req.body;
+    console.log(email);
+    
+    try {
+        
+        let user = await Staff.findOne({email});
+        
+        
+        if(!user.stateAccount) {
+            return res.status(400).json({
+                success: false,
+                msg: 'Usuario eliminado'
+            })
+        }
+        
+        
+        if(user){
+            const checkPassword = bcryptjs.compareSync(password, user.password)
+            if(!checkPassword) {
+                return res.status(400).json({
+                    success: false,
+                    msg: 'Password incorrecto'
+                })
+            }
+        }
+
+        
+        if(!user) {
+            return res.status(401).json({
+                success: false,
+                msg: 'Usuario no registrado, contacte al administrador'
+            });
+        }
+        
+        
+        /* si llego hasta aca es xq el usuario login ya esta creado y entonces el usuario tambien ya se creo aunque
+        me falten datos, como la app tiene delivery tengo mas instancias para recolectar datos*/ 
+        
+        // user = await User.findOne({ user_login : userVerified._id});
+
+
+    const token = await JWTGenerator(user._id);
+
+         res.status(200).json({
+            success: true,
+            token,
+            user
+            })
+
+
+   } catch (error) {
+        res.status(500).json({
+            msg: 'hable con el administrador',
+            success: false
+        })       
+    }
+}
+
 
 const revalidateJWToken = async(req, res = response ) => {
 
@@ -281,6 +342,7 @@ const revalidateJWToken = async(req, res = response ) => {
 
 module.exports={
     login, 
+    loginStaff,
     signUp,
     confirm,
     phone,

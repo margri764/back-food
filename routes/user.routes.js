@@ -25,14 +25,20 @@ router.post('/',[
 router.get('/checkemail',[
 ],checkEmailRegister);
 
-router.put('/:id',[
-    check('id','No es un id valido de mongoDB').isMongoId(),
-    check('id').custom( checkId ),
-    check('role').custom( isRoleValid),
-    checkFields
+// router.put('/:id',[
+router.put('/',[
+    checkToken,
+    // check('id','No es un id valido de mongoDB').isMongoId(),
+    // check('id').custom( checkId ),
+    // check('role').custom( isRoleValid),
+    // checkFields
 ],userPut);
 
-router.get('/:id',[
+
+// aca deberia obtener un usuario pero por el id q esta EN EL token 
+// router.get('/:id',[
+router.get('/',[
+  checkToken,
 ],getUserById);
 
 //el checkToken proteje esta ruta con los JWT para q no sea publica 

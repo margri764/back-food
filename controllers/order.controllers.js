@@ -6,7 +6,7 @@ const {response} = require ('express');
 
 const User = require ('../models/user');
 const PurchaseOrder = require('../models/purchaseOrder');
-const Employee = require('../models/employee');
+const Staff = require('../models/staff');
 
 
 
