@@ -4,6 +4,7 @@ const {response} = require ('express');
 
 const User = require ('../models/user');
 const PurchaseOrder = require('../models/purchaseOrder');
+const Product = require('../models/product');
 
 
 
@@ -12,23 +13,24 @@ const orderPost= async (req, res = response) => {
      
 
      const user = req.userAuth
+
+     const {productID, ...rest}= req.body;
   
-    //NO HACE FALTA VERIFICAR MAS DATOS DEL USUARIO XQ EL CHECK TOKEN YA LO HACE
-    // const user = await User.findById(userToken._id) || null;
-
-    // if( user == null){
-    //     return res.status(400).json({
-    //         success: false,
-    //         msg: 'Usuario no encontrado'
-    //     })
-    // }
-
-        
+      const product = await Product.findById(productID) || null;
+      
+      if(!product){
+        return res.status(400).json({
+        success:false,
+        msg: "Producto no encontrado en BD"
+        })
+      }
+    
+    
     const order = {
-        firstName : user.firstName,
-        lastName : user.lastName,
         user : user._id,
         addressDelivery : user.addressDelivery,
+        product : product._id,
+        price : product.price
         // employee : 
         // email : userToConfirm.email,
         // password : userToConfirm.password,

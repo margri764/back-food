@@ -6,14 +6,14 @@ const {Schema, model} = require ('mongoose');
 
 
 
-const StatesPurchaseOrderSchema = Schema({
+const StatusPurchaseOrderSchema = Schema({
 
 
-statusOrder: {
-    type: String,
-    default: 'RECEIVED',
-    emun: [ 'PROCESSING','DELIVERY','PICK_UP_ORDER','COMPLETE','DELETE']
-},
+// statusOrder: {
+//     type: String,
+//     default: 'RECEIVED',
+//     emun: [ 'PROCESSING','DELIVERY','PICK_UP_ORDER','COMPLETE','DELETE']
+// },
 
 // en este estados solo figura la hora en la cual se hizo el pedido en la app 
     received:{
@@ -78,16 +78,16 @@ statusOrder: {
     },
 
     //este es el operario q comienza la accion despues puede cambiar en los estados del pedido pero van en los estados particuales 
-     employee:{
+     staff:{
         type: Schema.Types.ObjectId,
-        ref: "Employee",
+        ref: "Staff",
      },
 
   
     }, { timestamps:true}
     );
 
-    StatesPurchaseOrderSchema.methods.toJSON = function(){
+    StatusPurchaseOrderSchema.methods.toJSON = function(){
     const {__v,password, ...state} = this.toObject();
     // const {__v,password,_id,...usuario} = this.toObject();
     // usuario.uid= _id;
@@ -95,4 +95,4 @@ statusOrder: {
 }
 
 
-module.exports= model('StatesPurchaseOrder', StatesPurchaseOrderSchema);
+module.exports= model('StatusPurchaseOrder', StatusPurchaseOrderSchema);

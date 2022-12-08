@@ -1,5 +1,5 @@
 
-
+// const Staff = require('../models/staff');
 
 
 const adminRole= ( req, res, next )=>{
@@ -10,10 +10,10 @@ const adminRole= ( req, res, next )=>{
         })
     }
 
-    const { role, name } = req.staffAuth;
+    const { role, firstName, lastName } = req.staffAuth;
     if(role !== 'ADMIN_ROLE'){
         return res.status(401).json({
-            msg: `${name} no es un administrador`
+            msg: `${firstName} ${lastName} no es un usuario ADMIN_ROLE, no puede realizar esta acción`
         });
     }
 next();
@@ -27,18 +27,14 @@ const superRole= ( req, res, next )=>{
         })
     }
 
-    const { role, name } = req.staffAuth;
+    const { role, firstName, lastName } = req.staffAuth;
     if(role !== 'SUPER_ROLE'){
         return res.status(401).json({
-            msg: `${name} no es un administrador`
+            msg: `${firstName} ${lastName} no es un usuario SUPER_ROLE, no puede realizar esta acción`
         });
     }
 next();
 }
-
-
-
-
 
 
 const multiRole= (...roles) => {
@@ -51,14 +47,18 @@ const multiRole= (...roles) => {
     }
 
     if(!roles.includes(req.staffAuth.role)){
+
+
         return res.status(401).json({
-            msg: `el servicio requiere uno de estos roles: ${roles}`
+            msg: `esta accion  requiere de un Usuario con estos roles: ${roles}`
         })
     }
     next();
 }
 
 }
+
+
 
 module.exports= { 
     adminRole,

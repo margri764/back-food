@@ -18,7 +18,7 @@ const createCategory =  async (req, res) => {
     }
     const data = {
         name,
-        user: req.userAuth._id
+        user: req.staffAuth._id
     }
 
     const category = new Category ( data );

@@ -13,7 +13,7 @@ const PurchaseOrderSchema = Schema({
      },
 
  
-     products:{
+     product:{
         type: Schema.Types.ObjectId,
         ref: "Products",
         required: true

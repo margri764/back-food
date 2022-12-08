@@ -9,7 +9,7 @@
  
  
 //  const { checkToken } = require ('../middlewares/check-jwt');
- const { adminRole, checkFields, checkToken, } = require('../middlewares');
+ const { adminRole, checkFields, checkToken, checkTokenStaff, multiRole, } = require('../middlewares');
 
  
  
@@ -26,11 +26,12 @@
  
  
  
- //craer una categoria - privado cualquier persona con token valido
+ //crear una categoria  
+
  router.post('/',[ 
  
-    //  checkToken,
-     checkToken,
+     checkTokenStaff,
+     multiRole('ADMIN_ROLE','SUPER_ROLE'),
      check('name','el nombre es obligatorio').not().isEmpty(),
      checkFields  
  

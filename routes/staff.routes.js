@@ -8,7 +8,8 @@ const { checkToken, superRole, checkFields, checkTokenStaff } = require('../midd
 const { isRoleValid } = require('../helpers/db-validators')
 
 
-// para crear un empleado tiene q ser un usuario SUPER-ROLE 
+// para crear un empleado tiene q ser un usuario SUPER_ROLE 
+//para crear productos, categorias, editar todo eso con ADMIN_ROLE
 
 router.post('/',[
     checkTokenStaff,

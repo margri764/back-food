@@ -24,6 +24,8 @@ const checkToken = async ( req , res, next)=>{
         //desde aca saca el id de la persona logeada la cual se graba en el token
                
         const { _id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+        
+        
         const usuarioAuth = await User.findById( _id );
 
         if(!usuarioAuth){
@@ -70,6 +72,8 @@ const checkTokenStaff = async ( req , res, next)=>{
         const { _id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
         const staffAuth = await Staff.findById( _id );
 
+        // console.log(_id);
+
         if(!staffAuth){
             return res.status(401).json({
                 msg:'Token no valido - Usuario no existe en DB'
@@ -89,7 +93,7 @@ const checkTokenStaff = async ( req , res, next)=>{
 
     } catch (error) {
         return res.status(401).json({ 
-            msg: 'token no valido'
+            msg: 'Error al intentar obtener token'
     })
  }
 }

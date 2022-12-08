@@ -15,7 +15,7 @@ const userPost= async (req, res = response) => {
  const roleValid = await Role.findOne({rol: role}) || null;
 
  if( roleValid == null){
-    res.status(401).json({
+    return res.status(401).json({
         success:false,
         msg: `No existe el rol: ${role}  en Base de Datos`
     })
@@ -25,12 +25,11 @@ const userPost= async (req, res = response) => {
 let staff = await Staff.findOne({email: email}) || null;
 
 if( staff !== null){
-    res.status(400).json({
-        success:false,
+    return res.status(400).json({
+        success : false,
         msg:"El empleado ya existe en Base de Datos"
     })
 }
-
 
 
  staff = new Staff({ password, email, role, ...rest});
@@ -42,7 +41,7 @@ staff.password = bcryptjs.hashSync(password,salt);
 
 await staff.save();
 
-res.status(200).json({
+return res.status(200).json({
         success: true,
         staff
     })

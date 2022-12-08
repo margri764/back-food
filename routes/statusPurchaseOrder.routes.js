@@ -1,18 +1,21 @@
 
 
+
+
 const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
 const { orderPost } = require('../controllers/purchaseOrder.controllers');
-const { checkToken, multiRole } = require('../middlewares');
+const { statusPurchaseOrderPost} = require('../controllers/statusPurchaseOrder.controllers');
+const { checkToken, multiRole, checkTokenStaff } = require('../middlewares');
 
 
 
 
 router.post('/',[
-    checkToken,
+    checkTokenStaff,
     // multiRole ('ADMIN_ROLE','SUPER_ROLE'),
-],orderPost); 
+],statusPurchaseOrderPost); 
 
 
 
