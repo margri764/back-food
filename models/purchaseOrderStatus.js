@@ -10,7 +10,7 @@ const PurchaseOrderStatusSchema = Schema({
 
 
 statusOrder: {
-    type: Object,
+    type: Array,
     default: [],
     // emun: [ 'PROCESSING','DELIVERY','PICK_UP_ORDER','COMPLETE','DELETE']
 },

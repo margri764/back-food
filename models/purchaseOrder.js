@@ -18,7 +18,6 @@ const PurchaseOrderSchema = Schema({
         required: true
      },
 
-     
      staff:{
         type: Schema.Types.ObjectId,
         ref: "Staff",
