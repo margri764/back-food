@@ -47,7 +47,7 @@ const checkToken = async ( req , res, next)=>{
 
     } catch (error) {
         return res.status(401).json({ 
-            msg: 'token no valido'
+            msg: 'Error al intentar obtener token'
     })
  }
 }

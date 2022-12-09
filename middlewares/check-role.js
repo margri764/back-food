@@ -2,6 +2,8 @@
 // const Staff = require('../models/staff');
 
 
+
+
 const adminRole= ( req, res, next )=>{
 
     if(!req.staffAuth){
@@ -63,5 +65,5 @@ const multiRole= (...roles) => {
 module.exports= { 
     adminRole,
     multiRole,
-    superRole
+    superRole,
     }

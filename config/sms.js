@@ -6,7 +6,7 @@ const twilio = require ('twilio');
 const client = new twilio (process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 
 //en esta funcion disparo el sms
-const createSMS= (phone , code)=>{
+const createSMS = (phone , code)=>{
 
     const tempPhone = "+54" + phone;
     console.log('tempPhone',tempPhone);

@@ -4,12 +4,12 @@
 const {response} = require ('express');
 
 const User = require ('../models/user');
-const StatusPurchaseOrder = require('../models/statusPurchaseOrder');
+const purchaseOrderStatus = require('../models/purchaseOrderStatus');
 const Product = require('../models/product');
 
 
 
-const statusPurchaseOrderPost= async (req, res = response) => {
+const purchaseOrderStatusPost= async (req, res = response) => {
     
      try {
         
@@ -40,7 +40,7 @@ const statusPurchaseOrderPost= async (req, res = response) => {
         // phone: userToConfirm.phone,
     }
 
-    const statusPurchaseOrder =  new StatusPurchaseOrder (statusOrder);
+    const statusPurchaseOrder =  new purchaseOrderStatus (statusOrder);
 
         statusPurchaseOrder.save()
         // if( user !== null){
@@ -74,6 +74,6 @@ const statusPurchaseOrderPost= async (req, res = response) => {
 
 
 module.exports={
-    statusPurchaseOrderPost,
+    purchaseOrderStatusPost,
 
 }

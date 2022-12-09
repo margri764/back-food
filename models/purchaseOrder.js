@@ -11,19 +11,26 @@ const PurchaseOrderSchema = Schema({
         ref: "User",
         required: true
      },
-
  
      product:{
         type: Schema.Types.ObjectId,
-        ref: "Products",
+        ref: "Product",
         required: true
      },
+
      
-     statesOrderPurchase:{
+     staff:{
         type: Schema.Types.ObjectId,
-        ref: "statesOrderPurchase",
-        // required: true
+        ref: "Staff",
      },
+     
+     statusOrder:{
+        type : String,
+        required: true,
+        default: "RECEIVED"
+
+     },
+     
     
      otherExpenses:  {
         type: Object,
