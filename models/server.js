@@ -2,8 +2,7 @@
 const express = require('express');
 const cors = require ('cors');
 const { dbConnection } = require('../db/config.db');
-const path = require ('path');
-// const fileUpload = require('express-fileupload');
+const fileUpload = require('express-fileupload');
 
 class Server{
 
@@ -22,9 +21,14 @@ class Server{
     
     middlewares(){
         this.app.use(cors());
-        this.app.use (express.json());
+        this.app.use(express.json());
         this.app.use(express.static('public'));
         this.app.set('trust proxy', true);
+        this.app.use(fileUpload({
+            useTempFiles : true,
+            tempFileDir : '/tmp/'
+        }));
+
      
       
 

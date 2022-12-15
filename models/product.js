@@ -24,9 +24,18 @@ const ProductSchema = Schema({
         default : true
     },
 
+    stock : {
+        type : Boolean,
+        default : true
+    },
+
     staff : {
         type: Schema.Types.ObjectId,
         ref: "Staff",
+        required: true
+    },
+    img: {
+        type: String,
         required: true
     }
 

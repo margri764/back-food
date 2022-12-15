@@ -264,7 +264,7 @@ const login = async (req, res=response)=>{
 const loginStaff = async (req, res=response)=>{
 
     const {email, password} = req.body;
-    console.log(email);
+    // console.log(email);
     
     try {
         

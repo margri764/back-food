@@ -28,7 +28,7 @@ const getUserById = async (req,res=response)=>{
      const userToken = req.userAuth
 
     
-    console.log(userToken);
+    // console.log(userToken);
 
     //busco al usuario de la req por id
     let user = await User.findById(userToken._id);
