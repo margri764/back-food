@@ -2,7 +2,7 @@
 
 const { Router } = require ('express');
 const {check} = require ('express-validator');
-const { createProduct, getProductById, getProduct } = require('../controllers/product.controllers');
+const { createProduct, getProductById, getProduct, getProductByCategory } = require('../controllers/product.controllers');
 const { checkFields, checkTokenStaff, multiRole} = require ('../middlewares');
 const { checkCategory  } = require('../helpers/db-validators');
 const { checkFileUp } = require('../middlewares/check-file');
@@ -32,7 +32,7 @@ router.get('/:id',[
 
 router.get('/',[
 
-],getProduct)
+],getProductByCategory)
 
 
 module.exports= router;

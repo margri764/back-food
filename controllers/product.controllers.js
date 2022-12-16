@@ -6,6 +6,7 @@ const path = require('path');
 const fs   = require('fs');
 const Product = require('../models/product');
 const Staff = require('../models/staff');
+const Category = require('../models/category');
 const { upFiles } = require("../helpers/upload-file");
 const cloudinary= require ('cloudinary').v2;
 cloudinary.config( process.env.CLOUDINARY_URL);
@@ -21,20 +22,36 @@ const createProduct =  async (req = request, res = response) => {
     let { postProduct } = req.body;
     postProduct= JSON.parse(postProduct);
  
-   const { name, ...rest } = postProduct; 
-
+   let { name, category, ...rest } = postProduct; 
+   category= category.toUpperCase();
+   
    const { tempFilePath } = req.files.file;
 
-   const {secure_url} = await cloudinary.uploader.upload( tempFilePath, {folder: "Food App"} );
+   const {secure_url} = await cloudinary.uploader.upload( tempFilePath, {folder: "Food App" });
+
+
+   const validCategory = [ 'BURGER', 'PIZZA', 'HEALTHY','VEGAN',];
+   if(!validCategory.includes(category)){
+
+       return res.status(400).json({
+        success: false,
+        msg: `la categoria ${category} no existe, solo se admite ${validCategory}`
+      })
+   }
 
  
-    
+   
+   //busco si el producto ya esta creado lo q puedo usar es el nombre
+   let product = await Product.findOne({name : name}) || null;
+   const prodCategory = await Category.findOne({ name : category}) || null;
+   const staff = await Staff.findById(user._id) || null;
 
-    //busco si el producto ya esta creado lo q puedo usar es el nombre
-    let product = await Product.findOne({name : name}) || null;
-
-    const staff = await Staff.findById(user._id) || null;
-
+    if( prodCategory == null){
+      return res.status(400).json({
+          success: false,
+          msg: `No se encuentra la categoria ${prodCategory}`
+      })
+  }
 
 
     if( staff == null){
@@ -68,7 +85,8 @@ const createProduct =  async (req = request, res = response) => {
         ...rest,
            staff : staff._id,
            name,
-           img: secure_url
+           img: secure_url,
+           category: prodCategory._id
     }
 
     product =  new Product (tempProduct);
@@ -85,24 +103,33 @@ const createProduct =  async (req = request, res = response) => {
 
 }
 
-const getProduct = async (req,res)=>{
+const getProductByCategory = async (req, res) => {
 
-  const { limite=5 , desde =0 }=req.query;
 
-  const [ total, product] = await Promise.all([
+const findCatOne  = await Category.findOne({name: "BURGER"})  || null;
+const findCatTwo  = await Category.findOne({name: "PIZZA"})   || null;
+const findCatTree = await Category.findOne({name: "HEALTHY"}) || null;
+const findCatFour = await Category.findOne({name: "VEGAN"})   || null;
 
-      Product.countDocuments( {status:true}),
-      Product.find( {status:true} )
-          .populate('staff','name')
-          // .populate('category','name')
-          .skip( Number (desde))
-          .limit( Number (limite))
-  ])
- 
-  res.json({ 
-      total,     
-      product
 
+if( !findCatOne || !findCatTwo || !findCatTree || !findCatFour){
+  return res.status(400).json({
+    success: false,
+    msg: "Revisar los nombres de las categorias"
+  })
+}
+
+const burger  = await Product.find({ status : true, stock: true, category : findCatOne._id })
+const pizza   = await Product.find({ status : true, stock: true, category : findCatTwo._id })
+const healthy = await Product.find({ status : true, stock: true, category : findCatTree._id })
+const vegan   = await Product.find({ status : true, stock: true, category : findCatFour._id })
+
+
+res.json({ 
+      burger,
+      pizza,
+      healthy,
+      vegan
   });
 }
 
@@ -203,6 +230,6 @@ const getProductById = async (req, res) =>{
 module.exports={
     createProduct,
     getProductById,
-    getProduct
+    getProductByCategory
 
 }
