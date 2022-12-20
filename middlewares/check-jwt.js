@@ -11,7 +11,7 @@ const checkToken = async ( req , res, next)=>{
 
     let token = req.header ( 'x-token' ); 
 
-    // console.log('token: ', token);
+    // console.log('user token: ', token);
 
     if(!token){ 
         return res.status(401).json({

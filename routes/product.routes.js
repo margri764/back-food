@@ -1,28 +1,25 @@
 
 
 const { Router } = require ('express');
-const {check} = require ('express-validator');
-const { createProduct, getProductById, getProduct, getProductByCategory } = require('../controllers/product.controllers');
+const { check } = require ('express-validator');
+const { createProduct, getProductById, getProduct, getProductByCategory, updateProduct } = require('../controllers/product.controllers');
 const { checkFields, checkTokenStaff, multiRole} = require ('../middlewares');
-const { checkCategory  } = require('../helpers/db-validators');
 const { checkFileUp } = require('../middlewares/check-file');
+const { validCategory } = require('../helpers/db-validators.js');
+
 const router = Router();
-// const multer = require('multer');
-// const upload = multer();
+
 
 
 
 
 // router.post('/',upload.any(),[ 
-router.post('/',[ 
+router.post('/:category',[ 
 
     checkTokenStaff,
     multiRole ('ADMIN_ROLE','SUPER_ROLE'),
     checkFileUp,
-    // check('name','el nombre es obligatorio').not().isEmpty(),
-    // check('category','no es un id de Mongo valido').isMongoId(),
-   
-    // check('category').custom( checkCategory),
+    check('category').custom( category => validCategory(category, ['BURGER', 'PIZZA', 'HEALTHY', 'VEGAN', 'DRINK', 'FRIES'])),
     checkFields  
 ], createProduct );
 
@@ -33,6 +30,14 @@ router.get('/:id',[
 router.get('/',[
 
 ],getProductByCategory)
+
+router.put('/:category/:id',[
+    checkTokenStaff,
+    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
+    check('category').custom( category => validCategory(category, ['BURGER', 'PIZZA', 'HEALTHY', 'VEGAN', 'DRINK', 'FRIES'])),
+    checkFields  
+
+],updateProduct)
 
 
 module.exports= router;

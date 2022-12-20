@@ -45,12 +45,14 @@ const checkId = async ( id ) =>{
           }
   }
 
-   const validColections =  ( colection='', colections=[] ) => {
+   const validCategory =  ( category='', categories=[] ) => {
 
-      const validColection = colections.includes(colection);
-      if(!validColection){
+    category = category.toUpperCase();
+     const validCategory = categories.includes(category);
 
-        throw new Error (`la coleccion ${colection} no esta permitida solo ${colections}`)
+      if( !validCategory ){
+
+        throw new Error (`la categoría ${category} no existe en Base de Dato, solo ${categories}`)
       }
       return true;
 
@@ -62,5 +64,5 @@ module.exports={
     checkId,
     checkCategory,
     checkProduct,
-    validColections
+    validCategory
 }

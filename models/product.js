@@ -44,6 +44,16 @@ const ProductSchema = Schema({
     img: {
         type: String,
         required: true
+    },
+
+    comment: {
+        type: String,
+        default: ''
+    },
+
+    ingredients: {
+        type: String,
+        default: ''
     }
 
     }, { timestamps:true}
