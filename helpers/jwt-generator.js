@@ -11,7 +11,7 @@ const JWTGenerator = ( _id ) =>{
 
             // expiresIn:'500h' 
 
-        }, (err,token)=>{ 
+        }, (err , token)=>{ 
             if(err){
                 console.log(err);
                 reject( 'no se pudo generar el JWT')

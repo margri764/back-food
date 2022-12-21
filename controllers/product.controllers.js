@@ -103,13 +103,7 @@ const findCatFour = await Category.findOne({name: "VEGAN"})   || null;
 const findCatFive = await Category.findOne({name: "DRINK"})   || null;
 const findCatSix = await Category.findOne({name: "FRIES"})   || null;
 
-
-// if( !findCatOne || !findCatTwo || !findCatTree || !findCatFour){
-//   return res.status(400).json({
-//     success: false,
-//     msg: "Revisar los nombres de las categorias"
-//   })
-// }
+// OJO VALIDAR SI ESTAN EN STOCK O EXISTEN EN BD!!!!!!!!!!!!!!!!!
 
 const burger  = await Product.find({ status : true, stock: true, category : findCatOne._id }).populate("category", "name")
 const pizza   = await Product.find({ status : true, stock: true, category : findCatTwo._id }).populate("category", "name")

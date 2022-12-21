@@ -38,6 +38,7 @@ class Server{
         this.app.use('/api/auth', require('../routes/auth.routes'));
         this.app.use('/api/user', require('../routes/user.routes'));
         this.app.use('/api/order', require('../routes/order.routes'));
+        this.app.use('/api/tempPurchaseOrder', require('../routes/tempPurchaseOrder.routes'));
         this.app.use('/api/purchaseOrder', require('../routes/purchaseOrder.routes'));
         this.app.use('/api/staff', require('../routes/staff.routes'));
         this.app.use('/api/product', require('../routes/product.routes'));

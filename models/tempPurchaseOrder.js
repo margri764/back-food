@@ -1,9 +1,11 @@
 
 
+
+
 const {Schema, model} = require ('mongoose');
 
 
-const PurchaseOrderSchema = Schema({
+const TempPurchaseOrderSchema = Schema({
 
 
     user:{
@@ -19,6 +21,7 @@ const PurchaseOrderSchema = Schema({
         }
      ,
 
+    //  esto está para saber quien es el miembro del staff que hizo algun update en los estados
      staff:{
         type: Schema.Types.ObjectId,
         ref: "Staff",
@@ -27,13 +30,13 @@ const PurchaseOrderSchema = Schema({
      statusOrder:{
         type : String,
         required: true,
-        default: "RECEIVED"
+        default: "INCOMPLETE"
 
      },
      
     
      otherExpenses:  {
-        type: Object,
+        type: Array,
         default:[]
     },
 
@@ -45,13 +48,13 @@ const PurchaseOrderSchema = Schema({
 
     total:{
         type: String,
-        default: ''
+        required : true
     },
 
     }, { timestamps:true}
     );
 
-PurchaseOrderSchema.methods.toJSON = function(){
+TempPurchaseOrderSchema.methods.toJSON = function(){
     const {__v,password, ...order} = this.toObject();
     // const {__v,password,_id,...usuario} = this.toObject();
     // usuario.uid= _id;
@@ -59,4 +62,4 @@ PurchaseOrderSchema.methods.toJSON = function(){
 }
 
 
-module.exports= model('PurchaseOrder', PurchaseOrderSchema);
+module.exports= model('TempPurchaseOrder', TempPurchaseOrderSchema);
