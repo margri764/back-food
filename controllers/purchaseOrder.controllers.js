@@ -8,13 +8,23 @@ const PurchaseOrderStatus = require('../models/purchaseOrderStatus');
 const checkStatus  = require('../helpers/check-status');
 
 
-const orderPost= async ( req , res ) => {
+const createOrder= async ( req , res ) => {
     
      const user = req.userAuth
 
-     const {productID, ...rest}= req.body;
-  
+     const {productID, otherExpenses, ...rest}= req.body;
+
+    //  console.log(otherExpenses);
+     const {drink, fries, ...more } = otherExpenses;
+
+// tengo q obtener del arreglo de productos otherExpenses los id y guardarlos en un 
+    
+
+
      const product = await Product.findById(productID) || null;
+     
+    //  const arrProduts = await Product.find({category: drink})
+    //  console.log(arrProduts);
       
       if(!product){
         return res.status(400).json({
@@ -26,23 +36,25 @@ const orderPost= async ( req , res ) => {
     const order = {
         user : user._id,
         addressDelivery : user.addressDelivery,
-        product : product._id,
-        price : product.price,
+        product : product,
+        total : product.price,
+        otherExpenses : otherExpenses,
         // statusOrder,
         ...rest
     }
 
-    const purchaseOrder =  new PurchaseOrder (order);
+    console.log("ORDER: ",order);
+    // const purchaseOrder =  new PurchaseOrder (order);
 
-    purchaseOrder.save()
+    // purchaseOrder.save()
 
-    res.status(200).json({
-       success: true,
-       purchaseOrder,
-       product,
-       user
+    // res.status(200).json({
+    //    success: true,
+    //    purchaseOrder,
+    //    product,
+    //    user
 
-    })
+    // })
 
 
 }
@@ -166,7 +178,7 @@ const editOrderStatus = async ( req , res ) => {
 
 
 module.exports={
-    orderPost,
+ createOrder,
     getOrder,
     editOrderStatus
 

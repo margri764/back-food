@@ -3,7 +3,7 @@
 const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
-const { orderPost } = require('../controllers/purchaseOrder.controllers');
+const { createOrder } = require('../controllers/purchaseOrder.controllers');
 const { checkToken, multiRole } = require('../middlewares');
 
 
@@ -12,7 +12,7 @@ const { checkToken, multiRole } = require('../middlewares');
 router.post('/',[
     checkToken,
     // multiRole ('ADMIN_ROLE','SUPER_ROLE'),
-],orderPost); 
+],createOrder); 
 
 
 

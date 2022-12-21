@@ -12,11 +12,12 @@ const PurchaseOrderSchema = Schema({
         required: true
      },
  
-     product:{
+     product:[{
         type: Schema.Types.ObjectId,
         ref: "Product",
         required: true
-     },
+        }]
+     ,
 
      staff:{
         type: Schema.Types.ObjectId,
@@ -42,7 +43,7 @@ const PurchaseOrderSchema = Schema({
     },
 
 
-    price:{
+    total:{
         type: String,
         default: ''
     },
