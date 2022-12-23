@@ -10,19 +10,20 @@ const Product = require('../models/product');
 
 
 
-
 const drinkValidator = async ( drink )=>{
 
 
-    const arrIDs= [] 
-    drink.forEach( item => { arrIDs.push(item._id)});
+    const arrIDs = [];
+    const arrQuantities = [];
+
+      drink.forEach( item => { arrIDs.push(item._id)});
+      drink.forEach( item => { arrQuantities.push(item.quantity)});
+
     
     const product = await Product.find({_id : {$in: arrIDs}})
 
-
     // con esto valido si alguna bebida esta NO EXISTE en BD
     if(product){
-
         if(arrIDs.length !== product.length){
             throw new Error (`No existe en BD unas de las papas, invalidar pedido y forzar reload de productos en el front`)
         }
@@ -39,10 +40,22 @@ const drinkValidator = async ( drink )=>{
         throw new Error (`Uno de los productos esta eliminado, sin stock o PAUSA, invalidar pedido y forzar reload de productos en el front ${identify}`)
      }
   
-     return product;
+     return product
+     
+//      const productAndQuantity = product.map( (item, i) =>({ 
+//           ...item, 
+//          newQ : item.newQ =  arrQuantities[i]
+         
+//         }))
+        
+//   console.log("desde helper: ",productAndQuantity);
+
+//      return productAndQuantity;
 }
 
-const friesValidator = async ( fries )=>{
+
+const friesValidator = async ( fries ) => {
+
 
 
     const arrIDs= [] 
@@ -74,8 +87,26 @@ const friesValidator = async ( fries )=>{
 
 }
 
+const getDrinkFromDB = async ( order )=>{
+
+//    console.log("order from DB: ", order);
+    let tempArrDrink = [];
+    let arrDrink = [];
+
+    // quiero ver si puedo acceder a los _id de las ordenes guardadas
+
+    tempArrDrink = order.filter( item => ( item.otherExpenses.length != 0));
+
+    // console.log("ddd: ",tempArrDrink);
+    arrDrink = tempArrDrink.filter( item => ( item.drink.length != 0));
+
+    console.log(arrDrink);
+  
+}
+
 
 module.exports={
                 drinkValidator,
-                friesValidator
+                friesValidator,
+                getDrinkFromDB
                }

@@ -6,7 +6,7 @@ const PurchaseOrder = require('../models/purchaseOrder');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const Product = require('../models/product');
 const PurchaseOrderStatus = require('../models/purchaseOrderStatus');
-const { drinkValidator , friesValidator }  = require('../helpers/product-validators');
+const { drinkValidator , friesValidator, getDrinkFromDB }  = require('../helpers/product-validators');
 
 
 const createTempOrder = async ( req , res ) => {
@@ -23,13 +23,17 @@ const createTempOrder = async ( req , res ) => {
        
        //si llego hasta aca es xq ya paso por los helpers q controlan que las bebidas q vienen en la peticion esten en stock y existan. No hago mas valdiaciones xq en el peor de los casos vendra un array vacio y  propiedad otherExpenses quedara como un array vacio
   
-       const tempDrink = await drinkValidator(drink);
-       const tempFries = await drinkValidator(fries);
+      //  const tempDrink = await drinkValidator(drink);
 
+      //  console.log(tempDrink);
+      //  let tempFries = await friesValidator(fries);
+
+        // const drinkQuantity =tempDrink.map( item => ({...item, quantity:item.quantity = drink.quantity }))
+      
 
       //  lleno el array con los productos que vienen en la request
        const tempProductArray = []
-       tempProductArray.push(tempDrink,tempFries)
+       tempProductArray.push({drink, fries})
   
   
       
@@ -65,13 +69,31 @@ const createTempOrder = async ( req , res ) => {
 
 
 
+const getTempOrder = async ( req , res ) =>{
+  
+  const user = req.userAuth
 
+
+  const tempOrder = await TempPurchaseOrder.find({user : user._id})
+  // console.log(tempOrder);
+  
+  const drink = getDrinkFromDB(tempOrder)
+  
+
+
+  return res.status(200).json({
+    success: true,
+   
+  })
+
+}
 
 
 
 
 
 module.exports={
-        createTempOrder
+        createTempOrder,
+        getTempOrder
 
 }

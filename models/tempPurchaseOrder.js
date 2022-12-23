@@ -45,9 +45,12 @@ const TempPurchaseOrderSchema = Schema({
         default: 'RETIRO EN LOCAL'
     },
 
-
+    quantity : {
+        type: Number,
+        deafault : 1
+    },
     total:{
-        type: String,
+        type: Number,
         required : true
     },
 
