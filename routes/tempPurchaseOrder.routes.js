@@ -8,15 +8,17 @@ const {check} = require ('express-validator');
 const { createTempOrder } = require('../controllers/tempPurchaseOrder.controllers');
 const checkProduct = require('../helpers/check-product');
 const router = Router();
-const { checkToken, multiRole } = require('../middlewares');
+const { checkToken, multiRole, checkFields,   } = require('../middlewares');
+const { drinkValidator, friesValidator } = require('../helpers/product-validators')
 
 
 
 
 router.post('/',[
     checkToken,
-    check('product').custom( checkProduct),
-    // multiRole ('ADMIN_ROLE','SUPER_ROLE'),
+    check('drink').custom( drinkValidator ),
+    check('fries').custom( friesValidator ),
+    checkFields,
 ],createTempOrder); 
 
 

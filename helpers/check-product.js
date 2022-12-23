@@ -4,33 +4,27 @@ const Product = require('../models/product');
     //ESTAS VALIDACIONES ESTAN XQ PUEDE SER Q AL MOMENTO DE REALIZAR LA COMPRA UN PRODUCTO SE DE BAJA O MENU O LO QUE SEA, EN ESE CASO HABRIA Q ANULAR LA COMPRA!!! RECORDAR Q NO TIENE SOCKETS EN TIEMPO REAL
 
 
-const checkProduct = async ( productID ) => {
-  console.log('entra', productID);
+const checkProduct = async ( productID  ) => {
+  console.log('desde helper', productID);
+   
+  
+    const product = await Product.findOne({_id : productID });
+      
 
-    const checkRol = await Product.findOne({_id : productID._id});
-    if(!checkRol){
-        throw new Error (`el role ${drink} no esta regitrado en DB`)
+    if(!product){
+        throw new Error (`el producto no esta registrado en DB`)
+    }
+
+    if(!product.status){
+      throw new Error (`el producto ${product.name} esta en modo pausa o dado de baja en DB`)
+    }
+
+    if(!product.stock){
+      throw new Error (`Sin stock del producto ${product.name}`)
     }
 }
-  
-  
-  // return new Promise ( ( resolve, reject ) => { 
-
    
-
-  //   if(product.status != true){
-    
-  //     return reject("Producto dado de baja de la BD");
-       
-  //    }
-
-  //   if(product.stock != true){
-  //     return reject("Producto sin stock");
-  //   }
-
-  //    return resolve(product);
-  // })
-    
+  
 
 
 
