@@ -17,7 +17,7 @@ const { drinkValidator, friesValidator } = require('../helpers/product-validator
 router.post('/',[
     checkToken,
     check('drink').custom( drinkValidator ),
-    check('fries').custom( friesValidator ),
+    // check('fries').custom( friesValidator ),
     checkFields,
 ],createTempOrder); 
 

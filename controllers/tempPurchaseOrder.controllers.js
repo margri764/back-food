@@ -19,30 +19,30 @@ const createTempOrder = async ( req , res ) => {
 
       //  guardo el plato principal
        const product = await Product.findById(productID) || null;
+
   
        
        //si llego hasta aca es xq ya paso por los helpers q controlan que las bebidas q vienen en la peticion esten en stock y existan. No hago mas valdiaciones xq en el peor de los casos vendra un array vacio y  propiedad otherExpenses quedara como un array vacio
-  
-      //  const tempDrink = await drinkValidator(drink);
+       
+      //  let tempDrink = drink;
+       
+      //  const arrDrinks = [];
+      //  const arrQuantities = [];
+      //  tempDrink.forEach( item => { arrQuantities.push( item.quantity ) });
+       
+      //  console.log(arrDrinks);
+      //  console.log(arrQuantities);
 
-      //  console.log(tempDrink);
-      //  let tempFries = await friesValidator(fries);
-
-        // const drinkQuantity =tempDrink.map( item => ({...item, quantity:item.quantity = drink.quantity }))
-      
-
-      //  lleno el array con los productos que vienen en la request
-       const tempProductArray = []
-       tempProductArray.push({drink, fries})
-  
-  
+       
       
       const tempOrder = {
           user : user,
           addressDelivery : user.addressDelivery,
           product : product,
           total : req.body.total,
-          otherExpenses : tempProductArray,
+          drink :drink,
+          // fries : tempFries,
+          // otherExpenses : tempProductArray,
           ...rest
       }
   
@@ -53,7 +53,7 @@ const createTempOrder = async ( req , res ) => {
   
       res.status(200).json({
           success: true,
-          order
+          order,
       })
       
      } catch (error) {
@@ -74,15 +74,19 @@ const getTempOrder = async ( req , res ) =>{
   const user = req.userAuth
 
 
-  const tempOrder = await TempPurchaseOrder.find({user : user._id})
+  const tempOrder = await TempPurchaseOrder.find({user : user._id}).populate(["drink", "product"]) 
+  // .populate("product")
   // console.log(tempOrder);
   
-  const drink = getDrinkFromDB(tempOrder)
+  // const drink = getDrinkFromDB(tempOrder)
+
+   
   
 
 
   return res.status(200).json({
     success: true,
+    tempOrder 
    
   })
 

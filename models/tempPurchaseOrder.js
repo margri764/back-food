@@ -33,7 +33,22 @@ const TempPurchaseOrderSchema = Schema({
         default: "INCOMPLETE"
 
      },
-     
+
+    drink : [{
+            
+            idProduct:{
+                type: Schema.Types.ObjectId,
+                ref: "Product",
+            },
+            quantity: {
+                type: Number,
+                required: true
+            }
+    }],
+
+    drinkQuantity : {
+        type : Array
+    },
     
      otherExpenses:  {
         type: Array,
