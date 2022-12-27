@@ -68,17 +68,21 @@ const createTempOrder = async ( req , res ) => {
 }
 
 
-
 const getTempOrder = async ( req , res ) =>{
   
   const user = req.userAuth
 
 
-  const tempOrder = await TempPurchaseOrder.find({user : user._id}).populate(["drink", "product"]) 
-  // .populate("product")
-  // console.log(tempOrder);
-  
-  // const drink = getDrinkFromDB(tempOrder)
+  const tempOrder = await TempPurchaseOrder.find({ user: user._id }) .populate([ "product","user",{
+    path: 'drink', 
+    populate: { 
+      path: '_id',
+      model: "Product",
+      // select : {'_id':""}
+      
+             },
+ }]);
+
 
    
   
@@ -86,18 +90,61 @@ const getTempOrder = async ( req , res ) =>{
 
   return res.status(200).json({
     success: true,
-    tempOrder 
+    tempOrder
    
   })
 
 }
 
+const tempOrderDelete= async (req, res) => {
+ 
 
+  const { id } = req.params;
 
+  const tempPurchaseOrder = await TempPurchaseOrder.findByIdAndDelete( id );
+
+  if(tempPurchaseOrder) {
+        res.json({ 
+          success: true,
+          msg: "Orden eliminada correctamente",      
+          tempPurchaseOrder
+
+        });
+  }else{
+    return res.status(400).json({
+      success: false,
+      msg: "Orden no encontrada"
+    })
+  }
+}
+
+const tempOrderEdit= async (req, res) => {
+ 
+
+  const {id, ...rest} = req.body
+
+  const tempPurchaseOrder = await TempPurchaseOrder.findByIdAndUpdate( id, rest, {new:true} );
+
+  if(tempPurchaseOrder) {
+        res.json({ 
+          success: true,
+          msg: "Orden editada correctamente",      
+          tempPurchaseOrder
+
+        });
+  }else{
+    return res.status(400).json({
+      success: false,
+      msg: "Orden no encontrada"
+    })
+  }
+}
 
 
 module.exports={
         createTempOrder,
-        getTempOrder
+        getTempOrder,
+        tempOrderDelete,
+        tempOrderEdit
 
 }

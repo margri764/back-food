@@ -5,7 +5,7 @@
 
 const { Router } = require ('express');
 const {check} = require ('express-validator');
-const { createTempOrder, getTempOrder } = require('../controllers/tempPurchaseOrder.controllers');
+const { createTempOrder, getTempOrder, tempOrderDelete, tempOrderEdit } = require('../controllers/tempPurchaseOrder.controllers');
 const checkProduct = require('../helpers/check-product');
 const router = Router();
 const { checkToken, multiRole, checkFields,   } = require('../middlewares');
@@ -24,6 +24,14 @@ router.post('/',[
 router.get('/',[
     checkToken,
 ],getTempOrder);
+
+router.delete('/:id',[
+    checkToken,
+],tempOrderDelete);
+
+router.put('/',[
+    checkToken,
+],tempOrderEdit);
 
 
 

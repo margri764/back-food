@@ -46,10 +46,7 @@ const TempPurchaseOrderSchema = Schema({
             }
     }],
 
-    drinkQuantity : {
-        type : Array
-    },
-    
+ 
      otherExpenses:  {
         type: Array,
         default:[]
