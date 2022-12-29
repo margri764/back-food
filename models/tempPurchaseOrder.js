@@ -31,7 +31,11 @@ const TempPurchaseOrderSchema = Schema({
         type : String,
         required: true,
         default: "INCOMPLETE"
+     },
 
+     status :{
+        type : Boolean,
+        default: true
      },
 
     drink : [{

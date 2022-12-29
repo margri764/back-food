@@ -14,7 +14,7 @@ const PurchaseOrderSchema = Schema({
  
      product:{
         type: Schema.Types.ObjectId,
-        ref: "Product",
+        ref: "TempPurchaseOrder",
         required: true
         }
      ,
@@ -31,17 +31,11 @@ const PurchaseOrderSchema = Schema({
 
      },
      
-    
-     otherExpenses:  {
-        type: Object,
-        default:[]
-    },
 
     addressDelivery :{
         type: String,
         default: 'RETIRO EN LOCAL'
     },
-
 
     total:{
         type: String,

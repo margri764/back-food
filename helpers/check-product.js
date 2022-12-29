@@ -5,7 +5,6 @@ const Product = require('../models/product');
 
 
 const checkProduct = async ( productID  ) => {
-  console.log('desde helper', productID);
    
   
     const product = await Product.findOne({_id : productID });

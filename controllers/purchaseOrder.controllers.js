@@ -10,53 +10,53 @@ const checkStatus  = require('../helpers/check-status');
 
 const createOrder= async ( req , res ) => {
     
-     const user = req.userAuth
-
-     const {productID, otherExpenses, ...rest}= req.body;
-
-
+    const user = req.userAuth
+    
+    const {order, ...rest}= req.body;
+    
+    
+    console.log("ORDER: ", order);
     
 
 // Con product estoy manejando el plato principal
-     const product = await Product.findById(productID) || null;
+    //  const product = await Product.findById(productID) || null;
      
 
       
 
     //ESTAS VALIDACIONES STAN XQ PUEDE SER Q AL MOMENTO DE REALIZAR LA COMPRA UN PRODUCTO SE DE BAJA O MENU O LO QUE SEA, EN ESE CASO HABRIA Q ANULAR LA COMPRA!!! RECORDAR Q NO TIENE SOCKETS EN TIEMPO REAL
      
-    if(!product){
-        return res.status(400).json({
-        success:false,
-        msg: "Producto no encontrado en BD"
-        })
-      }
+    // if(!product){
+    //     return res.status(400).json({
+    //     success:false,
+    //     msg: "Producto no encontrado en BD"
+    //     })
+    //   }
 
-      if(product.status != true){
-        return res.status(400).json({
-        success:false,
-        msg: "Producto dado de baja en BD"
-        })
-      }
+    //   if(product.status != true){
+    //     return res.status(400).json({
+    //     success:false,
+    //     msg: "Producto dado de baja en BD"
+    //     })
+    //   }
 
-      if(product.stock != true){
-        return res.status(400).json({
-        success:false,
-        msg: "Producto sin stock"
-        })
-      }
+    //   if(product.stock != true){
+    //     return res.status(400).json({
+    //     success:false,
+    //     msg: "Producto sin stock"
+    //     })
+    //   }
     
-    const order = {
-        user : user._id,
-        addressDelivery : user.addressDelivery,
-        product : product,
-        total : product.price,
-        otherExpenses : otherExpenses,
-        // statusOrder,
-        ...rest
-    }
+    // const order = {
+    //     user : user._id,
+    //     addressDelivery : user.addressDelivery,
+    //     product : product,
+    //     total : product.price,
+    //     otherExpenses : otherExpenses,
+    //     // statusOrder,
+    //     ...rest
+    // }
 
-    console.log("ORDER: ", order);
     // const purchaseOrder =  new PurchaseOrder (order);
 
     // purchaseOrder.save()

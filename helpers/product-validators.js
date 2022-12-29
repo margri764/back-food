@@ -11,7 +11,6 @@ const drinkValidator = async ( drink )=>{
     const arrIDs = [];
 
       drink.forEach( item => { arrIDs.push(item._id) });
-    //   drink.forEach( item => { arrQuantities.push(item.quantity) });
 
     
     const product = await Product.find({_id : { $in: arrIDs }});
