@@ -55,26 +55,19 @@ const createTempOrder = async ( req , res ) => {
     
 }
 
-
 const getTempOrder = async ( req , res ) =>{
   
   const user = req.userAuth
 
+try {
 
   const tempOrder = await TempPurchaseOrder.find({ user: user._id }) .populate([ "product","user",{
     path: 'drink', 
     populate: { 
       path: '_id',
       model: "Product",
-      // select : {'_id':""}
-      
              },
- }]);
-
-
-   
-  
-
+ }])
 
   return res.status(200).json({
     success: true,
@@ -82,6 +75,14 @@ const getTempOrder = async ( req , res ) =>{
    
   })
 
+
+
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      msg: 'Oooops no se pudo obtener las ordenes de compra desde la BD'
+    })
+  }
 }
 
 const tempOrderDelete= async (req, res) => {

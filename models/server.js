@@ -36,6 +36,7 @@ class Server{
 
     routes(){
         this.app.use('/api/auth', require('../routes/auth.routes'));
+        this.app.use('/api/auth/renewToken', require('../routes/auth.routes'));
         this.app.use('/api/user', require('../routes/user.routes'));
         this.app.use('/api/order', require('../routes/order.routes'));
         this.app.use('/api/tempPurchaseOrder', require('../routes/tempPurchaseOrder.routes'));

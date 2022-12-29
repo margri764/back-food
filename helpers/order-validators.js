@@ -13,8 +13,7 @@ const orderValidator = async ( order )=>{
     
     tempArrIds = order.filter( item =>  item.tempOrder);
     tempArrIds.forEach( item => { arrIDs.push(item.tempOrder) });
-    console.log("tempArrIds",tempArrIds);
-    console.log('arrIDS',arrIDs);
+
     
     const tempOrder = await TempPurchaseOrder.find({_id : { $in: arrIDs }});
 
@@ -35,7 +34,6 @@ const orderValidator = async ( order )=>{
 
         throw new Error (`Uno de las ordenes esta eliminada, invalidar pedido  ${identify}`)
      }
-
 
 
 }

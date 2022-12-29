@@ -27,6 +27,7 @@ router.get('/:id',[
 
 ],getProductById)
 
+//no lleva middlewares xq es lo q se tiene q cargar si o si en el inicio de la app
 router.get('/',[
 
 ],getProductByCategory)

@@ -324,17 +324,26 @@ const loginStaff = async (req, res=response)=>{
 
 const revalidateJWToken = async(req, res = response ) => {
 
-    const { id } = req.header('token');
-    console.log('revalidate')
-
-    // Generar el JWT
-    const token = await setJWT( id );
-
-    return res.json({
-        success: true,
-        id, 
-        token
-    });
+    try {
+        
+        const { _id } =  req.userAuth
+    
+        console.log('revalidate')
+    
+        // Generar el JWT
+        const token = await JWTGenerator(_id)
+    
+        return res.json({
+            success: true,
+            token
+        });
+    } catch (error) {
+        
+        return res.status(400).json({
+            success : false,
+            msg : 'Oooops ocurrió un error al revalidar JWT'
+        })
+    }
 
 }
 

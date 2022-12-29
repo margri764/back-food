@@ -6,7 +6,7 @@ const router = Router();
 const { userPost } = require('../controllers/staff.controllers');
 const { checkToken, superRole, checkFields, checkTokenStaff, multiRole } = require('../middlewares')
 const { isRoleValid } = require('../helpers/db-validators');
-const { getOrder, editOrderStatus } = require('../controllers/purchaseOrder.controllers');
+const { getOrder, } = require('../controllers/purchaseOrder.controllers');
 
 
 // para crear un empleado tiene q ser un usuario SUPER_ROLE 
@@ -26,11 +26,11 @@ router.get('/order',[
     checkFields
 ],getOrder); 
 
-router.put('/orderStatus/:id',[
-    checkTokenStaff,
-    multiRole("SUPER_ROLE","ADMIN_ROLE"),
-    checkFields
-],editOrderStatus); 
+// router.put('/orderStatus/:id',[
+//     checkTokenStaff,
+//     multiRole("SUPER_ROLE","ADMIN_ROLE"),
+//     checkFields
+// ],editOrderStatus); 
 
 
 // SOLO EL SUPER ROLE PUEDE ENTRAR AQUI!!!
