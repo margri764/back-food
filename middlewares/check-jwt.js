@@ -90,6 +90,7 @@ const checkToken = async ( req , res, next)=>{
        });
    }
 
+   
    try {
 
        //desde aca saca el id de la persona logeada la cual se graba en el token, si se produce un error de expiracion o inavlido xq se manipulo el jwt salta un error 
@@ -98,6 +99,9 @@ const checkToken = async ( req , res, next)=>{
                        if(err){
                            if (err.message === "jwt expired") {
                                expired = true;
+                                     
+                                    // Generar el JWT
+                        //   const token = await JWTGenerator(user._id)
                            }
                            if (err.message === "invalid signature") {
                                invalid = true;
@@ -113,7 +117,10 @@ const checkToken = async ( req , res, next)=>{
            
        if(expired ){
 
-           // res.setHeader("x-token", tokenNuevo);
+        // Generar el JWT
+        //   const token = await JWTGenerator(user._id)
+
+        //    res.setHeader("x-token", tokenNuevo);
            return res.status(401).json({
                msg:'Token expirado'
            });
@@ -215,6 +222,7 @@ const checkTokenStaff = async ( req , res, next)=>{
     })
  }
 }
+
 module.exports={
                 checkToken,
                 checkTokenStaff,

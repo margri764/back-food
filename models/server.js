@@ -1,6 +1,8 @@
 
 const express = require('express');
+const path = require('path');
 const cors = require ('cors');
+var cookieParser = require('cookie-parser');
 const { dbConnection } = require('../db/config.db');
 const fileUpload = require('express-fileupload');
 
@@ -20,9 +22,36 @@ class Server{
     }
     
     middlewares(){
-        this.app.use(cors());
+
         this.app.use(express.json());
+
+        const whiteList = [process.env.ORIGIN1];
+
+        this.app.use(
+            cors({
+                origin: function (origin, callback) {
+                    console.log("😲😲😲 =>", origin);
+                    if (!origin || whiteList.includes(origin)) {
+                        return callback(null, origin);
+                    }
+                    return callback(
+                        "Error de CORS origin: " + origin + " No autorizado!"
+                    );
+                },
+                credentials: true,
+            })
+        );
+        
+        // this.app.use(cors());
+
+        // this.app.use(cors( {
+        //     origin: 'http://localhost:4200',
+        //     allowedHeaders: *,
+        //     credentials: true
+        // } ));
+
         this.app.use(express.static('public'));
+        this.app.use(cookieParser());  
         this.app.set('trust proxy', true);
         this.app.use(fileUpload({
             useTempFiles : true,

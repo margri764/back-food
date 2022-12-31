@@ -6,6 +6,8 @@ const createSMS = require ('../config/sms')
 const UserSignUp = require ('../models/user-login');
 const User = require ('../models/user');
 const Staff = require('../models/staff');
+const { generateToken, generateRefreshToken } = require('../helpers/tokenManager');
+
 
 
 
@@ -204,6 +206,13 @@ const login = async (req, res=response)=>{
     try {
         
         let user = await User.findOne({email});
+
+        if(user.stateAccount === false) {
+            return res.status(400).json({
+                success: false,
+                msg: 'Usuario eliminado de la BD'
+            })
+        }
         
         
         // userVerified solo es para ver si ya esta verificado
@@ -241,10 +250,11 @@ const login = async (req, res=response)=>{
         
         user = await User.findOne({ user_login : userVerified._id});
         
-        //   pagina 58 de notas-node, era para usar en todos lados de la app al usuario aytenticado
-    //    req.userAuth = user;
+   
 
-    const token = await JWTGenerator(user._id);
+        const token = await generateToken(user._id);
+
+        generateRefreshToken(user._id, res);
 
          res.status(200).json({
             success: true,
@@ -322,30 +332,33 @@ const loginStaff = async (req, res=response)=>{
 }
 
 
-const revalidateJWToken = async(req, res = response ) => {
+const refreshToken = (req, res) => {
 
+    const _id = req._id
+
+    // console.log('_id desde refresh controller', _id);
     try {
+        const { token, expiresIn } = generateToken (_id);
         
-        const { _id } =  req.userAuth
-    
-        console.log('revalidate')
-    
-        // Generar el JWT
-        const token = await JWTGenerator(_id)
-    
         return res.json({
-            success: true,
-            token
-        });
-    } catch (error) {
-        
-        return res.status(400).json({
-            success : false,
-            msg : 'Oooops ocurrió un error al revalidar JWT'
-        })
-    }
+             token,
+             expiresIn
+             });
 
-}
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "error de server" });
+    }
+};
+
+
+const logout = (req, res) => {
+    res.clearCookie("refreshToken");
+    res.json({ ok: true });
+};
+
+
+
 
 
 
@@ -355,6 +368,6 @@ module.exports={
     signUp,
     confirm,
     phone,
-    revalidateJWToken
+    refreshToken
 }
 

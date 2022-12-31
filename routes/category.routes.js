@@ -9,7 +9,7 @@
  
  
 //  const { checkToken } = require ('../middlewares/check-jwt');
- const { adminRole, checkFields, checkToken, checkTokenStaff, multiRole, } = require('../middlewares');
+ const { adminRole, checkFields, checkTokenStaff, multiRole, } = require('../middlewares');
 
  
  

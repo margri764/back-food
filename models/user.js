@@ -8,12 +8,15 @@ const UserSchema = Schema({
 
     firstName:  {
         type:String,
-        default:''
+        default:'',
+        trim: true
     },
     
     lastName:  {
         type:String,
-        default:''
+        default:'',
+        trim: true
+
     },
 
     password: {

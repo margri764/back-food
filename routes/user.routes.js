@@ -1,11 +1,11 @@
 
 const { Router } = require ('express');
-const {check} = require ('express-validator');
+const { check } = require ('express-validator');
 const { userPost, userPut, getUserById, usersDelete} = require('../controllers/user.controllers');
 const { checkEmailRegister } = require ('../controllers/emailCheck')
-const { checkFields, multiRole, checkToken } = require('../middlewares');
+const { checkFields, multiRole, requireToken } = require('../middlewares');
 const { isRoleValid, checkEmail, checkId } = require('../helpers/db-validators');
-const role = require('../models/role');
+// const role = require('../models/role');
 const router = Router();
 
 
@@ -27,7 +27,7 @@ router.get('/checkemail',[
 
 // router.put('/:id',[
 router.put('/',[
-    checkToken,
+    requireToken,
     // check('id','No es un id valido de mongoDB').isMongoId(),
     // check('id').custom( checkId ),
     // check('role').custom( isRoleValid),
@@ -38,13 +38,13 @@ router.put('/',[
 // aca deberia obtener un usuario pero por el id q esta EN EL token 
 // router.get('/:id',[
 router.get('/',[
-  checkToken,
+  requireToken,
 ],getUserById);
 
-//el checkToken proteje esta ruta con los JWT para q no sea publica 
+//el requireToken,proteje esta ruta con los JWT para q no sea publica 
 router.delete('/:id',
 [
-    checkToken,
+    requireToken,
     multiRole ('ADMIN_ROLE','USER_ROLE',''),
     check('id','No es un id valido de mongoDB').isMongoId(),
     check('id').custom( checkId ),
