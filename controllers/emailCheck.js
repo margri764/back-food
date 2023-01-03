@@ -20,7 +20,7 @@ const checkEmailRegister= async (req, res = response) => {
         
     } catch (error) {
 
-        res.status(404).json({
+        res.status(500).json({
             success:false,
             msg:"Ups! algo salió mal, reintentá mas tarde"
         })

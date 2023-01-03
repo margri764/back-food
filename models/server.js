@@ -23,14 +23,14 @@ class Server{
     
     middlewares(){
 
-        this.app.use(express.json());
-
         const whiteList = [process.env.ORIGIN1];
+        this.app.use(express.json());
+        this.app.use(cookieParser());  
 
         this.app.use(
             cors({
                 origin: function (origin, callback) {
-                    console.log("😲😲😲 =>", origin);
+                    // console.log("😲😲😲 =>", origin);
                     if (!origin || whiteList.includes(origin)) {
                         return callback(null, origin);
                     }
@@ -42,16 +42,7 @@ class Server{
             })
         );
         
-        // this.app.use(cors());
-
-        // this.app.use(cors( {
-        //     origin: 'http://localhost:4200',
-        //     allowedHeaders: *,
-        //     credentials: true
-        // } ));
-
         this.app.use(express.static('public'));
-        this.app.use(cookieParser());  
         this.app.set('trust proxy', true);
         this.app.use(fileUpload({
             useTempFiles : true,

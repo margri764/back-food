@@ -110,13 +110,15 @@ try {
 
     const userToken = req.userAuth
 
+    console.log(userToken);
+
     
     //busco al usuario de la req por id
-    let searchUser = await User.findOne({_id : userToken._id} ) || null;
+    // let searchUser = await User.findOne({_id : userToken._id} ) || null;
     
-    if(searchUser !== null){
+    const user = await User.findByIdAndUpdate( {_id : userToken._id}, rest,{new:true})
+    if(user !== null){
       
-        const user = await User.findByIdAndUpdate( searchUser._id, rest,{new:true})
 
         res.status(200).json({
             success : true,

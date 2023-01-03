@@ -35,9 +35,9 @@ router.put('/',[
 ],userPut);
 
 
-// aca deberia obtener un usuario pero por el id q esta EN EL token 
-// router.get('/:id',[
 router.get('/',[
+
+    // aca necesito el token por Bearer
   requireToken,
 ],getUserById);
 

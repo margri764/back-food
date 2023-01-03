@@ -1,4 +1,6 @@
 
+/* En teoria deberia ser una sola orden, salvo q un cliente haga varias compras, cierre el pedido lo pague y
+   en el mismo dia se acuerde de algo y vuelva a comprar */
 
 const {Schema, model} = require ('mongoose');
 
@@ -12,19 +14,6 @@ const PurchaseOrderSchema = Schema({
         required: true
      },
 
-    //  drink : [{
-            
-    //     idProduct:{
-    //         type: Schema.Types.ObjectId,
-    //         ref: "Product",
-    //     },
-    //     quantity: {
-    //         type: Number,
-    //         required: true
-    //     }
-    //     }],
-
- 
      order: [{
             type: Schema.Types.ObjectId,
             ref: "TempPurchaseOrder",
@@ -39,7 +28,7 @@ const PurchaseOrderSchema = Schema({
      statusOrder:{
         type : String,
         required: true,
-        default: "RECEIVED"
+        default: "INGRESADO"
 
      },
      

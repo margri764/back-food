@@ -146,7 +146,8 @@ const checkToken = async ( req , res, next)=>{
         next(); 
 
     } catch (error) {
-        return res.status(400).json({ 
+        consolelog("Desde checkToken: ", error)
+        return res.status(401).json({ 
             msg: 'Error al obtener Token'
     })
  }
@@ -217,6 +218,7 @@ const checkTokenStaff = async ( req , res, next)=>{
         next(); 
 
     } catch (error) {
+        console.log("desde checkTokenStaff: ", error);
         return res.status(401).json({ 
             msg: 'Error al intentar obtener token'
     })

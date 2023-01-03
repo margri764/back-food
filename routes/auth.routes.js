@@ -1,7 +1,7 @@
 const { Router } = require ('express');
 const {check} = require ('express-validator');
 const { checkFields, requireToken, requireRefreshToken } = require('../middlewares')
-const { confirm, signUp, login, phone, loginStaff, refreshToken} = require('../controllers/auth.controllers');
+const { confirm, signUp, login, phone, loginStaff, refreshToken, logout} = require('../controllers/auth.controllers');
 const router = Router();
 
 // ver si necesito mas checks
@@ -31,9 +31,11 @@ router.post('/loginStaff',[
 
 // Validar y revalidar token
 router.get( '/renewToken',[
+
+    // aca necesito el refreshToken desde Bearer 
     requireRefreshToken
 ] , refreshToken  );
 
 
-
+router.get("/logout", logout);
 module.exports= router;

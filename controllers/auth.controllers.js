@@ -191,7 +191,7 @@ const confirm = async (req, res) => {
        }
     } catch (error) {
         console.log(error);
-        return res.json({
+        return res.status(500).json({
             success: false,
             msg: 'Error al confirmar usuario'
         });
@@ -249,8 +249,6 @@ const login = async (req, res=response)=>{
         me falten datos, como la app tiene delivery tengo mas instancias para recolectar datos*/ 
         
         user = await User.findOne({ user_login : userVerified._id});
-        
-   
 
         const token = await generateToken(user._id);
 
@@ -260,7 +258,7 @@ const login = async (req, res=response)=>{
             success: true,
             token,
             user
-            })
+        })
 
 
    } catch (error) {
@@ -368,6 +366,7 @@ module.exports={
     signUp,
     confirm,
     phone,
-    refreshToken
+    refreshToken,
+    logout
 }
 

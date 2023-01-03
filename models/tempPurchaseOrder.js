@@ -1,5 +1,7 @@
 
-
+/* estas ordenes temporales me sirven para mostrarle al cliente q es lo q esta comprando, obvio que pueden ser
+varias ordens hasta conformar un pedido, tambien me sirven para lo reloads o cuando dejan una orden inconclusa 
+NO TENGO Q OLVIDARME DE INVALIDARLAS SI PASA MAS DE UN DIA SOBRE TODO POR EL TEMA DEL STOCK */ 
 
 
 const {Schema, model} = require ('mongoose');

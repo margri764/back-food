@@ -8,6 +8,8 @@ const { tokenVerificationErrors } = require("../helpers/tokenManager.js");
     try {
         const refreshTokenCookie = req.cookies.refreshToken;
 
+        console.log("refreshTokenCookie: ",refreshTokenCookie);
+
         if (!refreshTokenCookie) throw new Error("No existe el token");
 
         const { _id } = jwt.verify(refreshTokenCookie, process.env.REFRESHPRIVATEKEY);

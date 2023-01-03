@@ -8,7 +8,7 @@ const generateToken = ( _id ) =>{
 
         const payload =  {_id } ; 
         
-        const expiresIn = 60 * 5;
+        const expiresIn = 60 * 60 * 60;
         console.log("desde generateToken: ",payload);
 
         try {
@@ -17,6 +17,8 @@ const generateToken = ( _id ) =>{
             return { token, expiresIn };
         } catch (error) {
             console.log("desde generate Token",error);
+
+            
         }
     }
 

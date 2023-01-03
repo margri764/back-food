@@ -16,19 +16,35 @@ const createOrder= async ( req , res ) => {
         const user = req.userAuth
         const { order, ...rest }= req.body;
 
-        console.log(req.body);
+        // console.log(req.body);
 
         let arrIDs = [];
         let tempArrIds = []; 
         let tempTotal = [];
         
-        tempArrIds = order.filter( item =>  item.tempOrder);
-        tempArrIds.forEach( item => { arrIDs.push(item.tempOrder) });
+         order.forEach( item => arrIDs.push(item._id));
+        // tempArrIds.forEach( item => { arrIDs.push(item.tempOrder) });
 
         tempTotal = order.filter( item =>  item.total);
         tempTotal.forEach( item => { total = item.total });
 
-        const orderIds = await TempPurchaseOrder.find({_id : { $in: arrIDs }});
+        let orderIds = await TempPurchaseOrder.find({_id : { $in: arrIDs }})
+
+            await TempPurchaseOrder.updateMany(
+                { user : user._id}, //QUERY para decirle que campo debe editar
+                {"$set":{"statusOrder": "COMPLETE"}},   // le paso el valor de reemplazo
+                ) //Filtras los documentos que quieres actualizar
+         
+        
+        orderIds.map((item)=>{
+            console.log("from: ",item.statusOrder) 
+            
+        })
+        
+            //  console.log(orderIds);
+
+        // console.log());
+
 
         const tempOrder = {
             user : user._id,
@@ -52,7 +68,7 @@ const createOrder= async ( req , res ) => {
 
     } catch (error) {
 
-        return res.status(400).json({
+        return res.status(500).json({
             success: false,
             msg: 'Ooops algo salio mal al crear la orden'
         })
@@ -96,26 +112,51 @@ const getOrder= async ( req , res ) => {
     
     const user = req.userAuth
 
+    try {
 
-    const purchaseOrder = await PurchaseOrder.find({ user: user._id }) 
+        const purchaseOrder = await PurchaseOrder.find({ user: user._id }) 
         .populate( {
-          path: 'order', 
-          populate: [{ 
-                        path: 'drink',
-                        model: "TempPurchaseOrder",
-                     },{
-                        path: 'drink._id',
-                        model: "Product",
-                     }
-                    ],
-         })
+            path: 'order', 
+            populate: [{ 
+                          path: 'drink',
+                          model: "TempPurchaseOrder",
+                       },
+                       {
+                          path: 'drink._id',
+                          model: "Product",
+                       },
+                       {
+                          path: 'product',
+                          model: "Product",
+                       },
+                      ],
+           })
+    
+        if(!purchaseOrder){
+    
+            return res.status(400).json ({
+                success : false,
+                msg : `No se encontraron ordenes para el usuario ${user.firstName} ${user.lastName} `
+            })
+        }
+    
+    
+       
+        res.json({ 
+            success : true,
+            purchaseOrder
+    
+        });
+        
+    } catch (error) {
+        return res.status(500).json ({
+            success : false,
+            msg : `Ooops algo salió mal al intentar obtener las ordenes de compra `
+        })
 
+    }
 
-   
-    res.json({ 
-        purchaseOrder
-
-    });
+ 
 }
 
 

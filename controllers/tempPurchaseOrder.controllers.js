@@ -5,8 +5,6 @@ const User = require ('../models/user');
 const PurchaseOrder = require('../models/purchaseOrder');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const Product = require('../models/product');
-const PurchaseOrderStatus = require('../models/purchaseOrderStatus');
-const { drinkValidator , friesValidator, getDrinkFromDB }  = require('../helpers/product-validators');
 
 
 const createTempOrder = async ( req , res ) => {
@@ -46,7 +44,7 @@ const createTempOrder = async ( req , res ) => {
       
      } catch (error) {
 
-      return res.status(400).json({
+      return res.status(500).json({
         success: false,
         msg: "OOOps!!! algo salio mal al crear la orden temporal"
       })
@@ -60,14 +58,20 @@ const getTempOrder = async ( req , res ) =>{
   const user = req.userAuth
 
 try {
-
-  const tempOrder = await TempPurchaseOrder.find({ user: user._id }) .populate([ "product","user",{
-    path: 'drink', 
-    populate: { 
-      path: '_id',
-      model: "Product",
-             },
- }])
+  // ,{statusOrder : "INCOMPLETE"}
+  const tempOrder = await TempPurchaseOrder.find({
+    $and:[
+          { user: user._id },
+          { statusOrder : "INCOMPLETE"}
+        ]})
+        .populate([ "product","user",{
+                  path: 'drink', 
+                  populate: { 
+                    path: '_id',
+                    model: "Product",
+                           },
+         }])
+        
 
   return res.status(200).json({
     success: true,
@@ -78,7 +82,7 @@ try {
 
 
   } catch (error) {
-    return res.status(400).json({
+    return res.status(500).json({
       success: false,
       msg: 'Oooops no se pudo obtener las ordenes de compra desde la BD'
     })

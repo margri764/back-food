@@ -4,13 +4,13 @@ const {check} = require ('express-validator');
 const router = Router();
 const { createOrder, getOrder } = require('../controllers/purchaseOrder.controllers');
 const { orderValidator } = require('../helpers/order-validators');
-const { checkToken, multiRole, checkFields } = require('../middlewares');
+const { checkToken, multiRole, checkFields, requireToken } = require('../middlewares');
 
 
 
 
 router.post('/',[
-    checkToken,
+    requireToken,
     check('order').custom( orderValidator ),
     checkFields
     // multiRole ('ADMIN_ROLE','SUPER_ROLE'),
@@ -18,7 +18,7 @@ router.post('/',[
 
 
 router.get('/',[
-    checkToken,
+    requireToken,
 ],getOrder); 
 
 
