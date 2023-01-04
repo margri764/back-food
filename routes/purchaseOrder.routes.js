@@ -2,7 +2,7 @@
 const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
-const { createOrder, getOrder } = require('../controllers/purchaseOrder.controllers');
+const { createOrder, getOrder, editOrder } = require('../controllers/purchaseOrder.controllers');
 const { orderValidator } = require('../helpers/order-validators');
 const { checkToken, multiRole, checkFields, requireToken } = require('../middlewares');
 
@@ -21,7 +21,9 @@ router.get('/',[
     requireToken,
 ],getOrder); 
 
-
+router.post('/orderStatus',[
+    requireToken,
+],editOrder);
 
 
 

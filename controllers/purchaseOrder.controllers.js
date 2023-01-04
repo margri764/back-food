@@ -129,6 +129,10 @@ const getOrder= async ( req , res ) => {
                           path: 'product',
                           model: "Product",
                        },
+                       {
+                          path: 'user',
+                          model: "User",
+                      },
                       ],
            })
     
@@ -160,6 +164,61 @@ const getOrder= async ( req , res ) => {
 }
 
 
+const editOrder= async ( req , res ) => {
+    
+    const user = req.userAuth
+    console.log(req.body);
+
+    // try {
+
+    //     const purchaseOrder = await PurchaseOrder.find({ user: user._id }) 
+    //     .populate( {
+    //         path: 'order', 
+    //         populate: [{ 
+    //                       path: 'drink',
+    //                       model: "TempPurchaseOrder",
+    //                    },
+    //                    {
+    //                       path: 'drink._id',
+    //                       model: "Product",
+    //                    },
+    //                    {
+    //                       path: 'product',
+    //                       model: "Product",
+    //                    },
+    //                    {
+    //                       path: 'user',
+    //                       model: "User",
+    //                   },
+    //                   ],
+    //        })
+    
+    //     if(!purchaseOrder){
+    
+    //         return res.status(400).json ({
+    //             success : false,
+    //             msg : `No se encontraron ordenes para el usuario ${user.firstName} ${user.lastName} `
+    //         })
+    //     }
+    
+    
+       
+    //     res.json({ 
+    //         success : true,
+    //         purchaseOrder
+    
+    //     });
+        
+    // } catch (error) {
+    //     return res.status(500).json ({
+    //         success : false,
+    //         msg : `Ooops algo salió mal al intentar obtener las ordenes de compra `
+    //     })
+
+    // }
+
+ 
+}
 
 
 
@@ -168,5 +227,6 @@ const getOrder= async ( req , res ) => {
 module.exports={
  createOrder,
     getOrder,
+    editOrder
 
 }

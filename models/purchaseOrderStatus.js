@@ -16,9 +16,9 @@ statusOrder: {
 },
 
 order:{
-type: Schema.Types.ObjectId,
-ref: "PurchaseOrder",
-required : true
+    type: Schema.Types.ObjectId,
+    ref: "PurchaseOrder",
+    required : true
 },
 
 
