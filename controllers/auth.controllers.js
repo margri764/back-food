@@ -55,8 +55,6 @@ res.status(200).json({
 }
 }
 
-
-
 const signUp = async (req, res=response) => {
     
     try {
@@ -309,10 +307,12 @@ const loginStaff = async (req, res=response)=>{
         /* si llego hasta aca es xq el usuario login ya esta creado y entonces el usuario tambien ya se creo aunque
         me falten datos, como la app tiene delivery tengo mas instancias para recolectar datos*/ 
         
-        // user = await User.findOne({ user_login : userVerified._id});
+
+        const token = await generateToken(user._id);
+
+        generateRefreshToken(user._id, res);
 
 
-    const token = await JWTGenerator(user._id);
 
          res.status(200).json({
             success: true,

@@ -18,11 +18,12 @@ router.post('/',[
 
 
 router.get('/',[
-    requireToken,
+ 
 ],getOrder); 
 
 router.post('/orderStatus',[
     requireToken,
+    multiRole('ADMIN_ROLE ','SUPER_ROLE ' ,'STAFF_ROLE '),
 ],editOrder);
 
 

@@ -2,7 +2,7 @@
 const { Router } = require ('express');
 const { check } = require ('express-validator');
 const { userPost, userPut, getUserById, usersDelete} = require('../controllers/user.controllers');
-const { checkEmailRegister } = require ('../controllers/emailCheck')
+const { checkEmailRegister, checkEmailStaff } = require ('../controllers/emailCheck')
 const { checkFields, multiRole, requireToken } = require('../middlewares');
 const { isRoleValid, checkEmail, checkId } = require('../helpers/db-validators');
 // const role = require('../models/role');
@@ -24,6 +24,9 @@ router.post('/',[
 
 router.get('/checkemail',[
 ],checkEmailRegister);
+
+router.get('/checkemailStaff',[
+],checkEmailStaff);
 
 // router.put('/:id',[
 router.put('/',[

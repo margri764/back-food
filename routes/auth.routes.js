@@ -38,4 +38,5 @@ router.get( '/renewToken',[
 
 
 router.get("/logout", logout);
+
 module.exports= router;

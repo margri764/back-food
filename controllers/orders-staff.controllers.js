@@ -4,7 +4,7 @@ const PurchaseOrder = require('../models/purchaseOrder');
 const Product = require('../models/product');
 const PurchaseOrderStatus = require('../models/purchaseOrderStatus');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
-const checkStatus  = require('../helpers/check-status');
+const checkStatus  = require('../helpers/check_status');
 
 
 
@@ -40,12 +40,10 @@ const editOrderStatus = async ( req , res ) => {
  
     try {
     
-        const { status, date  } = req.body;
+        const { id, status  } = req.body;
         
-        const staff = req.staffAuth
+        const staff = req.userAuth
 
-        // aca viene el id de orden de compra
-        const { id } = req.params;
     
         // busco si la orden de compra existe        
         const purchaseOrder = await PurchaseOrder.findOne( {id} ) || null;

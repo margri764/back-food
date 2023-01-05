@@ -4,9 +4,10 @@ const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
 const { userPost } = require('../controllers/staff.controllers');
-const { checkToken, superRole, checkFields, checkTokenStaff, multiRole } = require('../middlewares')
+const { superRole, checkFields, checkTokenStaff, multiRole, requireToken } = require('../middlewares')
 const { isRoleValid } = require('../helpers/db-validators');
-const { getOrder, } = require('../controllers/purchaseOrder.controllers');
+const { getOrder, createOrder, } = require('../controllers/purchaseOrder.controllers');
+const { checkStatus } = require('../helpers/check_status');
 
 
 // para crear un empleado tiene q ser un usuario SUPER_ROLE 
@@ -14,17 +15,28 @@ const { getOrder, } = require('../controllers/purchaseOrder.controllers');
 //estas son las rutas de lo q puede o no hacer un empleado
 
 router.post('/',[
-    checkTokenStaff,
+    // checkTokenStaff,
+    requireToken,
     superRole,
     checkFields
     
 ],userPost); 
 
 router.get('/order',[
-    checkTokenStaff,
+    // checkTokenStaff,
+    requireToken,
     multiRole("SUPER_ROLE","ADMIN_ROLE"),
     checkFields
 ],getOrder); 
+
+
+router.post('/',[
+    requireToken,
+    multiRole("SUPER_ROLE","ADMIN_ROLE","STAFF_ROLE"),
+    check('status').custom( checkStatus),
+    checkFields
+    
+],createOrder); 
 
 // router.put('/orderStatus/:id',[
 //     checkTokenStaff,

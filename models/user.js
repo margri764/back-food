@@ -37,8 +37,8 @@ const UserSchema = Schema({
     },
 
     addressDelivery :{
-        type: Object,
-        default: []
+        type: String,
+        default: ''
     },
 
     addressFavorite :{
