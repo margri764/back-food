@@ -18,7 +18,7 @@ router.post('/',[
 
 
 router.get('/',[
- 
+    requireToken,
 ],getOrder); 
 
 router.post('/orderStatus',[

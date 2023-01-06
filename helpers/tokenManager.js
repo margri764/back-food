@@ -33,7 +33,7 @@ const generateRefreshToken = ( _id, res ) => {
     console.log("desde generateRefreshToken: ",payload);
 
 try {
-    const refreshToken = jwt.sign( payload , process.env.REFRESHPRIVATEKEY,{ expiresIn })
+    const refreshToken = jwt.sign( payload , process.env.REFRESHPRIVATEKEY, { expiresIn })
 
 //    console.log('refreshToken', refreshToken);
     // la cookie tiene un tiempo de expiracion distina le digo q dure el mes a partir de hoy y se multiplica por mil

@@ -1,15 +1,29 @@
 
 const Staff = require ('../models/staff');
-const UserLogin = require ('../models/user-login')
+const User = require ('../models/user')
 
 const checkEmailRegister= async (req, res = response) => {
     
     try {
         const q= req.query.q;
 
-       let user = await UserLogin.findOne({email: q}) || null;
-        // || userStaff == null
-        if( user == null){
+        console.log("desde checkemailregister: ",q);
+
+        let emailToCheck = q.split("@");
+  
+        
+        let user;
+        
+        if(emailToCheck.includes(process.env.EMAILSTAFF)){
+            
+            user = await Staff.findOne({email: q}) || null;
+        }else{
+            user = await User.findOne({email: q}) || null;
+
+       }    
+       
+
+       if( user == null){
             res.status(200).json([]);
 
         }else{    
@@ -36,8 +50,7 @@ const checkEmailStaff= async (req, res = response) => {
     try {
         const q= req.query.q;
 
-        console.log(q);
-
+        console.log("desde checkemailstaff: ",q);
        let user = await Staff.findOne({email: q}) || null;
 
        if( user == null){

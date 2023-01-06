@@ -1,7 +1,9 @@
 const {response} = require ('express');
 
 const User = require ('../models/user');
-const UserSignUp = require ('../models/user-login');
+const UserSignUp = require ('../models/userSignUp');
+const Staff = require ('../models/staff');
+
 
 
 
@@ -22,31 +24,50 @@ const userGet = async (req,res=response)=>{
     });
 }
 
-const getUserById = async (req,res=response)=>{
+const getUserById = async (req,res=response)=> {
 
     // const { id }  = req.params;
-     const userToken = req.userAuth
+    const userToken = req.userAuth
 
+    let emailToCheck = userToken.email.split("@");
     
-    // console.log(userToken);
+    let user;
+    
+    try {
+    // depende del valor del email del staff de cada empresa, busca en una u otra coleccion
+        
+        if(emailToCheck.includes(process.env.EMAILSTAFF)){
 
-    //busco al usuario de la req por id
-    let user = await User.findById(userToken._id);
-   
-    if( !user){
-        return res.status(400).json({
-            success: false,
-            msg: 'Usuario no encontrado'
+            user = await Staff.findById(userToken._id);
+        }else{
+
+            user = await User.findById(userToken._id);
+            
+        }    
+       
+    
+        if( !user){
+            return res.status(400).json({
+                success: false,
+                msg: 'Usuario no encontrado'
+            });
+        }
+    
+
+        res.status(200).json({ 
+            success : true,
+            user
+        
         });
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                success: false,
+                msg: 'Error al buscar usuario por id'
+            });
+        }
     }
-   
-
-    res.status(200).json({ 
-        success : true,
-        user
-
-    });
-}
 
 const userPost= async (req, res = response) => {
     

@@ -3,7 +3,7 @@ const {response} = require ('express');
 const bcryptjs = require('bcryptjs');
 const { JWTGenerator } = require('../helpers/jwt-generator');
 const createSMS = require ('../config/sms')
-const UserSignUp = require ('../models/user-login');
+const UserSignUp = require ('../models/userSignUp');
 const User = require ('../models/user');
 const Staff = require('../models/staff');
 const { generateToken, generateRefreshToken } = require('../helpers/tokenManager');
@@ -196,14 +196,28 @@ const confirm = async (req, res) => {
     }
 }
 
-
 const login = async (req, res=response)=>{
 
-    const {email, password} = req.body;
+    const { email, password } = req.body;
+
+    // depende del valor del email del staff de cada empresa, busca en una u otra coleccion
+    let emailToCheck = email.split("@");
+    
+    let user;
+    let userVerified;
     
     try {
+    // depende del valor del email del staff de cada empresa, busca en una u otra coleccion
         
-        let user = await User.findOne({email});
+        if(emailToCheck.includes(process.env.EMAILSTAFF)){
+
+            user = await Staff.findOne({email});
+        }else{
+
+            user = await User.findOne({email});
+            userVerified = true;
+            
+        }     
 
         if(user.stateAccount === false) {
             return res.status(400).json({
@@ -214,15 +228,19 @@ const login = async (req, res=response)=>{
         
         
         // userVerified solo es para ver si ya esta verificado
-        const userVerified = await UserSignUp.findOne({email});
+        // si se trata de un email q no es de la empresa busca en los clientes
         
-        if(userVerified.state === "UNVERIFIED") {
-            return res.status(400).json({
-                success: false,
-                msg: 'Usuario en proceso de verificacion, revise su Email'
-            })
-        }
-        
+        let userLogin; //lo hice xq solo entra si se cumple una condicion
+        if(userVerified){
+            
+            userLogin = await UserSignUp.findOne({email});
+            
+            if(userLogin.state === "UNVERIFIED") {
+                return res.status(400).json({
+                    success: false,
+                    msg: 'Usuario en proceso de verificacion, revise su Email'
+                })}
+         }
         
         if(user){
             const checkPassword = bcryptjs.compareSync(password, user.password)
@@ -230,24 +248,24 @@ const login = async (req, res=response)=>{
                 return res.status(400).json({
                     success: false,
                     msg: 'Password incorrecto'
-                })
-            }
+                })}
         }
-
-        
-        if(!user) {
-            return res.status(401).json({
-                success: false,
-                msg: 'Usuario no registrado, dirijase a Registro'
-            });
-        }
+        // if(!user) {
+        //     return res.status(401).json({
+        //         success: false,
+        //         msg: 'Usuario no registrado, dirijase a Registro'
+        //     });
+        // }
         
         
         /* si llego hasta aca es xq el usuario login ya esta creado y entonces el usuario tambien ya se creo aunque
-        me falten datos, como la app tiene delivery tengo mas instancias para recolectar datos*/ 
+        me falten datos, como la app tiene delivery tengo mas instancias para recolectar datos.
+        Aca abajo lo mismo, tiene q ver con el TIPO de email  */ 
+       
+        if(userVerified){
+              user = await User.findOne({ user_login : userLogin._id});
+        }
         
-        user = await User.findOne({ user_login : userVerified._id});
-
         const token = await generateToken(user._id);
 
         generateRefreshToken(user._id, res);
@@ -270,7 +288,6 @@ const login = async (req, res=response)=>{
 const loginStaff = async (req, res=response)=>{
 
     const {email, password} = req.body;
-    // console.log(email);
     
     try {
         
@@ -351,6 +368,7 @@ const refreshToken = (req, res) => {
 
 
 const logout = (req, res) => {
+    
     res.clearCookie("refreshToken");
     res.json({ ok: true });
 };

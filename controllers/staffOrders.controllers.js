@@ -8,7 +8,7 @@ const checkStatus  = require('../helpers/check_status');
 
 
 
-const getOrder= async ( req , res ) => {
+const getStaffOrders= async ( req , res ) => {
     
     const user = req.staffAuth
 
@@ -17,26 +17,46 @@ const getOrder= async ( req , res ) => {
     // ENVIO MEDIANTE QUERY EL TIPO DE ESTADO QUE NECESITO EN EL FRONT
     const { status } = req.query;
 
-    const [ total, order] = await Promise.all([
 
-        PurchaseOrder.countDocuments( {statusOrder : status}),
-        PurchaseOrder.find( {statusOrder : status} )
-            .populate('user')
-            .populate('product')
-         
+    const [ total,  staffOrders] = await Promise.all([
+
+    // ENVIO MEDIANTE QUERY EL TIPO DE ESTADO QUE NECESITO EN EL FRONT
+         // PurchaseOrder.countDocuments( {statusOrder : status}),
+        //  PurchaseOrder.find( {statusOrder : status} )
+        
+         PurchaseOrder.countDocuments( ),
+        PurchaseOrder.find( )
+        .populate( {
+            path: 'order', 
+            populate: [{ 
+                          path: 'drink',
+                          model: "TempPurchaseOrder",
+                       },
+                       {
+                          path: 'drink._id',
+                          model: "Product",
+                       },
+                       {
+                          path: 'product',
+                          model: "Product",
+                       },
+                       {
+                          path: 'user',
+                          model: "User",
+                      },
+                      ],
+           })
     ])
 
     res.json({ 
         total,     
-       order
+        staffOrders
 
     });
 }
 
 
-
 const editOrderStatus = async ( req , res ) => {
-    
  
     try {
     
@@ -117,7 +137,7 @@ const editOrderStatus = async ( req , res ) => {
 }
 
 
-module.export = { 
-                getOrder,
-                editOrderStatus
+module.exports = { 
+                 getStaffOrders,
+                 editOrderStatus
 }

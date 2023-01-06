@@ -25,8 +25,8 @@ router.post('/',[
 router.get('/checkemail',[
 ],checkEmailRegister);
 
-router.get('/checkemailStaff',[
-],checkEmailStaff);
+// router.get('/checkemailStaff',[
+// ],checkEmailStaff);
 
 // router.put('/:id',[
 router.put('/',[

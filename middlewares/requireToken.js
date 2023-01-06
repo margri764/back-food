@@ -1,6 +1,7 @@
 
 const jwt = require ('jsonwebtoken');
 const  User =  require('../models/user');
+const  Staff =  require('../models/staff');
 const  tokenVerificationErrors   = require ("../helpers/tokenManager");
 
 
@@ -20,22 +21,45 @@ const requireToken = async ( req, res, next ) => {
 
         const { _id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY)
 
-        const userAuth = await User.findById( _id );
+        let userAuth;
+        let userStaff;
+        
 
-        if(!userAuth){
-            return res.status(401).json({
-                msg:'Token no valido - Usuario no existe en DB'
-            })
+        // lo tengo separado xq hay dos colecciones de usuarios de la app
+         userAuth = await User.findById( _id ) || null;
+         userStaff = await Staff.findById( _id ) || null;
+
+
+
+        if(userAuth == null && userStaff == null){
+              return res.status(500).json({
+                  msg:'Token no valido - Usuario no existe en DB'
+              })
         }
 
-        if(!userAuth.stateAccount){
-            return res.status(401).json({
+
+
+        if( userAuth != null) {
+
+            if(userAuth.stateAccount == false){
+                return res.status(500).json({
                 msg:'Token no valido - usuario con state en false'
-            })
+                })
+                }
+             req.userAuth= userAuth;    
+        } 
+        
+        if( userStaff != null) {
+          
+            if(userStaff.stateAccount == false){
+                return res.status(500).json({
+                    msg:'Token no valido - usuario con state en false'
+                    })
+                }
+            req.userAuth= userStaff;
         }
 
-        //si el usuario tiene un token autorizado, guardo sus datos en la req y eso me sirve para llamar a ese req.userAuth en todo el path de la ruta
-        req.userAuth= userAuth;
+
 
         next();
         
@@ -47,5 +71,7 @@ const requireToken = async ( req, res, next ) => {
     }
 
 }
+
+
 
 module.exports={ requireToken }

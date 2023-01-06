@@ -3,10 +3,12 @@
 const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
+
 const { userPost } = require('../controllers/staff.controllers');
 const { superRole, checkFields, checkTokenStaff, multiRole, requireToken } = require('../middlewares')
 const { isRoleValid } = require('../helpers/db-validators');
 const { getOrder, createOrder, } = require('../controllers/purchaseOrder.controllers');
+const { getStaffOrders } = require('../controllers/staffOrders.controllers');
 const { checkStatus } = require('../helpers/check_status');
 
 
@@ -22,12 +24,12 @@ router.post('/',[
     
 ],userPost); 
 
-router.get('/order',[
+router.get('/orders',[
     // checkTokenStaff,
     requireToken,
-    multiRole("SUPER_ROLE","ADMIN_ROLE"),
+    multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
     checkFields
-],getOrder); 
+], getStaffOrders); 
 
 
 router.post('/',[
@@ -37,6 +39,8 @@ router.post('/',[
     checkFields
     
 ],createOrder); 
+
+module.exports= router;
 
 // router.put('/orderStatus/:id',[
 //     checkTokenStaff,
@@ -62,5 +66,3 @@ router.post('/',[
 
 
 
-
-module.exports= router;
