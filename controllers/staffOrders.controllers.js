@@ -76,7 +76,7 @@ const editOrderStatus = async ( req , res ) => {
 
     
         // busco si la orden de compra existe        
-        const purchaseOrder = await PurchaseOrder.findOne( {id} ) || null;
+        const purchaseOrder = await PurchaseOrder.findById( id ) || null;
         // console.log(purchaseOrder._id);
 
         
@@ -115,9 +115,9 @@ const editOrderStatus = async ( req , res ) => {
             /*como se trata de un update, primero guardo en un arreglo todos los objetos q ya hay en el campo "statusOrder" y despues le agrego el objeto recien creado */
             purchaseOrder.statusOrder.map( status => {arrOrders.push(status)});
        
-            arrOrders.push(orderEdit);
+            arrOrders.unshift(orderEdit);
 
-            // console.log(arrOrders);
+            console.log(arrOrders);
             
             orderStatus = await PurchaseOrder.findByIdAndUpdate( purchaseOrder._id, { statusOrder : arrOrders} ,{new:true})
             

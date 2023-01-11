@@ -19,7 +19,6 @@ const createOrder= async ( req , res ) => {
         // console.log(req.body);
 
         let arrIDs = [];
-        let tempArrIds = []; 
         let tempTotal = [];
         
          order.forEach( item => arrIDs.push(item._id));
@@ -40,10 +39,12 @@ const createOrder= async ( req , res ) => {
             console.log("from: ",item.statusOrder) 
             
         })
-        
-            //  console.log(orderIds);
 
-        // console.log());
+        const orderEdit = {
+            date : new Date(),
+            staff : 'SIN EDITAR',
+            status : 'SIN PROCESAR'    
+        };
 
 
         const tempOrder = {
@@ -51,7 +52,7 @@ const createOrder= async ( req , res ) => {
             addressDelivery : user.addressDelivery,
             order : orderIds,
             total : total,
-            // statusOrder,
+            statusOrder: orderEdit,
             ...rest
         }
 
