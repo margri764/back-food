@@ -52,7 +52,6 @@ const TempPurchaseOrderSchema = Schema({
             }
     }],
 
- 
      otherExpenses:  {
         type: Array,
         default:[]

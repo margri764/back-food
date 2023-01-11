@@ -198,6 +198,7 @@ const confirm = async (req, res) => {
 
 const login = async (req, res=response)=>{
 
+
     const { email, password } = req.body;
 
     // depende del valor del email del staff de cada empresa, busca en una u otra coleccion
@@ -347,16 +348,21 @@ const loginStaff = async (req, res=response)=>{
 }
 
 
-const refreshToken = (req, res) => {
+const refreshToken = async (req, res) => {
 
     const _id = req._id
 
     // console.log('_id desde refresh controller', _id);
     try {
         const { token, expiresIn } = generateToken (_id);
+
+        const user = await User.findById(_id) || null;
+
+
         
         return res.json({
              token,
+             user,
              expiresIn
              });
 

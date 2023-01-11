@@ -11,7 +11,7 @@ const requireToken = async ( req, res, next ) => {
 
         let token = req.headers?.authorization;
 
-        console.log("requireToken token Bearer: ", token);
+        // console.log("requireToken token Bearer: ", token);
 
         if(!token){
             throw new Error ('No existe el token en el header')

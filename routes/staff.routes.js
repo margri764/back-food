@@ -8,7 +8,7 @@ const { userPost } = require('../controllers/staff.controllers');
 const { superRole, checkFields, checkTokenStaff, multiRole, requireToken } = require('../middlewares')
 const { isRoleValid } = require('../helpers/db-validators');
 const { getOrder, createOrder, } = require('../controllers/purchaseOrder.controllers');
-const { getStaffOrders } = require('../controllers/staffOrders.controllers');
+const { getStaffOrders, editOrderStatus } = require('../controllers/staffOrders.controllers');
 const { checkStatus } = require('../helpers/check_status');
 
 
@@ -24,21 +24,29 @@ router.post('/',[
     
 ],userPost); 
 
+// obtengo todas las ordenes
 router.get('/orders',[
-    // checkTokenStaff,
     requireToken,
     multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
     checkFields
 ], getStaffOrders); 
 
-
-router.post('/',[
+router.put('/orderStatus',[
     requireToken,
-    multiRole("SUPER_ROLE","ADMIN_ROLE","STAFF_ROLE"),
-    check('status').custom( checkStatus),
+    multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
     checkFields
+],editOrderStatus)
+
+
+
+
+// router.post('/',[
+//     requireToken,
+//     multiRole("SUPER_ROLE","ADMIN_ROLE","STAFF_ROLE"),
+//     check('status').custom( checkStatus),
+//     checkFields
     
-],createOrder); 
+// ],createOrder); 
 
 module.exports= router;
 

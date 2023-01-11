@@ -8,7 +8,7 @@ const PurchaseOrderStatus = require('../models/purchaseOrderStatus');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const checkStatus  = require('../helpers/check_status');
 
-
+// es la orden q se crea al momento de comprar
 const createOrder= async ( req , res ) => {
     
     try {
@@ -60,10 +60,21 @@ const createOrder= async ( req , res ) => {
         
         /* en este caso guardo la misma orden pero en otra coleccion para poder registrar los cambio de estados
            y la persona q esta realizando los cambios */ 
-        const purchaseOrderStatus =  new PurchaseOrderStatus (tempOrder);
 
-        purchaseOrder.save()
-        purchaseOrderStatus.save()
+           
+          await purchaseOrder.save()
+
+        //    const tempOrderStatus = {
+        //     user : user._id,
+        //     addressDelivery : user.addressDelivery,
+        //     order : purchaseOrder._id,
+        //     total : total,
+        //     ...rest
+        // }
+
+
+        // const purchaseOrderStatus =  new PurchaseOrderStatus (tempOrderStatus);
+        // await purchaseOrderStatus.save()
 
         res.status(200).json({
         success: true,
@@ -113,7 +124,7 @@ const createOrder= async ( req , res ) => {
 
 }
 
-
+// son las ordenes en proceso e historicas q puede ver el cliente
 const getOrder= async ( req , res ) => {
     
     const user = req.userAuth
@@ -169,7 +180,7 @@ const getOrder= async ( req , res ) => {
  
 }
 
-
+// creo q no va xq tengo la "editOrderStatus en StaffOrder.controller"
 const editOrder= async ( req , res ) => {
     try {
 

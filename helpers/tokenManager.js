@@ -9,7 +9,7 @@ const generateToken = ( _id ) =>{
         const payload =  {_id } ; 
         
         const expiresIn = 60 * 60 * 60;
-        console.log("desde generateToken: ",payload);
+        // console.log("desde generateToken: ",payload);
 
         try {
 

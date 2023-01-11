@@ -8,7 +8,7 @@ const { tokenVerificationErrors } = require("../helpers/tokenManager.js");
     try {
         const refreshTokenCookie = req.cookies.refreshToken;
 
-        console.log("refreshTokenCookie: ",refreshTokenCookie);
+        // console.log("refreshTokenCookie: ",refreshTokenCookie);
 
         if (!refreshTokenCookie) throw new Error("No existe el token");
 

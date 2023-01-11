@@ -49,8 +49,6 @@ return res.status(200).json({
 }
 
 
-
-
 const userGet = async (req,res=response)=>{
 
     const { limit , from }=req.query;

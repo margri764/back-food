@@ -8,6 +8,11 @@ const {Schema, model} = require ('mongoose');
 
 const PurchaseOrderStatusSchema = Schema({
 
+  user:{
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+ },
 
 statusOrder: {
     type: Array,
@@ -15,11 +20,14 @@ statusOrder: {
     // emun: [ 'PROCESSING','DELIVERY','PICK_UP_ORDER','COMPLETE','DELETE']
 },
 
-order:{
+// solo va a hacer referencia a una orden q a su vez esta compuesta de 1 o muchos pedidos
+order:
+    {
     type: Schema.Types.ObjectId,
     ref: "PurchaseOrder",
     required : true
-},
+    },
+
 
 
 

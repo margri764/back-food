@@ -24,13 +24,20 @@ const PurchaseOrderSchema = Schema({
         type: Schema.Types.ObjectId,
         ref: "Staff",
      },
-     
-     statusOrder:{
-        type : String,
-        required: true,
-        default: "INGRESADO"
 
-     },
+     statusOrder: {
+        type: Array,
+        default: [],
+        // emun: [ 'PROCESSING','DELIVERY','PICK_UP_ORDER','COMPLETE','DELETE']
+    },
+    
+     
+    //  statusOrder:{
+    //     type : String,
+    //     required: true,
+    //     default: "INGRESADO"
+
+    //  },
      
 
     addressDelivery :{

@@ -1,15 +1,15 @@
 
-
 const checkStatus = (status) => {
 
-    const validStatus = ['EN PROCESO', 'DELIVERY', 'RETIRA EN LOCAL', 'COMPLETADO', 'ELIMINADO' ]
+    const validStatus = ['EN PROCESO', 'ORDEN LISTA', 'ENTREGA DELIVERY', 'ENTREGA EN LOCAL', 'COMPLETADO','ELIMINADO' ]
 
- 
+     console.log(status);
     if(!validStatus.includes(status)){
 
         throw new Error (`el estado: ${ status } no es valido ERROR en el front?...`)
     }
 
+    return true
     // switch(status){
         
         
@@ -34,4 +34,4 @@ const checkStatus = (status) => {
 }
 
 
-module.exports= { checkStatus } 
+module.exports=  checkStatus 

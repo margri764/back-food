@@ -50,7 +50,7 @@ const checkEmailStaff= async (req, res = response) => {
     try {
         const q= req.query.q;
 
-        console.log("desde checkemailstaff: ",q);
+        // console.log("desde checkemailstaff: ",q);
        let user = await Staff.findOne({email: q}) || null;
 
        if( user == null){
