@@ -67,7 +67,7 @@ const getUserById = async (req,res=response)=> {
                 msg: 'Error al buscar usuario por id'
             });
         }
-    }
+}
 
 const userPost= async (req, res = response) => {
     

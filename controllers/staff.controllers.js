@@ -48,6 +48,30 @@ return res.status(200).json({
 
 }
 
+const createRole= async (req, res = response) => {
+    
+    const { role } = req.body;
+   
+    const roleValid = await Role.findOne({role: role}) || null;
+   
+    if( roleValid ){
+       return res.status(400).json({
+           success:false,
+           msg: `Ya existe el rol: ${role}  en Base de Datos`
+       })
+   }
+   
+    const roleSave = new Role({ role : role });
+   
+   
+   
+   await roleSave.save();
+   
+   return res.status(200).json({
+           success: true,
+       })
+   
+}
 
 const userGet = async (req,res=response)=>{
 
@@ -181,5 +205,6 @@ module.exports={
     userPost,
     userPut,
     usersDelete,
-    getUserById
+    getUserById,
+    createRole
 }

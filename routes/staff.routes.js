@@ -4,11 +4,11 @@ const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
 
-const { userPost } = require('../controllers/staff.controllers');
-const { superRole, checkFields, checkTokenStaff, multiRole, requireToken } = require('../middlewares')
+const { userPost, createRole } = require('../controllers/staff.controllers');
+const { superRole, checkFields, checkTokenStaff,adminRole, multiRole, requireToken } = require('../middlewares')
 const { isRoleValid } = require('../helpers/db-validators');
 const { getOrder, createOrder, } = require('../controllers/purchaseOrder.controllers');
-const { getStaffOrders, editOrderStatus } = require('../controllers/staffOrders.controllers');
+const { getStaffOrders, editOrderStatus, getStaffOrdersNoProcess } = require('../controllers/staffOrders.controllers');
 const { checkStatus } = require('../helpers/check_status');
 
 
@@ -16,13 +16,27 @@ const { checkStatus } = require('../helpers/check_status');
 //para crear productos, categorias, editar todo eso con ADMIN_ROLE
 //estas son las rutas de lo q puede o no hacer un empleado
 
-router.post('/',[
-    // checkTokenStaff,
+router.post('/createStaff',[
+    requireToken,
+    multiRole("SUPER_ROLE","ADMIN_ROLE"),
+    checkFields
+    
+],userPost); 
+
+router.post('/createAdmin',[
     requireToken,
     superRole,
     checkFields
     
 ],userPost); 
+
+
+router.post('/createRole',[
+    requireToken,
+    superRole,
+    checkFields
+    
+],createRole); 
 
 // obtengo todas las ordenes
 router.get('/orders',[
@@ -30,6 +44,13 @@ router.get('/orders',[
     multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
     checkFields
 ], getStaffOrders); 
+
+router.get('/ordersNoProcess',[
+    requireToken,
+    multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
+    checkFields
+], getStaffOrdersNoProcess); 
+
 
 router.put('/orderStatus',[
     requireToken,

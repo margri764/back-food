@@ -19,11 +19,11 @@ const PurchaseOrderSchema = Schema({
             ref: "TempPurchaseOrder",
             required: true
     }],
-
-     staff:{
-        type: Schema.Types.ObjectId,
-        ref: "Staff",
-     },
+    
+    finished : {
+             type : Boolean,
+             deafult : false
+    },
 
      statusOrder: {
         type: Array,

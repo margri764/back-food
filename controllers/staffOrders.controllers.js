@@ -7,63 +7,6 @@ const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const checkStatus  = require('../helpers/check_status');
 
 
-
-const getStaffOrder= async ( req , res ) => {
-    
-    // const user = req.staffAuth
-
-    // const { limite=5 , desde =0 }=req.query;
-
-    // ENVIO MEDIANTE QUERY EL TIPO DE ESTADO QUE NECESITO EN EL FRONT
-    const { status } = req.query;
-
-
-    const [ total,  staffOrders] = await Promise.all([
-
-    // ENVIO MEDIANTE QUERY EL TIPO DE ESTADO QUE NECESITO EN EL FRONT
-         // PurchaseOrder.countDocuments( {statusOrder : status}),
-        //  PurchaseOrder.find( {statusOrder : status} )
-        
-        PurchaseOrderStatus.countDocuments( ),
-        PurchaseOrderStatus.find( )
-        .populate([
-            { 
-                path: 'user',
-                model: "User",
-             },
-            {
-            path: 'order', 
-            populate: [
-                   
-                       {
-                          path: 'order',
-                          model: "TempPurchaseOrder",
-                       
-                         populate: [ 
-                                    {
-                                      path: 'product',
-                                      model: "Product",
-                                    },
-                                    {
-                                      path: 'drink._id',
-                                      model: "Product",
-                                    },
-                                  
-                                   ]
-                        }
-                      ]}
-                    ])
-         ])
-
-    res.json({ 
-        total,     
-        staffOrders
-
-    });
-}
-
-
-
 const editOrderStatus = async ( req , res ) => {
  
     try {
@@ -94,6 +37,11 @@ const editOrderStatus = async ( req , res ) => {
 
         // recibo el status en el body y lo evaluo
          checkStatus(status);
+        
+         let finished = false;
+         if(status == "COMPLETADO") {
+            finished = true
+         }
 
         /*   esto son los datos q necesito para el campo "statusOrder" (está en el models de PurchaseOrderStatus), es un array de objetos
         q me permite ir guardando los cambios de estados con elm dato del momento en q se hizo y quien lo hizo (recordar q puede 
@@ -117,9 +65,7 @@ const editOrderStatus = async ( req , res ) => {
        
             arrOrders.unshift(orderEdit);
 
-            console.log(arrOrders);
-            
-            orderStatus = await PurchaseOrder.findByIdAndUpdate( purchaseOrder._id, { statusOrder : arrOrders} ,{new:true})
+            orderStatus = await PurchaseOrder.findByIdAndUpdate( purchaseOrder._id, { statusOrder : arrOrders , finished : finished}, { new:true })
             
             return res.status(200).json({
                 success : true,
@@ -152,7 +98,6 @@ const editOrderStatus = async ( req , res ) => {
   
 }
 
-
 const getStaffOrders= async ( req , res ) => {
 
     try {
@@ -164,6 +109,10 @@ const getStaffOrders= async ( req , res ) => {
             {
               path: 'user',
               model: "User",
+            },
+            {
+              path: 'statusOrder.staff',
+              model: "Staff",
             },
             {
             path: 'order', 
@@ -180,9 +129,16 @@ const getStaffOrders= async ( req , res ) => {
                           path: 'product',
                           model: "Product",
                        },
+                    //    {
+                    //     path: 'staff',
+                    //     model: "Staff",
+                    //    }
+                        
                      
                     ]
-                }])
+             },
+        
+              ])
             ])
  
         
@@ -201,7 +157,26 @@ const getStaffOrders= async ( req , res ) => {
 
 }
 
-module.exports = { 
-                 getStaffOrders,
-                 editOrderStatus
+const getStaffOrdersNoProcess = async ( req, res ) =>{
+
+    // const statusNoProcess = await PurchaseOrder.find({statusOrder})
+
+    const [ total, unFinishedPurchaseOrder ] = await Promise.all([
+        PurchaseOrder.countDocuments( {finished : false}),
+        PurchaseOrder.find( {finished : false} ).populate('user')
+         
+    ])  
+   
+    res.status(200).json({
+        total,
+        unFinishedPurchaseOrder
+    })
+
+
 }
+
+module.exports = { 
+                    getStaffOrders,
+                    editOrderStatus,
+                    getStaffOrdersNoProcess
+                 }

@@ -40,9 +40,10 @@ const createOrder= async ( req , res ) => {
             
         })
 
+        //   coloco en duro el id de un miembro del staff q no tiene datos, es solo para pasar la validacion del Schema de la PurchseOrden      
         const orderEdit = {
             date : new Date(),
-            staff : 'SIN EDITAR',
+            staff : "63c01974ce563614ab679aaa",
             status : 'SIN PROCESAR'    
         };
 
@@ -53,6 +54,7 @@ const createOrder= async ( req , res ) => {
             order : orderIds,
             total : total,
             statusOrder: orderEdit,
+            finished: false,
             ...rest
         }
 
