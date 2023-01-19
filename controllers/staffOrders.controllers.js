@@ -5,6 +5,7 @@ const Product = require('../models/product');
 const PurchaseOrderStatus = require('../models/purchaseOrderStatus');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const checkStatus  = require('../helpers/check_status');
+const { customDate }  = require('../helpers/format-date');
 
 
 const editOrderStatus = async ( req , res ) => {
@@ -155,55 +156,11 @@ const getStaffOrders= async ( req , res ) => {
 
 const getStaffOrdersByQuery= async ( req , res ) => {
 
-    let { year, month, day, hour, searchType } = req.query;
-
-
-
-    console.log("query: ",req.query);
-  
-    let start;
- 
- // new Date le agrega 3hs y se guarda asi en BD
- // el mes "0" es Enero si se pone el numero "en duro" o con variable sino es 1
- // en BD el dia 18 empieza a las 03:00hs y termina el 19 a las 03:00hs
- /* si envio queries desde el front por ejemplo para saber todo del dia 18, hay q hacer la resta o sea desde el 
-    2023-01-18-00 hasta 2023-01-19-00  */
- 
- // querie para el dia 1 (2023-0-18-00)
-    month = parseInt(month) - 1;
-    start = new Date( year, month, day, hour );
- 
-    day = parseInt(day) + 1;
- 
-    end = new Date( year, month, day, hour );
+    // let { year, month, day, hour, searchType } = req.query;
+    const date = req.query;
     
-    console.log(start);
-    console.log(end);
- 
- //    if(hour >= 21){
- 
- //     day = day + 1
- //     hour = hour + 3
- //     start = new Date(year, month, day, hour);
- 
- //    }
- 
- 
- // le agrega 3hs, el mes "0" es Enero si se pone el numero "en duro" sino es 1
-     const birthday = new Date(1995, 0, 17, 3, 24, 0);
-     // console.log(birthday);
- 
-     // start.setSeconds(20);
-     // start.setHours(hour);
- 
- 
-     // start.setMinutes(59);
- 
-     // let end = new Date(`${year}-${month}-${day}`);
-     // end.setSeconds(20);
-     // end.setHours(23);
-     // end.setMinutes(59);
- 
+    const {start, end} =  customDate(date);
+
      try {
          const [  total, staffOrders] = await Promise.all([
  
