@@ -50,7 +50,16 @@ const PurchaseOrderSchema = Schema({
         default: 0
     },
 
-    }, { timestamps:true}
+    // createdAt :{
+    //     type: Date,
+    // },
+
+    // updateddAt :{
+    //     type: Date,
+    // }
+
+    }, 
+    { timestamps : true}
     );
 
 PurchaseOrderSchema.methods.toJSON = function(){

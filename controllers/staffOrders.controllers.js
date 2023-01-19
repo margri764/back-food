@@ -63,7 +63,7 @@ const editOrderStatus = async ( req , res ) => {
             /*como se trata de un update, primero guardo en un arreglo todos los objetos q ya hay en el campo "statusOrder" y despues le agrego el objeto recien creado */
             purchaseOrder.statusOrder.map( status => {arrOrders.push(status)});
        
-            arrOrders.unshift(orderEdit);
+            arrOrders.push(orderEdit);
 
             orderStatus = await PurchaseOrder.findByIdAndUpdate( purchaseOrder._id, { statusOrder : arrOrders , finished : finished}, { new:true })
             
@@ -100,11 +100,13 @@ const editOrderStatus = async ( req , res ) => {
 
 const getStaffOrders= async ( req , res ) => {
 
+  
+
     try {
-        const [ total, staffOrders] = await Promise.all([
+        const [  total, staffOrders] = await Promise.all([
 
         PurchaseOrder.countDocuments( ),
-        PurchaseOrder.find( )
+        PurchaseOrder.find(  )
         .populate([
             {
               path: 'user',
@@ -129,18 +131,12 @@ const getStaffOrders= async ( req , res ) => {
                           path: 'product',
                           model: "Product",
                        },
-                    //    {
-                    //     path: 'staff',
-                    //     model: "Staff",
-                    //    }
-                        
-                     
                     ]
              },
         
               ])
+
             ])
- 
         
         res.json({ 
             total,
@@ -156,6 +152,112 @@ const getStaffOrders= async ( req , res ) => {
     }
 
 }
+
+const getStaffOrdersByQuery= async ( req , res ) => {
+
+    let { year, month, day, hour, searchType } = req.query;
+
+
+
+    console.log("query: ",req.query);
+  
+    let start;
+ 
+ // new Date le agrega 3hs y se guarda asi en BD
+ // el mes "0" es Enero si se pone el numero "en duro" o con variable sino es 1
+ // en BD el dia 18 empieza a las 03:00hs y termina el 19 a las 03:00hs
+ /* si envio queries desde el front por ejemplo para saber todo del dia 18, hay q hacer la resta o sea desde el 
+    2023-01-18-00 hasta 2023-01-19-00  */
+ 
+ // querie para el dia 1 (2023-0-18-00)
+    month = parseInt(month) - 1;
+    start = new Date( year, month, day, hour );
+ 
+    day = parseInt(day) + 1;
+ 
+    end = new Date( year, month, day, hour );
+    
+    console.log(start);
+    console.log(end);
+ 
+ //    if(hour >= 21){
+ 
+ //     day = day + 1
+ //     hour = hour + 3
+ //     start = new Date(year, month, day, hour);
+ 
+ //    }
+ 
+ 
+ // le agrega 3hs, el mes "0" es Enero si se pone el numero "en duro" sino es 1
+     const birthday = new Date(1995, 0, 17, 3, 24, 0);
+     // console.log(birthday);
+ 
+     // start.setSeconds(20);
+     // start.setHours(hour);
+ 
+ 
+     // start.setMinutes(59);
+ 
+     // let end = new Date(`${year}-${month}-${day}`);
+     // end.setSeconds(20);
+     // end.setHours(23);
+     // end.setMinutes(59);
+ 
+     try {
+         const [  total, staffOrders] = await Promise.all([
+ 
+         PurchaseOrder.countDocuments( ),
+         PurchaseOrder.find( {
+                              "createdAt": { $gte: start, $lte: end }
+                             } 
+                           )
+         //    .count()
+         .populate([
+             {
+               path: 'user',
+               model: "User",
+             },
+             {
+               path: 'statusOrder.staff',
+               model: "Staff",
+             },
+             {
+             path: 'order', 
+             populate: [
+                        { 
+                           path: 'drink',
+                           model: "TempPurchaseOrder",
+                        },
+                        {
+                           path: 'drink._id',
+                           model: "Product",
+                        },
+                        {
+                           path: 'product',
+                           model: "Product",
+                        },
+                     ]
+              },
+         
+               ])
+ 
+             ])
+         
+         res.json({ 
+             total,
+             staffOrders
+         })
+         
+     } catch (error) {
+         return res.status(500).json ({
+             success : false,
+             msg : `Ooops algo salió mal al intentar obtener las ordenes de compra `
+         })
+ 
+     }
+ 
+ }
 
 const getStaffOrdersNoProcess = async ( req, res ) =>{
 
@@ -178,5 +280,6 @@ const getStaffOrdersNoProcess = async ( req, res ) =>{
 module.exports = { 
                     getStaffOrders,
                     editOrderStatus,
-                    getStaffOrdersNoProcess
+                    getStaffOrdersNoProcess,
+                    getStaffOrdersByQuery
                  }

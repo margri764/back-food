@@ -1,7 +1,9 @@
 
 const checkStatus = (status) => {
 
-    const validStatus = ['EN PROCESO', 'ORDEN LISTA', 'ENTREGA DELIVERY', 'ENTREGA EN LOCAL', 'COMPLETADO','ELIMINADO' ]
+    
+
+    const validStatus = ['SIN PROCESAR','EN PROCESO', 'ORDEN LISTA', 'ENTREGA DELIVERY', 'ENTREGA EN LOCAL', 'COMPLETADO','ELIMINADO' ]
 
      console.log(status);
     if(!validStatus.includes(status)){

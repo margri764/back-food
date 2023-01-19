@@ -24,7 +24,7 @@ const getProductSearch = async ( req, res) =>{
 console.log(product);
        
         res.status(200).json({ 
-           product : product
+            product
 
         });
     } catch (error) {

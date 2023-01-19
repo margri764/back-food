@@ -8,7 +8,7 @@ const { userPost, createRole } = require('../controllers/staff.controllers');
 const { superRole, checkFields, checkTokenStaff,adminRole, multiRole, requireToken } = require('../middlewares')
 const { isRoleValid } = require('../helpers/db-validators');
 const { getOrder, createOrder, } = require('../controllers/purchaseOrder.controllers');
-const { getStaffOrders, editOrderStatus, getStaffOrdersNoProcess } = require('../controllers/staffOrders.controllers');
+const { getStaffOrders, editOrderStatus, getStaffOrdersNoProcess, getStaffOrdersByQuery } = require('../controllers/staffOrders.controllers');
 const { checkStatus } = require('../helpers/check_status');
 
 
@@ -44,6 +44,13 @@ router.get('/orders',[
     multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
     checkFields
 ], getStaffOrders); 
+
+// obtengo todas las ordenes por query
+router.get('/orders/byQuery',[
+    requireToken,
+    multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
+    checkFields
+], getStaffOrdersByQuery); 
 
 router.get('/ordersNoProcess',[
     requireToken,
