@@ -3,7 +3,7 @@
 const { Router } = require ('express');
 const { check } = require ('express-validator');
 const { createProduct, getProductById, getProduct, getProductByCategory, updateProduct } = require('../controllers/product.controllers');
-const { checkFields, checkTokenStaff, multiRole} = require ('../middlewares');
+const { checkFields, checkTokenStaff, multiRole, requireToken} = require ('../middlewares');
 const { checkFileUp } = require('../middlewares/check-file');
 const { validCategory } = require('../helpers/db-validators.js');
 
@@ -30,15 +30,14 @@ router.get('/:id',[
 //no lleva middlewares xq es lo q se tiene q cargar si o si en el inicio de la app
 router.get('/',[
 
-],getProductByCategory)
+], getProductByCategory)
 
 router.put('/:category/:id',[
-    checkTokenStaff,
-    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
-    check('category').custom( category => validCategory(category, ['BURGER', 'PIZZA', 'HEALTHY', 'VEGAN', 'DRINK', 'FRIES'])),
+    requireToken,
+    multiRole ('ADMIN_ROLE','SUPER_ROLE','STAFF_ROLE'),
     checkFields  
 
-],updateProduct)
+], updateProduct)
 
 
 module.exports= router;

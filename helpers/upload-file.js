@@ -1,7 +1,35 @@
 const { v4: uuidv4 } = require('uuid');
 
 const path = require ('path');
+const { json } = require('express');
 
+const validExtension = ( file , res )=>{
+
+    try {
+
+        const sliceName = file.name.split('.'); 
+        const fileExtension = sliceName[ sliceName.length - 1 ];
+        
+        // Validar extension
+        const onlyThisExtension = ['png', 'jpg', 'jpeg'];
+        if ( !onlyThisExtension.includes( fileExtension ) ) {
+    
+            throw new Error (`Formato ${ fileExtension } no es una extensión válida. Solo formato ${onlyThisExtension}`)
+    
+        }else{
+        //si es válida la extension en el controller continua    
+            return true
+        }
+        
+    } catch (error) {
+
+        
+        return res.status(400).json({
+            msj: `${error}`
+        })
+
+    }
+}
 const upFiles = (files) =>{ 
 
     return new Promise ( ( resolve, reject ) => { 
@@ -40,4 +68,7 @@ const upFiles = (files) =>{
 
 
 
-module.exports ={ upFiles}
+module.exports ={
+                 upFiles,
+                 validExtension
+                }

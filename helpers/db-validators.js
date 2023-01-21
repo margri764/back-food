@@ -49,10 +49,10 @@ const checkId = async ( id ) =>{
 
     category = category.toUpperCase();
      const validCategory = categories.includes(category);
-
+     
       if( !validCategory ){
 
-        throw new Error (`la categoría ${category} no existe en Base de Dato, solo ${categories}`)
+        throw new Error (`la categoría ${category} no existe en Base de Datos, solo ${categories}`)
       }
       return true;
 

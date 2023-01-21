@@ -7,6 +7,9 @@ const fs   = require('fs');
 const Product = require('../models/product');
 const Staff = require('../models/staff');
 const Category = require('../models/category');
+const { validCategory } = require('../helpers/db-validators');
+const { stringify } = require('querystring');
+const { validExtension } = require('../helpers/upload-file');
 
 const cloudinary= require ('cloudinary').v2;
 cloudinary.config( process.env.CLOUDINARY_URL);
@@ -101,7 +104,7 @@ const findCatTwo  = await Category.findOne({name: "PIZZA"})   || null;
 const findCatTree = await Category.findOne({name: "HEALTHY"}) || null;
 const findCatFour = await Category.findOne({name: "VEGAN"})   || null;
 const findCatFive = await Category.findOne({name: "DRINK"})   || null;
-const findCatSix = await Category.findOne({name: "FRIES"})   || null;
+const findCatSix  = await Category.findOne({name: "FRIES"})   || null;
 
 // OJO VALIDAR SI ESTAN EN STOCK O EXISTEN EN BD!!!!!!!!!!!!!!!!!
 
@@ -113,7 +116,7 @@ const drink   = await Product.find({ status : true, stock: true, category : find
 const fries   = await Product.find({ status : true, stock: true, category : findCatSix._id }).populate("category", "name")
 
 
-res.json({ 
+res.json({
       burger,
       pizza,
       healthy,
@@ -151,33 +154,45 @@ const getProductById = async (req, res) =>{
 
  
 }
-  
 
 const updateProduct = async ( req, res) => {
 
 
 const { category, id} = req.params;
 
- // recibo el string del form-data body y lo parseo
-let { editProduct } = req.body;
-editProduct= JSON.parse(editProduct);
+ // recibo el string del form-data body y lo parseo. El req.body trae todo el append o sea q la imagen y el body por separado por eso desestructuro, "body" es el nombre de la propiedad en el append
+const  { body, img}  = req.body;
+
+
+//  esto lo hago xq no siempre se edita la img, sino tira error cuando intenta leer el req.file
+let fileInReq;
+if(img == 'no-image' ){
+  fileInReq = false;
+}else{
+  fileInReq = true;
+}
+
+
+let editProduct= JSON.parse(body);
+
+
 const { name, ...rest } = editProduct; 
 
       
-  let productEdit = await Product.findById( id ) || null; //busca el id en la BD 
+  let productEdit = await Product.findById(  id.trim() ) || null; //busca el id en la BD 
 
-  const categoryUpdate = await Category.findOne({name: category.toUpperCase()});
+  const categoryUpdate = await Category.findOne({name: category.trim()}) || null;
+
 
   if (!productEdit){
     return res.status(400).json ({
-      msg: `no existe un producto con el id ${ id }`
+      msg: `no existe un producto con el id ${ _id }`
     });
   }
-  
 
+ // limpiar imagenes y el condicional es para q no ejecute la limpieza xq pued eno venir una img nueva
 
-
- //limpiar imagenes
+if(fileInReq ) {
 
   if(productEdit.img){
     const nameArr = productEdit.img.split('/');
@@ -187,22 +202,37 @@ const { name, ...rest } = editProduct;
   
   }
 
-  const { tempFilePath } = req.files.file;
+  const valid = validExtension(req.files.img, res);
+
+  if(valid != true){
+    return 
+  }
+
+  const { tempFilePath } = req.files.img;
 
   const { secure_url } = await cloudinary.uploader.upload( tempFilePath, {folder: `Food App/${category}`});
 
-
-  
   tempProduct = {
        ...rest,
       img :secure_url,
       category: categoryUpdate._id,
       name 
-
+  
   }
+
+}
+// end no-image
+
+tempProduct = {
+  ...rest,
+//  img :secure_url,
+ category: categoryUpdate._id,
+ name 
+
+}
+  
   const product= await Product.findByIdAndUpdate( productEdit._id, tempProduct,{new:true})
   
-  // await product.save(productToSave); 
 
   res.json( {
     success: true,  

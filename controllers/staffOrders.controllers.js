@@ -107,7 +107,7 @@ const getStaffOrders= async ( req , res ) => {
         const [  total, staffOrders] = await Promise.all([
 
         PurchaseOrder.countDocuments( ),
-        PurchaseOrder.find(  )
+        PurchaseOrder.find( {finished : !"COMPLETADO"} )
         .populate([
             {
               path: 'user',
@@ -158,6 +158,13 @@ const getStaffOrdersByQuery= async ( req , res ) => {
 
     // let { year, month, day, hour, searchType } = req.query;
     const date = req.query;
+
+    if(!date){
+        res.status(400).json({
+            success: false,
+            msg: "No existe fecha a buscar - error en la peticion"
+        })
+    }
     
     const {start, end} =  customDate(date);
 

@@ -11,7 +11,10 @@ const customDate = (cDate) => {
 
     switch( searchType ){
         
-        /*  */
+        /* Recibo el string con la fecha desde del controller (ya viene en fomrato 2023-01-18 xq en el front moment() se encargo de hacerlo)
+           el split me permite separar la hora y con las variables year, month y day capturo esos valores
+           Resto 1 al mes xq el 0 es Enero y un dia mas xq tengo q llegar a las 3:00 am del otro dia por el +3    
+        */
         case 'DAY':
                      const datFormat = date.split("-")
                      let year = parseInt( datFormat[0] );
