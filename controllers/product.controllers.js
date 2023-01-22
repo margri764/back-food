@@ -157,6 +157,8 @@ const getProductById = async (req, res) =>{
 
 const updateProduct = async ( req, res) => {
 
+try {
+  
 
 const { category, id} = req.params;
 
@@ -202,6 +204,8 @@ if(fileInReq ) {
   
   }
 
+  // si la extension no es válida no se ejecuta mas, el metodo validExtensaion se encarga de contestar
+
   const valid = validExtension(req.files.img, res);
 
   if(valid != true){
@@ -237,14 +241,145 @@ tempProduct = {
   res.json( {
     success: true,  
     product
-  } );  
+  } );
+
+} catch (error) {
+  console.log('error desde updateProduct: ', error);
+
+  return res.status(500).json({
+    success: false,
+    msg: "Oops algo salió mal al intentar editar un producto"
+  })
 }
+
+
+}
+
+
+const updateManyPrice = async ( req, res) => {
+
+try {
+
+// la idea de q este metodo sirva para actualizar varios productos a la vez por campos y categoria/s 
+  const { categoryId } = req.params;
+
+  console.log("id: ",categoryId);
+  
+// recibo el body con el nombre del campo que quiero actualizar
+  const  { price }  = req.body;
+  console.log("price: ",price);
+
+        
+    // let productEdit = await Product.findById(  ) || null; //busca el id en la BD 
+  
+     await Product.updateMany(
+      { category : categoryId}, //condición q debe cumplir el doc para ser editado
+      {"$set":{"price": price * 2  }},   // le paso el valor de reemplazo
+      )
+  
+    res.json( {
+      success: true,  
+    } );  
+  
+
+} catch (error) {
+  console.log('error desde updateProduct: ', error);
+
+  return res.status(500).json({
+    success: false,
+    msg: "Oops algo salió mal al intentar editar un producto"
+  })
+
+}
+}
+
+const deleteProduct= async (req, res) => {
+ 
+
+  try {
+  
+    const { id } = req.params;
+
+    const product = await Product.findByIdAndDelete( id );
+
+    if(!product) {
+      res.status(400).json({ 
+        success: false,
+        msg: "Producto no encontrado",      
+      });
+    }
+
+    if(!product.status) {
+      res.status(400).json({ 
+        success: false,
+        msg: "El producto que intenta eliminar ya esta dado de baja de la Base de Datos",      
+      });
+     
+    }
+          
+
+  res.json({ 
+      success: true,
+      msg: "Producto eliminado correctamente",      
+  });
+
+
+  } catch (error) {
+
+    return res.status(500).json({
+      success: false,
+      msg: "Opps algo salió mal"
+    })
+  }
+
+    
+}
+
+const deleteManyProduct= async (req, res) => {
+  try {
+
+    // la idea de q este metodo es eliminar todos los productos de una categoria, OJO tambien hay  
+      const { categoryId } = req.params;
+    
+      console.log("id: ",categoryId);
+      
+
+            
+   
+      
+         await Product.updateMany(
+          { category : categoryId}, //condición q debe cumplir el doc para ser editado
+          {"$set":{"price": price * 2  }},   // le paso el valor de reemplazo
+          )
+      
+        res.json( {
+          success: true,  
+        } );  
+      
+    
+    } catch (error) {
+      console.log('error desde updateProduct: ', error);
+    
+      return res.status(500).json({
+        success: false,
+        msg: "Oops algo salió mal al intentar editar un producto"
+      })
+    
+    }
+
+  
+    
+}
+
 
 
 module.exports={
     createProduct,
     getProductById,
     getProductByCategory,
-    updateProduct
+    updateProduct,
+    deleteProduct,
+    updateManyPrice,
+    deleteManyProduct
 
 }

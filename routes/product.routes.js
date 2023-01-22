@@ -2,7 +2,7 @@
 
 const { Router } = require ('express');
 const { check } = require ('express-validator');
-const { createProduct, getProductById, getProduct, getProductByCategory, updateProduct } = require('../controllers/product.controllers');
+const { createProduct, getProductById, getProduct, getProductByCategory, updateProduct, deleteProduct, updateManyPrice, test } = require('../controllers/product.controllers');
 const { checkFields, checkTokenStaff, multiRole, requireToken} = require ('../middlewares');
 const { checkFileUp } = require('../middlewares/check-file');
 const { validCategory } = require('../helpers/db-validators.js');
@@ -10,8 +10,17 @@ const { validCategory } = require('../helpers/db-validators.js');
 const router = Router();
 
 
+router.patch('/updateManyPrice/categoryId',[
+    requireToken,
+    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
+    checkFields  
+], updateManyPrice)
 
-
+router.put('/:category/:id',[
+    requireToken,
+    multiRole ('ADMIN_ROLE','SUPER_ROLE','STAFF_ROLE'),
+    checkFields  
+], updateProduct)
 
 // router.post('/',upload.any(),[ 
 router.post('/:category',[ 
@@ -32,12 +41,23 @@ router.get('/',[
 
 ], getProductByCategory)
 
-router.put('/:category/:id',[
+
+
+// los STAFF solo deberian poder pausar un producto, oferta, etc
+router.delete('/:id',[
     requireToken,
-    multiRole ('ADMIN_ROLE','SUPER_ROLE','STAFF_ROLE'),
+    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
     checkFields  
 
-], updateProduct)
+], deleteProduct)
+
+
+
+// router.patch('/updateManyPrice/categoryId',[
+//     requireToken,
+//     multiRole ('ADMIN_ROLE','SUPER_ROLE'),
+//     checkFields  
+// ], test)
 
 
 module.exports= router;

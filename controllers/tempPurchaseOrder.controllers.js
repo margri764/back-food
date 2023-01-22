@@ -89,26 +89,40 @@ try {
   }
 }
 
-const tempOrderDelete= async (req, res) => {
+const deleteTempOrder= async (req, res) => {
  
+  try {
+  
+     const { id } = req.params;
+   
+     const tempPurchaseOrder = await TempPurchaseOrder.findByIdAndDelete( id );
+   
+     if(!tempPurchaseOrder){
+         return res.status(400).json({
+           success: false,
+           msg: "Orden no encontrada"
+         })
+     }
+   
+     res.json({ 
+       success: true,
+       msg: "Orden eliminada correctamente",      
+       tempPurchaseOrder
+   
+     });
 
-  const { id } = req.params;
+  
+  } catch (error) {
 
-  const tempPurchaseOrder = await TempPurchaseOrder.findByIdAndDelete( id );
-
-  if(tempPurchaseOrder) {
-        res.json({ 
-          success: true,
-          msg: "Orden eliminada correctamente",      
-          tempPurchaseOrder
-
-        });
-  }else{
-    return res.status(400).json({
+    console.log('desde: deleteTempOrder: ', error);
+    
+    return res.status(500).json({
       success: false,
-      msg: "Orden no encontrada"
+      msg: "OOps algo salio mal al intentar eliminar una orden temporal"
     })
+    
   }
+  
 }
 
 const tempOrderEdit= async (req, res) => {
@@ -137,7 +151,7 @@ const tempOrderEdit= async (req, res) => {
 module.exports={
         createTempOrder,
         getTempOrder,
-        tempOrderDelete,
+        deleteTempOrder,
         tempOrderEdit
 
 }

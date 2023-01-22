@@ -32,11 +32,11 @@ const createOrder= async ( req , res ) => {
             await TempPurchaseOrder.updateMany(
                 { user : user._id}, //QUERY para decirle que campo debe editar
                 {"$set":{"statusOrder": "COMPLETE"}},   // le paso el valor de reemplazo
-                ) //Filtras los documentos que quieres actualizar
+                ) //Filtra los documentos que quieres actualizar
          
         
         orderIds.map((item)=>{
-            console.log("from: ",item.statusOrder) 
+            console.log("from: ", item.statusOrder) 
             
         })
 
