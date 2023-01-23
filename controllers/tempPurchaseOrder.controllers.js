@@ -147,11 +147,36 @@ const tempOrderEdit= async (req, res) => {
   }
 }
 
+const deleteManyTempOrder= async (req, res) => {
+ 
+  try {
+
+    // la idea de q este metodo es eliminar todos las ordenes temporales,   
+
+         await TempPurchaseOrder.deleteMany()
+      
+        res.json( {
+          success: true, 
+          msg: `Se elimiaron correctamente todas las ordenes temporales` 
+        } );  
+      
+    
+    } catch (error) {
+      console.log('error desde deleteManyTempOrder: ', error);
+    
+      return res.status(500).json({
+        success: false,
+        msg: "Oops algo salió mal al intentar eliminar tosas las ordenes temporales"
+      })
+    }
+  
+}
 
 module.exports={
         createTempOrder,
         getTempOrder,
         deleteTempOrder,
-        tempOrderEdit
+        tempOrderEdit,
+        deleteManyTempOrder
 
 }

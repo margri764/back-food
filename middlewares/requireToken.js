@@ -30,13 +30,11 @@ const requireToken = async ( req, res, next ) => {
          userStaff = await Staff.findById( _id ) || null;
 
 
-
         if(userAuth == null && userStaff == null){
               return res.status(500).json({
                   msg:'Token no valido - Usuario no existe en DB'
               })
         }
-
 
 
         if( userAuth != null) {

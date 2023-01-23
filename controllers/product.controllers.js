@@ -20,16 +20,13 @@ const createProduct =  async (req = request, res = response) => {
     
     const { category }  = req.params;
     
-    const user = req.staffAuth;
+    const user = req.userAuth;
 
     // recibo el string del form-data body y lo parseo
     let { postProduct } = req.body;
     postProduct= JSON.parse(postProduct);
  
    let { name, ...rest } = postProduct; 
-   
-
-
 
    
    //busco si el producto ya esta creado lo q puedo usar es el nombre
@@ -43,7 +40,6 @@ const createProduct =  async (req = request, res = response) => {
           msg: `No se encuentra la categoria ${prodCategory}`
       })
   }
-
 
     if( staff == null){
         return res.status(400).json({
@@ -67,11 +63,9 @@ const createProduct =  async (req = request, res = response) => {
         })
     }
 
-
     const { tempFilePath } = req.files.file;
 
-    const {secure_url} = await cloudinary.uploader.upload( tempFilePath, {folder: `Food App/${category}`});
-
+    const {secure_url} = await cloudinary.uploader.upload( tempFilePath, {folder: `Food App/${category.toUpperCase()}`});
     
     const tempProduct = {
         ...rest,
@@ -88,10 +82,7 @@ const createProduct =  async (req = request, res = response) => {
     res.status(200).json({
         success: true,
         product,
-        // img
-
     })
-
 
 }
 
@@ -255,7 +246,6 @@ tempProduct = {
 
 }
 
-
 const updateManyPrice = async ( req, res) => {
 
 try {
@@ -295,12 +285,13 @@ try {
 
 const deleteProduct= async (req, res) => {
  
-
+// los productos los elimino de base de datos y la img de cloudinary
   try {
   
     const { id } = req.params;
 
-    const product = await Product.findByIdAndDelete( id );
+    let product = await Product.findOne({ _id : id });
+
 
     if(!product) {
       res.status(400).json({ 
@@ -314,9 +305,23 @@ const deleteProduct= async (req, res) => {
         success: false,
         msg: "El producto que intenta eliminar ya esta dado de baja de la Base de Datos",      
       });
-     
     }
-          
+
+    // busco el nombre de la categoria para enviarlo como nombre de carpeta a Cloudinary
+  
+    const category = await Category.findOne({ _id : product.category  });
+
+    // elimino img de cloudinary
+    if(product.img){
+      const nameArr = product.img.split('/');
+      const name = nameArr [ nameArr.length - 1 ];
+      const [ public_id] = name.split('.');
+      cloudinary.uploader.destroy( `Food app/${category.name}/${public_id}`);
+    
+    }
+
+     product = await Product.findByIdAndDelete( id );
+
 
   res.json({ 
       success: true,
@@ -326,9 +331,10 @@ const deleteProduct= async (req, res) => {
 
   } catch (error) {
 
+    console.log('desde deleteProduct: ', error);
     return res.status(500).json({
       success: false,
-      msg: "Opps algo salió mal"
+      msg: "Opps algo salió mal al intentar eliminar un producto"
     })
   }
 
@@ -340,25 +346,30 @@ const deleteManyProduct= async (req, res) => {
 
     // la idea de q este metodo es eliminar todos los productos de una categoria, OJO tambien hay  
       const { categoryId } = req.params;
-    
-      console.log("id: ",categoryId);
-      
 
-            
-   
-      
-         await Product.updateMany(
-          { category : categoryId}, //condición q debe cumplir el doc para ser editado
-          {"$set":{"price": price * 2  }},   // le paso el valor de reemplazo
-          )
+      const category = await Category.findOne({ _id : categoryId });
+
+      if(!category){
+        return res.status(400).json({
+          success: false,
+          msg: 'Categoria de producto no encontrada'
+        })
+      }
+      // elimino la categoria de cloudinary junto con todos los productos
+      if(category.name){
+      //  await cloudinary.api.delete_resources_by_prefix(`Food app/${category.name}`).then(res => console.log(res));
+      //  await cloudinary.api.delete_folder(`Food app/${category.name}`).then(res => console.log(res));
+      }
+         await Product.deleteMany({ category : categoryId})
       
         res.json( {
-          success: true,  
+          success: true, 
+          msg: `Los productos de la categoria ${category.name} fueron eliminados correctamente` 
         } );  
       
     
     } catch (error) {
-      console.log('error desde updateProduct: ', error);
+      console.log('error desde deleteManyProduct: ', error);
     
       return res.status(500).json({
         success: false,

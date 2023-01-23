@@ -63,7 +63,6 @@ class Server{
         this.app.use('/api/purchaseOrder', require('../routes/purchaseOrder.routes'));
         this.app.use('/api/staff', require('../routes/staff.routes'));
         this.app.use('/api/product', require('../routes/product.routes'));
-        this.app.use('/api/product/updateToMany', require('../routes/product.routes'));
         this.app.use('/api/category', require('../routes/category.routes'));
         this.app.use('/api/items/search', require('../routes/search.routes'));
 
