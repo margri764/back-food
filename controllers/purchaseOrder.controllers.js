@@ -129,30 +129,36 @@ const createOrder= async ( req , res ) => {
 
 // son las ordenes en proceso e historicas q puede ver el cliente
 const getOrder= async ( req , res ) => {
-    
     const user = req.userAuth
-
     try {
-
         const purchaseOrder = await PurchaseOrder.find({ user: user._id }) 
         .populate( {
             path: 'order', 
-            populate: [{ 
-                          path: 'drink',
-                          model: "TempPurchaseOrder",
-                       },
-                       {
-                          path: 'drink._id',
-                          model: "Product",
-                       },
-                       {
+            populate: [ 
+                        {
                           path: 'product',
                           model: "Product",
-                       },
-                       {
+                        },
+                        {
+                          path: 'product._id',
+                          model: "Product",
+                        },
+                        {
+                          path: 'fries._id',
+                          model: "Product",
+                        },
+                        {
+                          path: 'drink',
+                          model: "Product",
+                        },
+                        {
+                          path: 'drink._id',
+                          model: "Product",
+                        },
+                        {
                           path: 'user',
                           model: "User",
-                      },
+                        },
                       ],
            })
     

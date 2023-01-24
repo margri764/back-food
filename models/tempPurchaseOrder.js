@@ -57,6 +57,18 @@ const TempPurchaseOrderSchema = Schema({
             }
     }],
 
+    fries : [{
+            
+        idProduct:{
+            type: Schema.Types.ObjectId,
+            ref: "Product",
+        },
+        quantity: {
+            type: Number,
+            required: true
+        }
+}],
+
      otherExpenses: [
                      {
                 

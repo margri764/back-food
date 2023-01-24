@@ -80,7 +80,14 @@ try {
                     path: '_id',
                     model: "Product",
                            },
-                  }
+                  },
+                  {
+                    path: 'fries', 
+                    populate: { 
+                      path: '_id',
+                      model: "Product",
+                             },
+                    }
               ])
         
 
