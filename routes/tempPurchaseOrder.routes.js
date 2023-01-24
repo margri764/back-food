@@ -9,7 +9,7 @@ const { createTempOrder, getTempOrder, deleteTempOrder, tempOrderEdit, deleteMan
 const checkProduct = require('../helpers/check-product');
 const router = Router();
 const { requireToken, multiRole, checkFields    } = require('../middlewares');
-const { drinkValidator, friesValidator } = require('../helpers/product-validators');
+const { drinkValidator, friesValidator, mainProdValidator } = require('../helpers/product-validators');
 const { deleteManyProduct } = require('../controllers/product.controllers');
 
 
@@ -17,8 +17,9 @@ const { deleteManyProduct } = require('../controllers/product.controllers');
 
 router.post('/',[
     requireToken,
+    check('productID').custom( mainProdValidator ),
     check('drink').custom( drinkValidator ),
-    // check('fries').custom( friesValidator ),
+    check('fries').custom( friesValidator ),
     checkFields,
 ],createTempOrder); 
 

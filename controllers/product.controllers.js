@@ -10,6 +10,7 @@ const Category = require('../models/category');
 const { validCategory } = require('../helpers/db-validators');
 const { stringify } = require('querystring');
 const { validExtension } = require('../helpers/upload-file');
+const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 
 const cloudinary= require ('cloudinary').v2;
 cloudinary.config( process.env.CLOUDINARY_URL);
@@ -65,7 +66,7 @@ const createProduct =  async (req = request, res = response) => {
 
     const { tempFilePath } = req.files.file;
 
-    const {secure_url} = await cloudinary.uploader.upload( tempFilePath, {folder: `Food App/${category.toUpperCase()}`});
+    const {secure_url} = await cloudinary.uploader.upload( tempFilePath, {folder: `FoodApp/${category.toUpperCase()}`});
     
     const tempProduct = {
         ...rest,
@@ -121,8 +122,6 @@ const getProductById = async (req, res) =>{
 
       const { id }  = req.params;
 
- 
-    
 
     //busco si el producto ya esta creado lo q puedo usar es el nombre
 
@@ -191,7 +190,7 @@ if(fileInReq ) {
     const nameArr = productEdit.img.split('/');
     const name = nameArr [ nameArr.length - 1 ];
     const [ public_id] = name.split('.');
-    cloudinary.uploader.destroy( `Food app/${category}/${public_id}`);
+    cloudinary.uploader.destroy( `FoodApp/${category}/${public_id}`);
   
   }
 
@@ -205,7 +204,7 @@ if(fileInReq ) {
 
   const { tempFilePath } = req.files.img;
 
-  const { secure_url } = await cloudinary.uploader.upload( tempFilePath, {folder: `Food App/${category}`});
+  const { secure_url } = await cloudinary.uploader.upload( tempFilePath, {folder: `FoodApp/${category}`});
 
   tempProduct = {
        ...rest,
@@ -307,6 +306,15 @@ const deleteProduct= async (req, res) => {
       });
     }
 
+    const existInTempOrder = await TempPurchaseOrder({product : product._id})
+
+    if(existInTempOrder) {
+      res.status(400).json({ 
+        success: false,
+        msg: "No se puede eliminar el producto, existen ordenes temporales de clientes, los mismos se eliminan automaticamente cada 12 o 24 hs dependiendo de las reglas de negocio",      
+      });
+    }
+
     // busco el nombre de la categoria para enviarlo como nombre de carpeta a Cloudinary
   
     const category = await Category.findOne({ _id : product.category  });
@@ -316,7 +324,7 @@ const deleteProduct= async (req, res) => {
       const nameArr = product.img.split('/');
       const name = nameArr [ nameArr.length - 1 ];
       const [ public_id] = name.split('.');
-      cloudinary.uploader.destroy( `Food app/${category.name}/${public_id}`);
+      cloudinary.uploader.destroy( `FoodApp/${category.name}/${public_id}`);
     
     }
 
@@ -357,8 +365,8 @@ const deleteManyProduct= async (req, res) => {
       }
       // elimino la categoria de cloudinary junto con todos los productos
       if(category.name){
-      //  await cloudinary.api.delete_resources_by_prefix(`Food app/${category.name}`).then(res => console.log(res));
-      //  await cloudinary.api.delete_folder(`Food app/${category.name}`).then(res => console.log(res));
+       await cloudinary.api.delete_resources_by_prefix(`FoodApp/${category.name}`).then(res => console.log(res));
+       await cloudinary.api.delete_folder(`FoodApp/${category.name}`).then(res => console.log(res));
       }
          await Product.deleteMany({ category : categoryId})
       

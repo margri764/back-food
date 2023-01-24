@@ -15,13 +15,18 @@ const TempPurchaseOrderSchema = Schema({
         ref: "User",
         required: true
      },
- 
-     product:{
+
+    product : [{
+    
+    idProduct:{
         type: Schema.Types.ObjectId,
         ref: "Product",
+    },
+    quantity: {
+        type: Number,
         required: true
-        }
-     ,
+    }
+    }],
 
     //  esto está para saber quien es el miembro del staff que hizo algun update en los estados
      staff:{
@@ -52,10 +57,20 @@ const TempPurchaseOrderSchema = Schema({
             }
     }],
 
-     otherExpenses:  {
-        type: Array,
-        default:[]
-    },
+     otherExpenses: [
+                     {
+                
+                    idProduct:{
+                        type: Schema.Types.ObjectId,
+                        ref: "Product",
+                    },
+                    quantity: {
+                        type: Number,
+                        required: true
+                    }
+                    }
+    ],
+    
 
     addressDelivery :{
         type: String,
@@ -66,6 +81,7 @@ const TempPurchaseOrderSchema = Schema({
         type: Number,
         deafault : 1
     },
+
     total:{
         type: Number,
         required : true

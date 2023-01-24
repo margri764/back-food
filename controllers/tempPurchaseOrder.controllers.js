@@ -16,7 +16,7 @@ const createTempOrder = async ( req , res ) => {
       const {productID, drink, fries, otherExpenses, ...rest}= req.body;
 
       //  guardo el plato principal
-       const product = await Product.findById(productID) || null;
+      //  const product = await Product.findById(productID) || null;
 
        
        //si llego hasta aca es xq ya paso por los helpers q controlan que las bebidas q vienen en la peticion esten en stock y existan. No hago mas valdiaciones xq en el peor de los casos vendra un array vacio y  propiedad otherExpenses quedara como un array vacio
@@ -24,10 +24,11 @@ const createTempOrder = async ( req , res ) => {
       
       const tempOrder = {
           user : user,
-          addressDelivery : user.addressDelivery,
-          product : product,
+          product : productID,
+          drink : drink,
+          fries : fries,
           total : req.body.total,
-          drink :drink,
+          addressDelivery : user.addressDelivery,
           // otherExpenses : tempProductArray,
           ...rest
       }
@@ -64,13 +65,23 @@ try {
           { user: user._id },
           { statusOrder : "INCOMPLETE"}
         ]})
-        .populate([ "product","user",{
+        .populate([ 
+             "user",
+                {
+                  path: 'product', 
+                  populate: { 
+                    path: '_id',
+                    model: "Product",
+                          },
+                  },
+                  {
                   path: 'drink', 
                   populate: { 
                     path: '_id',
                     model: "Product",
                            },
-         }])
+                  }
+              ])
         
 
   return res.status(200).json({
