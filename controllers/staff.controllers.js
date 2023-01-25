@@ -88,7 +88,7 @@ const userGet = async (req,res=response)=>{
     // if(staff !== null){
 
     //     if( staff.stateAccount == false){
-    //         res.status(400).json({
+    //        return  res.status(400).json({
     //             success:false,
     //             msg:"Empleado eliminado o bloqueado"
     //         })

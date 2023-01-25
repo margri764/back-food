@@ -122,7 +122,7 @@ const getStaffOrders= async ( req , res ) => {
             populate: [
                        { 
                           path: 'drink',
-                          model: "TempPurchaseOrder",
+                          model: "Product",
                        },
                        {
                           path: 'drink._id',
@@ -132,6 +132,15 @@ const getStaffOrders= async ( req , res ) => {
                           path: 'product',
                           model: "Product",
                        },
+                       {
+                          path: 'product._id',
+                          model: "Product",
+                       },
+                       {
+                          path: 'fries._id',
+                          model: "Product",
+                       },
+                       
                     ]
              },
         
@@ -160,7 +169,7 @@ const getStaffOrdersByQuery= async ( req , res ) => {
     const date = req.query;
 
     if(!date){
-        res.status(400).json({
+        return res.status(400).json({
             success: false,
             msg: "No existe fecha a buscar - error en la peticion"
         })
@@ -191,7 +200,7 @@ const getStaffOrdersByQuery= async ( req , res ) => {
              populate: [
                         { 
                            path: 'drink',
-                           model: "TempPurchaseOrder",
+                           model: "Product",
                         },
                         {
                            path: 'drink._id',
@@ -199,6 +208,14 @@ const getStaffOrdersByQuery= async ( req , res ) => {
                         },
                         {
                            path: 'product',
+                           model: "Product",
+                        },
+                        {
+                           path: 'product._id',
+                           model: "Product",
+                        },
+                        {
+                           path: 'fries._id',
                            model: "Product",
                         },
                      ]

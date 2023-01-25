@@ -2,7 +2,7 @@
 
 const { Router } = require ('express');
 const { check } = require ('express-validator');
-const { createProduct, getProductById, getProduct, getProductByCategory, updateProduct, deleteProduct, updateManyPrice, test, deleteManyProduct } = require('../controllers/product.controllers');
+const { createProduct, getProductByCategory, updateProduct, deleteProduct, updateManyPrice, deleteManyProduct, pauseProductByID, getPausedProduct } = require('../controllers/product.controllers');
 const { checkFields, checkTokenStaff, multiRole, requireToken} = require ('../middlewares');
 const { checkFileUp } = require('../middlewares/check-file');
 const { validCategory } = require('../helpers/db-validators.js');
@@ -32,22 +32,29 @@ router.post('/:category',[
 ], createProduct );
 
 
-router.get('/:id',[
-],getProductById)
-
-
 //no lleva middlewares xq es lo q se tiene q cargar si o si en el inicio de la app
 router.get('/',[
 ], getProductByCategory)
 
 
 // los STAFF solo deberian poder pausar un producto, oferta, etc
-router.delete('/:id',[
+router.patch('/:id',[
     requireToken,
     multiRole ('ADMIN_ROLE','SUPER_ROLE'),
     checkFields  
-
 ], deleteProduct)
+
+router.patch('/noStock/:id',[
+    requireToken,
+    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
+    checkFields  
+], pauseProductByID)
+
+router.get('/noStock',[
+    requireToken,
+    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
+    checkFields  
+], getPausedProduct)
 
 // los STAFF solo deberian poder pausar un producto, oferta, etc
 router.delete('/deleteToMany/:categoryId',[

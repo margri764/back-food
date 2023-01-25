@@ -28,7 +28,7 @@ console.log(product);
 
         });
     } catch (error) {
-        res.status(501).json({
+        return res.status(501).json({
             msg: 'base de datos no operativa'
         })  
           

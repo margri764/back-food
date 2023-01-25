@@ -77,21 +77,21 @@ const user_loginDB = await UserSignUp.findOne({email: req.body.email});
 const user = await User.findOne({email: req.body.email} || null);
 
 if( user !== null){
-    res.status(400).json({
+    return res.status(400).json({
         success:false,
         msg:"El Usuario ya existe en Base de Datos"
     })
 }
 
 if( user_loginDB==null){
-    res.status(400).json({
+    return res.status(400).json({
         success:false,
         msg:"No existe un usuario logeado"
     })
 }
 
 if(user_loginDB.stateAccount == false || user_loginDB == "UNVERIFIED") {
-    res.status(400).json({
+    return res.status(400).json({
         success:false,
         msg:"Usuario eliminado o sin verificar email, Hable con el admninistrador"
     })
