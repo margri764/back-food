@@ -44,6 +44,7 @@ router.patch('/:id',[
     checkFields  
 ], deleteProduct)
 
+// DEBERIAN TENER EL MIDDLEWARE ¿ES MONGO ID?
 router.patch('/noStock/:id',[
     requireToken,
     multiRole ('ADMIN_ROLE','SUPER_ROLE'),
