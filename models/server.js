@@ -23,7 +23,7 @@ class Server{
     
     middlewares(){
 
-        const whiteList = [process.env.ORIGIN1];
+        const whiteList = [process.env.ORIGIN1, "http://192.168.1.103:8081","http://192.168.1.103:8080"];
         this.app.use(express.json());
         this.app.use(cookieParser());  
 
