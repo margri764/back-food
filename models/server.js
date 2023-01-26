@@ -23,26 +23,35 @@ class Server{
     
     middlewares(){
 
-        const whiteList = [process.env.ORIGIN1, "http://192.168.1.103:8081","http://192.168.1.103:8080"];
+        const whiteList = [process.env.ORIGIN1, 
+            "http://192.168.1.103:8081","http://192.168.1.103:8080","http://127.0.0.1:8080", "http://127.0.0.1:8081"];
         this.app.use(express.json());
         this.app.use(cookieParser());  
 
-        this.app.use(
-            cors({
-                origin: function (origin, callback) {
-                    // console.log("😲😲😲 =>", origin);
-                    if (!origin || whiteList.includes(origin)) {
-                        return callback(null, origin);
-                    }
-                    return callback(
-                        "Error de CORS origin: " + origin + " No autorizado!"
-                    );
-                },
-                credentials: true,
-            })
+        // this.app.use(cors());
+
+      
+
+        this.app.use(cors(
+                            {
+                              origin: function (origin, callback) {
+                                  console.log("😲😲😲 =>", origin);
+                                  if (!origin || whiteList.includes(origin)) {
+                                      return callback(null, origin);
+                                  }
+                                  return callback(
+                                      "Error de CORS origin: " + origin + " No autorizado!"
+                                  );
+                              },
+                              credentials: true,
+                          }
+                          )
         );
         
         this.app.use(express.static('public'));
+
+
+
         this.app.set('trust proxy', true);
         this.app.use(fileUpload({
             useTempFiles : true,
@@ -67,13 +76,13 @@ class Server{
         this.app.use('/api/items/search', require('../routes/search.routes'));
 
 
-
-
-        
         // this.app.get('*', (req, res) => { 
         //     res.sendFile( path.resolve( __dirname,'../public/index.html') )
         //     });
               
+
+        
+ 
               
     }
 

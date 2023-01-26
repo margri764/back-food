@@ -39,14 +39,15 @@ try {
     // la cookie tiene un tiempo de expiracion distina le digo q dure el mes a partir de hoy y se multiplica por mil
     // xq el date() esta en milisegundos
     res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: !(process.env.MODO === "developer"),
+            httpOnly: true, //solo va a vivir en memoria no puede ser accedida x ningun otro medio
+            secure: !(process.env.MODO === "developer"), //esto es para q si estoy en HTTPS me de un true como estoy en local es un false 
+            // secure: true,    con eso le diria q la seguridad sea true cuando este en https
             expires: new Date(Date.now() + expiresIn * 1000),
         })
     
 } catch (error) {
 
-    console.log("ERROR generateRefreshToken",error);
+    console.log("ERROR generateRefreshToken: ",error);
 }
         
 

@@ -267,7 +267,7 @@ const login = async (req, res=response)=>{
               user = await User.findOne({ user_login : userLogin._id});
         }
         
-        const token = await generateToken(user._id);
+        const token = generateToken(user._id);
 
         generateRefreshToken(user._id, res);
 
