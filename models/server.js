@@ -10,8 +10,8 @@ class Server{
 
         constructor(){
             this.app = express();
-            this.port = 8000;
-            // this.port = process.env.PORT;
+            // this.port = 8000;
+            this.port = process.env.PORT;
             this.conectarDB();
             this.middlewares();
             this.routes();
@@ -31,7 +31,7 @@ class Server{
         this.app.use(cors(
                             {
                               origin: function (origin, callback) {
-                                  console.log("😲😲😲 =>", origin);
+                                //   console.log("😲😲😲 =>", origin);
                                   if (!origin || whiteList.includes(origin)) {
                                       return callback(null, origin);
                                   }

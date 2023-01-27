@@ -2,7 +2,7 @@
 const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
-const { createOrder, getOrder, editOrder } = require('../controllers/purchaseOrder.controllers');
+const { createOrder, getOrder, editOrder, getUserOrder, getStaffOrder } = require('../controllers/purchaseOrder.controllers');
 const { getStaffOrders } = require('../controllers/staffOrders.controllers');
 const { orderValidator } = require('../helpers/order-validators');
 const { checkToken, multiRole, checkFields, requireToken } = require('../middlewares');
@@ -17,10 +17,16 @@ router.post('/',[
     // multiRole ('ADMIN_ROLE','SUPER_ROLE'),
 ],createOrder); 
 
-
-router.get('/',[
+// son las ordenes que recibe el dashboard para editar y demas
+router.get('/staffOrder',[
     requireToken,
-],getOrder); 
+],getStaffOrder); 
+
+
+// son las ordenes q ve el cliente en "ordenes en proceso", la orden de compra NO tiene su finished = true 
+router.get('/userOrder',[
+    requireToken,
+],getUserOrder); 
 
 // router.post('/orderStatus',[
 //     requireToken,

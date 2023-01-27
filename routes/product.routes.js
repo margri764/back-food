@@ -47,13 +47,13 @@ router.patch('/:id',[
 // DEBERIAN TENER EL MIDDLEWARE ¿ES MONGO ID?
 router.patch('/noStock/:id',[
     requireToken,
-    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
+    multiRole ('ADMIN_ROLE','SUPER_ROLE', 'STAFF_ROLE'),
     checkFields  
 ], pauseProductByID)
 
 router.get('/noStock',[
     requireToken,
-    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
+    multiRole ('ADMIN_ROLE','SUPER_ROLE','STAFF_ROLE'),
     checkFields  
 ], getPausedProduct)
 

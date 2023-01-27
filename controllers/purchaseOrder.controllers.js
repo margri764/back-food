@@ -57,32 +57,14 @@ const createOrder= async ( req , res ) => {
             finished: false,
             ...rest
         }
-
         // aca grabo la orden de compra del cliente 
         const purchaseOrder =  new PurchaseOrder (tempOrder);
         
-        /* en este caso guardo la misma orden pero en otra coleccion para poder registrar los cambio de estados
-           y la persona q esta realizando los cambios */ 
-
-           
-          await purchaseOrder.save()
-
-        //    const tempOrderStatus = {
-        //     user : user._id,
-        //     addressDelivery : user.addressDelivery,
-        //     order : purchaseOrder._id,
-        //     total : total,
-        //     ...rest
-        // }
-
-
-        // const purchaseOrderStatus =  new PurchaseOrderStatus (tempOrderStatus);
-        // await purchaseOrderStatus.save()
+        await purchaseOrder.save()
 
         res.status(200).json({
-        success: true,
-        purchaseOrder,
-
+                success: true,
+                purchaseOrder,
         })
 
 
@@ -101,35 +83,79 @@ const createOrder= async ( req , res ) => {
       
 
      
-    // if(!product){
-    //     return res.status(400).json({
-    //     success:false,
-    //     msg: "Producto no encontrado en BD"
-    //     })
-    //   }
-
-    //   if(product.status != true){
-    //     return res.status(400).json({
-    //     success:false,
-    //     msg: "Producto dado de baja en BD"
-    //     })
-    //   }
-
-    //   if(product.stock != true){
-    //     return res.status(400).json({
-    //     success:false,
-    //     msg: "Producto sin stock"
-    //     })
-    //   }
-    
-
 
 
 }
 
-// son las ordenes en proceso e historicas q puede ver el cliente
-const getOrder= async ( req , res ) => {
+// son las ordenes q ve el cliente en "ordenes en proceso", la orden de compra NO tiene su finished = true 
+const getUserOrder= async ( req , res ) => {
+
     const user = req.userAuth
+    
+    try {
+        const purchaseOrder = await PurchaseOrder.find({ user: user._id }) 
+        .populate( {
+            path: 'order', 
+            populate: [ 
+                        {
+                          path: 'product',
+                          model: "Product",
+                        },
+                        {
+                          path: 'product._id',
+                          model: "Product",
+                        },
+                        {
+                          path: 'fries._id',
+                          model: "Product",
+                        },
+                        {
+                          path: 'drink',
+                          model: "Product",
+                        },
+                        {
+                          path: 'drink._id',
+                          model: "Product",
+                        },
+                        {
+                          path: 'user',
+                          model: "User",
+                        },
+                      ],
+           })
+    
+        // if(!purchaseOrder){
+    
+        //     return res.status(400).json ({
+        //         success : false,
+        //         msg : `No se encontraron ordenes para el usuario ${user.firstName} ${user.lastName} `
+        //     })
+        // }
+    
+    
+       
+        res.json({ 
+            success : true,
+            purchaseOrder
+    
+        });
+        
+    } catch (error) {
+        return res.status(500).json ({
+            success : false,
+            msg : `Ooops algo salió mal al intentar obtener las ordenes de compra `
+        })
+
+    }
+
+ 
+}
+
+// son las ordenes que recibe el dashboard para editar y demas
+const getStaffOrder= async ( req , res ) => {
+
+    const user = req.userAuth
+    
     try {
         const purchaseOrder = await PurchaseOrder.find({ user: user._id }) 
         .populate( {
@@ -227,7 +253,8 @@ const editOrder= async ( req , res ) => {
 
 module.exports={
     createOrder,
-    getOrder,
-    editOrder
+    editOrder,
+    getUserOrder,
+    getStaffOrder,
 
 }
