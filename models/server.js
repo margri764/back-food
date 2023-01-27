@@ -10,7 +10,8 @@ class Server{
 
         constructor(){
             this.app = express();
-            this.port = process.env.PORT;
+            this.port = 8000;
+            // this.port = process.env.PORT;
             this.conectarDB();
             this.middlewares();
             this.routes();
@@ -27,11 +28,6 @@ class Server{
             "http://192.168.1.103:8081","http://192.168.1.103:8080","http://127.0.0.1:8080", "http://127.0.0.1:8081"];
         this.app.use(express.json());
         this.app.use(cookieParser());  
-
-        // this.app.use(cors());
-
-      
-
         this.app.use(cors(
                             {
                               origin: function (origin, callback) {
@@ -49,17 +45,12 @@ class Server{
         );
         
         this.app.use(express.static('public'));
-
-
-
         this.app.set('trust proxy', true);
         this.app.use(fileUpload({
             useTempFiles : true,
             tempFileDir : '/tmp/'
         }));
 
-     
-      
 
     }    
 
@@ -76,14 +67,9 @@ class Server{
         this.app.use('/api/items/search', require('../routes/search.routes'));
 
 
-        // this.app.get('*', (req, res) => { 
-        //     res.sendFile( path.resolve( __dirname,'../public/index.html') )
-        //     });
-              
-
-        
- 
-              
+        this.app.get('*', (req, res) => { 
+            res.sendFile( path.resolve( __dirname,'../public/index.html') )
+            });
     }
 
     listen(){
