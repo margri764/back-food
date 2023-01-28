@@ -4,6 +4,9 @@ const Staff = require('../models/staff');
 const Category = require('../models/category');
 const { validExtension } = require('../helpers/upload-file');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
+const { json } = require('express');
+const { stringify } = require('uuid');
+const { checkPrice } = require('../helpers/price-percent');
 
 const cloudinary= require ('cloudinary').v2;
 cloudinary.config( process.env.CLOUDINARY_URL);
@@ -112,13 +115,44 @@ const findCatSix  = await Category.findOne({name: "FRIES"})   || null;
 
 // OJO VALIDAR SI ESTAN EN STOCK O EXISTEN EN BD!!!!!!!!!!!!!!!!!
 
-const burger  = await Product.find({ status : true, stock: true, category : findCatOne._id }).populate("category", "name")
-const pizza   = await Product.find({ status : true, stock: true, category : findCatTwo._id }).populate("category", "name")
-const healthy = await Product.find({ status : true, stock: true, category : findCatTree._id }).populate("category", "name")
-const vegan   = await Product.find({ status : true, stock: true, category : findCatFour._id }).populate("category", "name")
-const drink   = await Product.find({ status : true, stock: true, category : findCatFive._id }).populate("category", "name")
-const fries   = await Product.find({ status : true, stock: true, category : findCatSix._id }).populate("category", "name")
+let burger  = await Product.find({ status : true, stock: true, category : findCatOne._id }).populate("category", "name")
+let pizza   = await Product.find({ status : true, stock: true, category : findCatTwo._id }).populate("category", "name")
+let healthy = await Product.find({ status : true, stock: true, category : findCatTree._id }).populate("category", "name")
+let vegan   = await Product.find({ status : true, stock: true, category : findCatFour._id }).populate("category", "name")
+let fries   = await Product.find({ status : true, stock: true, category : findCatSix._id }).populate("category", "name")
+let drink   = await Product.find({ status : true, stock: true, category : findCatFive._id }).populate("category", "name")
 
+//modifico la propiedad price a numero entero mas cercano
+pizza.map( (item) =>
+  { 
+    [...pizza],
+     item.price = Math.round(item.price)
+  } 
+);
+healthy.map( (item) =>
+  { 
+    [...healthy],
+     item.price = Math.round(item.price)
+  } 
+);
+vegan.map( (item) =>
+  { 
+    [...vegan],
+     item.price = Math.round(item.price)
+  } 
+);
+drink.map( (item) =>
+  { 
+    [...drink],
+     item.price = Math.round(item.price)
+  } 
+);
+drink.map( (item) =>
+  { 
+    [...drink],
+     item.price = Math.round(item.price)
+  } 
+);
 
 res.json({
       burger,
@@ -237,27 +271,97 @@ try {
 // la idea de q este metodo sirva para actualizar varios productos a la vez por campos y categoria/s 
   const { categoryId } = req.params;
 
-  console.log("id: ",categoryId);
-  
-// recibo el body con el nombre del campo que quiero actualizar
-  const  { price }  = req.body;
-  console.log("price: ",price);
+// recibo el body con el nombre del campo que quiero actualizar VALIDAR NUMEROS PRICE!!!!
+  const  { price, operation }  = req.body;
 
-        
-    // let productEdit = await Product.findById(  ) || null; //busca el id en la BD 
   
-     await Product.updateMany(
-      { category : categoryId}, //condición q debe cumplir el doc para ser editado
-      {"$set":{"price": price * 2  }},   // le paso el valor de reemplazo
-      )
+  const isPostiveNumber = Math.sign(price); //verifica el signo del numero
   
-    res.json( {
-      success: true,  
-    } );  
+
+// suma  
+  if(isNaN(price)){
+    return res.status(400).json({
+      success: false,
+      msj : `Solo se permite el ingreso de numeros. ${price} no es un numero `
+    })
+  }
+
+  if(isPostiveNumber != 1){
+    return res.status(400).json({
+      success: false,
+      msj : `Solo se permite el ingreso de numeros mayores a 1. ${price} no es un numero permitido `
+
+    })
+  }
+
+  let numberDocUpdated;
+  
+  //SUMA
+  if(operation.toUpperCase() == "SUMAR") {
+    console.log("entro a sumar");
+     numberDocUpdated= await Product.updateMany(
+        { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
+        { "$inc" : { price :  price  } },   // le paso el valor de reemplazo
+        { "multi": true }
+        )
+   }
+  
+   // RESTA
+   if(operation.toUpperCase() == "RESTAR") {
+     numberDocUpdated= await Product.updateMany(
+        { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
+        { "$inc" : { price : - price  } },   // le paso el valor de reemplazo
+        { "multi": true }
+     )
+ }
+  
+ if(operation.toUpperCase() == "INCREMENTAR %") {
+
+    const pricePercent = checkPrice(price)
+    numberDocUpdated= await Product.updateMany(
+      { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
+      { "$mul": { price : pricePercent } },   // le paso el valor de reemplazo
+      { "multi": true }
+  )
+}
+
+
+if(operation.toUpperCase() == "DECREMENTAR %") {
+
+  let priceInc;
+
+  if(price < 10) {
+         priceInc = price * 0.3 ;
+         console.log(priceInc);
+         priceInc = parseFloat(priceInc);
+        pricePercent= priceInc;
+   }
+
+
+  // const pricePercent = checkPrice(price)
+  numberDocUpdated= await Product.updateMany(
+    { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
+    { "$inc": { price : - pricePercent } },   // le paso el valor de reemplazo
+    { "multi": true }
+)
+}
+
+  // const numberDocUpdated= await Product.updateMany(
+  //   { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
+  //   { $mul : { price :  price  } },   // le paso el valor de reemplazo
+  //   { "multi": true }
+  //   )
+    
+  let { name } = await Category.findById( categoryId ) || null; //busca el id en la BD 
+ 
+  res.json( {
+   success: true,
+   msj : `Se modificaron ${numberDocUpdated.modifiedCount} producto(s) de la categoria ${name}`  
+ } );  
   
 
 } catch (error) {
-  console.log('error desde updateProduct: ', error);
+  console.log('error desde updateToMany: ', error);
 
   return res.status(500).json({
     success: false,

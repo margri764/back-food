@@ -58,11 +58,27 @@ const checkId = async ( id ) =>{
 
    } 
 
+   const validOperation =  ( operation='', arrOperation = [] ) => {
+
+      operation = operation.toUpperCase();
+     const validOperation = arrOperation.includes(operation);
+     
+      if( !validOperation ){
+
+        throw new Error (`la operacion ${operation} no existe en Base de Datos, solo ${arrOperation}`)
+      }
+      return true;
+
+   } 
+
 module.exports={
     isRoleValid,
     checkEmail,
     checkId,
     checkCategory,
     checkProduct,
-    validCategory
+    validCategory,
+    validOperation
+
+
 }

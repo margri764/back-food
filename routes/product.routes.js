@@ -5,14 +5,17 @@ const { check } = require ('express-validator');
 const { createProduct, getProductByCategory, updateProduct, deleteProduct, updateManyPrice, deleteManyProduct, pauseProductByID, getPausedProduct } = require('../controllers/product.controllers');
 const { checkFields, checkTokenStaff, multiRole, requireToken} = require ('../middlewares');
 const { checkFileUp } = require('../middlewares/check-file');
-const { validCategory } = require('../helpers/db-validators.js');
+const { validCategory, validOperation } = require('../helpers/db-validators.js');
+const { checkCategoryById } = require('../middlewares/check-category');
 
 const router = Router();
 
-
-router.patch('/updateManyPrice/categoryId',[
+// modificar todos los precios por categoria
+router.patch('/:updateManyPrice/:categoryId',[
     requireToken,
     multiRole ('ADMIN_ROLE','SUPER_ROLE'),
+    checkCategoryById,
+    check('operation').custom( operation => validOperation(operation, ['SUMAR', 'RESTAR', 'INCREMENTAR %', 'DECREMENTAR %'])),
     checkFields  
 ], updateManyPrice)
 
@@ -51,6 +54,7 @@ router.patch('/noStock/:id',[
     checkFields  
 ], pauseProductByID)
 
+// envio al front el listado de todos los productos q estan pausados
 router.get('/noStock',[
     requireToken,
     multiRole ('ADMIN_ROLE','SUPER_ROLE','STAFF_ROLE'),
@@ -62,7 +66,6 @@ router.delete('/deleteToMany/:categoryId',[
     requireToken,
     multiRole ('ADMIN_ROLE','SUPER_ROLE'),
     checkFields  
-
 ], deleteManyProduct)
 
 
