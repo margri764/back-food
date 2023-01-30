@@ -16,13 +16,12 @@ const createOrder= async ( req , res ) => {
         const user = req.userAuth
         const { order, ...rest }= req.body;
 
-        // console.log(req.body);
-
+        
         let arrIDs = [];
         let tempTotal = [];
+        console.log(order)
         
-         order.forEach( item => arrIDs.push(item._id));
-        // tempArrIds.forEach( item => { arrIDs.push(item.tempOrder) });
+        order.forEach( item => { arrIDs.push(item.tempOrder) });
 
         tempTotal = order.filter( item =>  item.total);
         tempTotal.forEach( item => { total = item.total });
@@ -69,7 +68,7 @@ const createOrder= async ( req , res ) => {
 
 
     } catch (error) {
-
+        console.log('desde createOrder: ', error);
         return res.status(500).json({
             success: false,
             msg: 'Ooops algo salio mal al crear la orden'

@@ -4,9 +4,7 @@ const Staff = require('../models/staff');
 const Category = require('../models/category');
 const { validExtension } = require('../helpers/upload-file');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
-const { json } = require('express');
-const { stringify } = require('uuid');
-const { checkPrice } = require('../helpers/price-percent');
+const { checkValue } = require('../helpers/value-percent');
 
 const cloudinary= require ('cloudinary').v2;
 cloudinary.config( process.env.CLOUDINARY_URL);
@@ -115,44 +113,39 @@ const findCatSix  = await Category.findOne({name: "FRIES"})   || null;
 
 // OJO VALIDAR SI ESTAN EN STOCK O EXISTEN EN BD!!!!!!!!!!!!!!!!!
 
-let burger  = await Product.find({ status : true, stock: true, category : findCatOne._id }).populate("category", "name")
-let pizza   = await Product.find({ status : true, stock: true, category : findCatTwo._id }).populate("category", "name")
-let healthy = await Product.find({ status : true, stock: true, category : findCatTree._id }).populate("category", "name")
-let vegan   = await Product.find({ status : true, stock: true, category : findCatFour._id }).populate("category", "name")
-let fries   = await Product.find({ status : true, stock: true, category : findCatSix._id }).populate("category", "name")
-let drink   = await Product.find({ status : true, stock: true, category : findCatFive._id }).populate("category", "name")
+const burger  = await Product.find({ status : true, stock: true, category : findCatOne._id }).populate("category", "name")
+const pizza   = await Product.find({ status : true, stock: true, category : findCatTwo._id }).populate("category", "name")
+const healthy = await Product.find({ status : true, stock: true, category : findCatTree._id }).populate("category", "name")
+const vegan   = await Product.find({ status : true, stock: true, category : findCatFour._id }).populate("category", "name")
+const fries   = await Product.find({ status : true, stock: true, category : findCatSix._id }).populate("category", "name")
+const drink   = await Product.find({ status : true, stock: true, category : findCatFive._id }).populate("category", "name")
 
-//modifico la propiedad price a numero entero mas cercano
-pizza.map( (item) =>
-  { 
-    [...pizza],
-     item.price = Math.round(item.price)
-  } 
-);
-healthy.map( (item) =>
-  { 
-    [...healthy],
-     item.price = Math.round(item.price)
-  } 
-);
-vegan.map( (item) =>
-  { 
-    [...vegan],
-     item.price = Math.round(item.price)
-  } 
-);
-drink.map( (item) =>
-  { 
-    [...drink],
-     item.price = Math.round(item.price)
-  } 
-);
-drink.map( (item) =>
-  { 
-    [...drink],
-     item.price = Math.round(item.price)
-  } 
-);
+//modifico la propiedad value a numero entero mas cercano
+// pizza.map( (item) =>
+//   { 
+//     [...pizza],
+//      item.price = Math.round(item.price)
+//   } 
+// );
+// healthy.map( (item) =>
+//   { 
+//     [...healthy],
+//      item.price = Math.round(item.price)
+//   } 
+// );
+// vegan.map( (item) =>
+//   { 
+//     [...vegan],
+//      item.price = Math.round(item.price)
+//   } 
+// );
+// drink.map( (item) =>
+//   { 
+//     [...drink],
+//      item.price = Math.round(item.price)
+//   } 
+// );
+
 
 res.json({
       burger,
@@ -264,6 +257,7 @@ tempProduct = {
 
 }
 
+
 const updateManyPrice = async ( req, res) => {
 
 try {
@@ -272,24 +266,24 @@ try {
   const { categoryId } = req.params;
 
 // recibo el body con el nombre del campo que quiero actualizar VALIDAR NUMEROS PRICE!!!!
-  const  { price, operation }  = req.body;
+  const  { value, operation }  = req.body;
 
   
-  const isPostiveNumber = Math.sign(price); //verifica el signo del numero
+  const isPostiveNumber = Math.sign(value); //verifica el signo del numero
   
 
 // suma  
-  if(isNaN(price)){
+  if(isNaN(value)){
     return res.status(400).json({
       success: false,
-      msj : `Solo se permite el ingreso de numeros. ${price} no es un numero `
+      msj : `Solo se permite el ingreso de numeros. ${value} no es un numero `
     })
   }
 
   if(isPostiveNumber != 1){
     return res.status(400).json({
       success: false,
-      msj : `Solo se permite el ingreso de numeros mayores a 1. ${price} no es un numero permitido `
+      msj : `Solo se permite el ingreso de numeros mayores a 1. ${value} no es un numero permitido `
 
     })
   }
@@ -301,7 +295,7 @@ try {
     console.log("entro a sumar");
      numberDocUpdated= await Product.updateMany(
         { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
-        { "$inc" : { price :  price  } },   // le paso el valor de reemplazo
+        { $inc : { price :  value  } },   // le paso el valor de reemplazo
         { "multi": true }
         )
    }
@@ -310,47 +304,44 @@ try {
    if(operation.toUpperCase() == "RESTAR") {
      numberDocUpdated= await Product.updateMany(
         { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
-        { "$inc" : { price : - price  } },   // le paso el valor de reemplazo
+        { $inc : { price : - value  } },   // le paso el valor de reemplazo
         { "multi": true }
      )
  }
-  
+
+ // INCREMENTAR %
  if(operation.toUpperCase() == "INCREMENTAR %") {
 
-    const pricePercent = checkPrice(price)
+    const pricePercent = checkValue(value);
     numberDocUpdated= await Product.updateMany(
       { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
-      { "$mul": { price : pricePercent } },   // le paso el valor de reemplazo
+      {  $mul: { price : pricePercent } },   // le paso el valor de reemplazo
       { "multi": true }
   )
 }
 
-
+// DECREMENTAR %
 if(operation.toUpperCase() == "DECREMENTAR %") {
 
-  let priceInc;
+  let priceDec;
+  let valueDec;
+  if( value > 0 && value < 100 ) {
+          valueDec = 100 - value;
+          valueDec = valueDec / 100 ;
+  }else{
+    return res.status(400).json({
+      success: false,
+      msg:`${ value } no es un porcentage valido solo de 1 a 99%...`
 
-  if(price < 10) {
-         priceInc = price * 0.3 ;
-         console.log(priceInc);
-         priceInc = parseFloat(priceInc);
-        pricePercent= priceInc;
-   }
+    })
+  }
 
-
-  // const pricePercent = checkPrice(price)
   numberDocUpdated= await Product.updateMany(
     { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
-    { "$inc": { price : - pricePercent } },   // le paso el valor de reemplazo
+    { $mul: { price : priceDec } },   // le paso el valor de reemplazo
     { "multi": true }
 )
 }
-
-  // const numberDocUpdated= await Product.updateMany(
-  //   { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
-  //   { $mul : { price :  price  } },   // le paso el valor de reemplazo
-  //   { "multi": true }
-  //   )
     
   let { name } = await Category.findById( categoryId ) || null; //busca el id en la BD 
  
