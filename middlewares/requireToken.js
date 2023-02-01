@@ -44,6 +44,7 @@ const requireToken = async ( req, res, next ) => {
                 msg:'Token no valido - usuario con state en false'
                 })
                 }
+                
              req.userAuth= userAuth;    
         } 
         

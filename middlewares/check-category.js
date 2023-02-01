@@ -3,13 +3,13 @@
 const Category = require('../models/category') 
 
 
-const checkCategoryById = async ( req, res, next )=>{
+const checkCategory = async ( req, res, next )=>{
+console.log(req.body);
 
-
-const { categoryId } = req.params;
+const { category }= req.params;
 
     
-  const validCat = await Category.findById( categoryId ) || null; //busca el id en la BD 
+  const validCat = await Category.findOne({ name : category.toUpperCase() } ) || null; //busca el id en la BD 
 
   if(validCat == null){
     return res.status(400).json({
@@ -25,9 +25,11 @@ const { categoryId } = req.params;
     })
   }
 
+  req.validCat = validCat._id;
+
 next();
 }
 
 module.exports = {
-                  checkCategoryById
+                checkCategory
                  }

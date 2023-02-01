@@ -2,26 +2,34 @@
 
 const { Router } = require ('express');
 const { check } = require ('express-validator');
-const { createProduct, getProductByCategory, updateProduct, deleteProduct, updateManyPrice, deleteManyProduct, pauseProductByID, getPausedProduct } = require('../controllers/product.controllers');
+const { createProduct, getProductByCategory, updateProduct, deleteProduct, updateManyPrice, deleteManyProduct, pauseProductByID, getPausedProduct, pauseCategory } = require('../controllers/product.controllers');
 const { checkFields, checkTokenStaff, multiRole, requireToken} = require ('../middlewares');
 const { checkFileUp } = require('../middlewares/check-file');
 const { validCategory, validOperation } = require('../helpers/db-validators.js');
-const { checkCategoryById } = require('../middlewares/check-category');
+const { checkCategory } = require('../middlewares/check-category');
 
 const router = Router();
 
 // modificar todos los precios por categoria
-router.patch('/:updateManyPrice/:categoryId',[
+router.patch('/updateManyPrice/:category',[
     requireToken,
     multiRole ('ADMIN_ROLE','SUPER_ROLE'),
-    checkCategoryById,
+    checkCategory,
     check('operation').custom( operation => validOperation(operation, ['SUMAR', 'RESTAR', 'INCREMENTAR %', 'DECREMENTAR %'])),
     checkFields  
 ], updateManyPrice)
 
-router.put('/:category/:id',[
+// modificar todos los precios por categoria
+router.patch('/pauseCategory/:category',[
     requireToken,
     multiRole ('ADMIN_ROLE','SUPER_ROLE'),
+    checkCategory,
+    checkFields  
+], pauseCategory)
+
+router.put('/:category/:id',[
+    requireToken,
+    multiRole('ADMIN_ROLE','SUPER_ROLE'),
     checkFields  
 ], updateProduct)
 

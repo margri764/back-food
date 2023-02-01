@@ -5,6 +5,7 @@ const Category = require('../models/category');
 const { validExtension } = require('../helpers/upload-file');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const { checkValue } = require('../helpers/value-percent');
+const { findById } = require('../models/product');
 
 const cloudinary= require ('cloudinary').v2;
 cloudinary.config( process.env.CLOUDINARY_URL);
@@ -263,11 +264,10 @@ const updateManyPrice = async ( req, res) => {
 try {
 
 // la idea de q este metodo sirva para actualizar varios productos a la vez por campos y categoria/s 
-  const { categoryId } = req.params;
+  const categoryId = req.validCat 
 
 // recibo el body con el nombre del campo que quiero actualizar VALIDAR NUMEROS PRICE!!!!
   const  { value, operation }  = req.body;
-
   
   const isPostiveNumber = Math.sign(value); //verifica el signo del numero
   
@@ -361,6 +361,51 @@ if(operation.toUpperCase() == "DECREMENTAR %") {
 
 }
 }
+
+const pauseCategory = async ( req, res) => {
+
+  try {
+  
+    // esto viene del middleware Category
+    const categoryId = req.validCat 
+
+    const nameCategory = await Category.findById(categoryId) 
+  
+    const  { playOrPause }  = req.body;
+    
+    
+    // si es true pauso la
+      if(playOrPause){
+        await Product.updateMany(
+          { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
+          { "$set": { status : true } },   // le paso el valor de reemplazo
+          { "multi": true }
+          )
+      }else{
+        await Product.updateMany(
+          { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
+          { "$set": { status : false } },   // le paso el valor de reemplazo
+          { "multi": true }
+          )
+      }
+      
+    res.json( {
+     success: true,
+     msj : `Se pauso correctamente la categoria  ${nameCategory.name}. Recuerde que no se mostraran los productos en la app`  
+   } );  
+    
+  
+  } catch (error) {
+    console.log('error desde pauseCategory: ', error);
+  
+    return res.status(500).json({
+      success: false,
+      msg: "Oops algo salió mal al intentar pausar una categoria"
+    })
+  
+  }
+  }
+  
 
 const deleteProduct = async (req, res) => {
  
@@ -579,5 +624,6 @@ module.exports = {
               deleteProduct,
               updateManyPrice,
               deleteManyProduct,
-              pauseProductByID 
+              pauseProductByID,
+              pauseCategory
 }
