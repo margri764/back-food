@@ -2,10 +2,9 @@
 const Product = require('../models/product');
 const Staff = require('../models/staff');
 const Category = require('../models/category');
-const { validExtension } = require('../helpers/upload-file');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
+const { validExtension } = require('../helpers/upload-file');
 const { checkValue } = require('../helpers/value-percent');
-const { findById } = require('../models/product');
 
 const cloudinary= require ('cloudinary').v2;
 cloudinary.config( process.env.CLOUDINARY_URL);
@@ -93,19 +92,6 @@ res.status(200).json({
 }
 
 
-const playPauseCategory = async (req, res) => {
-
-// si el stock esta en cero es lo mismo que la pausa!!
-console.log('r');
-
-const categories  = await Category.find({state : true})  || null;
-
-res.json({
-  categories
-  });
-}
-
-
 const getProductByCategory = async (req, res) => {
 
   //la idea con esto es q los arreglos de comidas se llenen con categorias q existan en BD
@@ -154,6 +140,52 @@ res.json({
       fries
   });
 }
+
+const getStaffProducts= async (req, res) => {
+
+  console.log('here');
+  //la idea con esto es q los arreglos de comidas se llenen con categorias q existan en BD
+
+const findCatOne  = await Category.findOne( {name: "BURGER"} )  || null;
+const findCatTwo  = await Category.findOne( {name: "PIZZA"} )   || null;
+const findCatThree = await Category.findOne( {name: "HEALTHY"} ) || null;
+const findCatFour = await Category.findOne( {name: "VEGAN"} )   || null;
+const findCatFive = await Category.findOne( {name: "DRINK"} )   || null;
+const findCatSix  = await Category.findOne( {name: "FRIES"} )   || null;
+
+// OJO VALIDAR SI ESTAN EN STOCK O EXISTEN EN BD!!!!!!!!!!!!!!!!!
+
+let burger  =  []; // one
+let pizza   =  []; // two
+let healthy =  []; // three
+let vegan   =  []; // four
+let drink   =  []; // five
+let fries   =  []; // six
+
+
+ [ burger, pizza, healthy, vegan, drink, fries ] = await Promise.all([
+ 
+
+   
+   (findCatOne != null) ? burger = await Product.find( {status : true, category : findCatOne._id} ).populate("category", ["name","state"]) : [],
+   (findCatTwo != null) ? pizza = await Product.find( {status : true, category : findCatTwo._id} ).populate("category", ["name","state"]) : [],
+   (findCatThree != null) ? healthy = await Product.find( {status : true, category : findCatThree._id} ).populate("category", ["name","state"]) : [],
+   (findCatFour != null) ? vegan = await Product.find( {status : true, category : findCatFour._id} ).populate("category", ["name","state"]) : [],
+   (findCatFive != null) ? drink = await Product.find( {status : true, category : findCatFive._id} ).populate("category", ["name","state"]):[],
+   (findCatSix != null) ? fries = await Product.find( {status : true, category : findCatSix._id} ).populate("category", ["name","state"]) : []
+])
+
+
+res.json({
+      burger,
+      pizza,
+      healthy,
+      vegan,
+      drink,
+      fries
+  });
+}
+
 
 const updateProduct = async ( req, res) => {
 
@@ -365,30 +397,39 @@ const pauseCategory = async ( req, res) => {
     
     const  { playOrPause }  = req.body;
     
+    console.log(categoryId, name, playOrPause);
+
     // si es true pauso la categoria
     if(playOrPause){
       await Product.updateMany(
-        { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
-        { "$set": { status : true } },   // le paso el valor de reemplazo
+        { "category" : categoryId }, 
+        { "$set": { stock : false} },   // el stock en false el modo de pausar
         { "multi": true }
         )
-        await Category.findByIdAndUpdate( categoryId,{state:true}, {new:true} )
+        await Category.findByIdAndUpdate( categoryId,{state:false}, {new:true} )
+
+        res.json({
+          success: true,
+          msj : `Se pauso correctamente la categoria  ${name}. Recuerde que no se mostrarán los productos en la app`  
+       });  
+      
     
       }else{
         await Product.updateMany(
           { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
-          { "$set": { status : false } },   // le paso el valor de reemplazo
+          { "$set": { stock : true } },   
           { "multi": true }
           )
-        await Category.findByIdAndUpdate( categoryId,{state:false}, {new:true} )
-
+        await Category.findByIdAndUpdate( categoryId,{state:true}, {new:true} )
+        
+        res.json({
+          success: true,
+          msj : `La categoria  ${name}, está operativa`  
+       });  
+      
       }
         
-    res.json({
-        success: true,
-        msj : `Se pauso correctamente la categoria  ${name}. Recuerde que no se mostrarán los productos en la app`  
-     });  
-    
+
   } catch (error) {
     console.log('error desde pauseCategory: ', error);
   
@@ -566,6 +607,91 @@ const pauseProductByID = async (req, res) => {
     }
 }
 
+const pausePlayCategory = async (req, res) => {
+
+  const {isPaused } = req.query;
+
+  
+ // los productos los elimino de base de datos y la img de cloudinary
+   try {
+   
+     const { id } = req.params;
+     const { ...rest } = req.body;
+ 
+     let product = await Product.findOne({ _id : id });
+     // console.log('product: ', product);  
+ 
+     if(!product) {
+       return res.status(400).json({ 
+         success: false,
+         msg: "Producto no encontrado",      
+       });
+     }
+ 
+     if(!product.status) {
+       return res.status(400).json({ 
+         success: false,
+         msg: "El producto que intenta PAUSAR esta dado de baja de la Base de Datos",      
+       });
+     }
+
+
+ 
+     // busca si el producto q quiere eliminar esta en una orden temporal, puede estar en cualquiera de las colecciones de productos PERO ademas tiene q cumplir con la condicion de q este "INCOMPLETE"
+     const existInTempOrder = await TempPurchaseOrder.find({
+       $or:[
+                { "fries._id"   :  product._id }, 
+                { "drink._id"   :  product._id }, 
+                { "product._id" :  product._id }, 
+           ],
+       $and : [ 
+               { statusOrder : "INCOMPLETE"}
+             ]    
+     })
+ 
+ 
+     if(existInTempOrder.length != 0 ) {
+       return res.status(400).json({ 
+         success: false,
+         msg: "No se puede pausar el producto, existen ordenes temporales de clientes que contienen estos productos, los mismos se eliminan automaticamente cada 12 o 24 hs dependiendo de las reglas de negocio",
+       });
+     }
+
+  console.log(isPaused);
+
+ // esto es la pausa
+     if(isPaused == "false" ){
+       console.log('here');
+         await Product.findByIdAndUpdate( product.id,  { stock : false , rest },{ new:true });
+     } 
+     
+     if(isPaused == "true"){
+       console.log('now here');
+
+       await Product.findByIdAndUpdate( product.id,  { stock : true , rest },{ new:true });
+     }
+         // if(!product.stock) {
+         //   return res.status(400).json({ 
+         //     success: false,
+         //     msg: "El producto que intenta PAUSAR ya esta pausado",      
+         //   });
+         // }
+   
+     res.json({ 
+       success: true,
+       msg: "ok",      
+      });
+  
+
+   } catch (error) {
+ 
+     console.log('desde pauseProductByID: ', error);
+     return res.status(500).json({
+       success: false,
+       msg: "Opps algo salió mal al intentar PAUSAR un producto"
+     })
+   }
+}
 const deleteManyProduct = async (req, res) => {
   try {
 
@@ -619,6 +745,6 @@ module.exports = {
               deleteManyProduct,
               pauseProductByID,
               pauseCategory,
-              playPauseCategory
+              getStaffProducts
 
 }

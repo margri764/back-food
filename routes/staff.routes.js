@@ -10,6 +10,7 @@ const { isRoleValid } = require('../helpers/db-validators');
 const { getOrder, createOrder, } = require('../controllers/purchaseOrder.controllers');
 const { getStaffOrders, editOrderStatus, getStaffOrdersNoProcess, getStaffOrdersByQuery } = require('../controllers/staffOrders.controllers');
 const { checkStatus } = require('../helpers/check_status');
+const { getStaffProducts } = require('../controllers/product.controllers');
 
 
 // para crear un empleado tiene q ser un usuario SUPER_ROLE 
@@ -58,6 +59,13 @@ router.get('/ordersNoProcess',[
     multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
     checkFields
 ], getStaffOrdersNoProcess); 
+
+// son los productos q se editan en el dashboard
+router.get('/product',[
+    requireToken,
+    multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
+    checkFields
+], getStaffProducts); 
 
 
 router.put('/orderStatus',[
