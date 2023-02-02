@@ -2,7 +2,7 @@
 
 const { Router } = require ('express');
 const { check } = require ('express-validator');
-const { createProduct, getProductByCategory, updateProduct, deleteProduct, updateManyPrice, deleteManyProduct, pauseProductByID, getPausedProduct, pauseCategory } = require('../controllers/product.controllers');
+const { createProduct, getProductByCategory, updateProduct, deleteProduct, updateManyPrice, deleteManyProduct, pauseProductByID, getPausedProduct, pauseCategory, playPauseCategory } = require('../controllers/product.controllers');
 const { checkFields, checkTokenStaff, multiRole, requireToken} = require ('../middlewares');
 const { checkFileUp } = require('../middlewares/check-file');
 const { validCategory, validOperation } = require('../helpers/db-validators.js');
@@ -43,9 +43,16 @@ router.post('/:category',[
 ], createProduct );
 
 
-//no lleva middlewares xq es lo q se tiene q cargar si o si en el inicio de la app
+// OJO REVISAR SI CHEQUEA TODO BIEN NO LLEVAN TOKEN xq es lo q se tiene q cargar si o si en el inicio de la app
 router.get('/',[
 ], getProductByCategory)
+
+//hay q ver quien tiene acceso..
+router.get('/category',[
+    requireToken,
+    multiRole('ADMIN_ROLE','SUPER_ROLE'),
+    checkFields 
+], playPauseCategory)
 
 
 // los STAFF solo deberian poder pausar un producto, oferta, etc
@@ -62,7 +69,7 @@ router.patch('/noStock/:id',[
     checkFields  
 ], pauseProductByID)
 
-// envio al front el listado de todos los productos q estan pausados
+// SEGURO Q SE PUEDE HACER DESDE EL FRONT PARA NO AGREGAR ESTE ENDPOINT envio al front el listado de todos los productos q estan pausados
 router.get('/noStock',[
     requireToken,
     multiRole ('ADMIN_ROLE','SUPER_ROLE','STAFF_ROLE'),
