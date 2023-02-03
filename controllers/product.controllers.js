@@ -143,7 +143,6 @@ res.json({
 
 const getStaffProducts= async (req, res) => {
 
-  console.log('here');
   //la idea con esto es q los arreglos de comidas se llenen con categorias q existan en BD
 
 const findCatOne  = await Category.findOne( {name: "BURGER"} )  || null;
@@ -194,8 +193,31 @@ try {
 
 const { category, id} = req.params;
 
- // recibo el string del form-data body y lo parseo. El req.body trae todo el append o sea q la imagen y el body por separado por eso desestructuro, "body" es el nombre de la propiedad en el append
+
+
 const  { body, img}  = req.body;
+
+// recibo el string del form-data body y lo parseo. El req.body trae todo el append o sea q la imagen y el body por separado por eso desestructuro, "body" es el nombre de la propiedad en el append
+ let editProduct= JSON.parse(body);
+
+ const isPostiveNumber = Math.sign(editProduct.price); //verifica el signo del numero
+  
+//  
+  if(isNaN(editProduct.price)){
+    return res.status(400).json({
+      success: false,
+      msj : `El precio tiene que ser un numero mayor a 1. ${editProduct.price.toUpperCase()} no es un numero `
+    })
+  }
+
+  // significa q es negativo
+  if(isPostiveNumber == -1){
+    return res.status(400).json({
+      success: false,
+      msj : `Solo se permite el ingreso de numeros mayores a 1. ${editProduct.price} no es un numero permitido `
+
+    })
+  }
 
 
 //  esto lo hago xq no siempre se edita la img, sino tira error cuando intenta leer el req.file
@@ -207,7 +229,6 @@ if(img == 'no-image' ){
 }
 
 
-let editProduct= JSON.parse(body);
 
 
 const { name, ...rest } = editProduct; 
