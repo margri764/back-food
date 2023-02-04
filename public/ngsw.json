@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1674817438795,
+  "timestamp": 1675550443550,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -11,14 +11,14 @@
         "ignoreVary": true
       },
       "urls": [
-        "/366.172daa0ebaa32c40.js",
+        "/224.f5fc0a0d9fa21cd6.js",
         "/favicon.ico",
         "/index.html",
-        "/main.ea28e283d6135707.js",
+        "/main.c801db9530c836ff.js",
         "/manifest.webmanifest",
         "/polyfills.9bdfa9e648edbe6f.js",
-        "/runtime.666869a60dd249ac.js",
-        "/styles.dcea0ca7733a4fb2.css"
+        "/runtime.3d0176ff31e0e1d6.js",
+        "/styles.41967e8a925fdad0.css"
       ],
       "patterns": []
     },
@@ -47,6 +47,8 @@
         "/assets/coca_lata.png",
         "/assets/delivery-bike.png",
         "/assets/delivery.png",
+        "/assets/details.gif",
+        "/assets/doubt.png",
         "/assets/drink.png",
         "/assets/fanta_2250.png",
         "/assets/fanta_500.png",
@@ -133,7 +135,7 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "/366.172daa0ebaa32c40.js": "b0e8b5695edced28f46f75f488a61c98362fa511",
+    "/224.f5fc0a0d9fa21cd6.js": "06105bb6da5935b08e9ba482070166000838ee54",
     "/BebasNeue-Regular.f8cd6b7d650c1a01.ttf": "8b3aaeb978f3cb5f575860774b50c332338563c1",
     "/Poppins-Light.8b20023e8f811f53.ttf": "e247a92158e112f8bf7b638c8d95381d66b00dbb",
     "/assets/analytics.png": "ad9f8993526ea8c5b1bd9087bc3b9d6d856afc51",
@@ -151,6 +153,8 @@
     "/assets/coca_lata.png": "ccc07244b30d5f415bf71a83b9715a55b0004363",
     "/assets/delivery-bike.png": "0ca5d4763d5c04fdb09c124ca71f7b0d537177e6",
     "/assets/delivery.png": "fa27960ae87aee472830f11bfdc6710aa03e0c42",
+    "/assets/details.gif": "a3d1b2ace154e3b8ef227c2356532d1c2d4c18ab",
+    "/assets/doubt.png": "e6786b81a25d3eec190ffb922c764a09b45a7bbb",
     "/assets/drink.png": "b3b624a475d988d7556926807e021f467cbfca3c",
     "/assets/fanta_2250.png": "3ebe556fe2fbed9d062a209c4929f8ca8023e0fa",
     "/assets/fanta_500.png": "a3d2d40819baf66cfad43a8f6e474a7533f7b2ae",
@@ -232,12 +236,12 @@
     "/assets/vegan4.png": "09b0b11a1edc668c58b3d7c56c0e8e33715ad117",
     "/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
     "/fontawesome-webfont.8a7cb27d142e3e19.ttf": "13b1eab65a983c7a73bc7997c479d66943f7c6cb",
-    "/index.html": "bbd3e03a727b3e6ec3022878599a340550f03a97",
-    "/main.ea28e283d6135707.js": "9579307369f06f15e869fb665be98e231f682735",
+    "/index.html": "0a0fefee55fd59f4726744ab0d95240c772b35bf",
+    "/main.c801db9530c836ff.js": "a9bcae6f3d2a901d8e082584f198a6829994a255",
     "/manifest.webmanifest": "14b31475aeab678434ea5ea23c40076269fb419f",
     "/polyfills.9bdfa9e648edbe6f.js": "3dfaa31f768b71675a7cc2286f5cf857bb742801",
-    "/runtime.666869a60dd249ac.js": "ac7ea1abf8a3006c6223cbec17c419bf47870238",
-    "/styles.dcea0ca7733a4fb2.css": "8d93750d557d71808d38ba87d754b699cfcf5a2b"
+    "/runtime.3d0176ff31e0e1d6.js": "3ded9e59f542e945ac231b1703e13ed34e725544",
+    "/styles.41967e8a925fdad0.css": "776002f4ce81d07d8dc0560e9f54bce73ae80739"
   },
   "navigationUrls": [
     {
