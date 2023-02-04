@@ -4,7 +4,7 @@ const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
 
-const { userPost, createRole } = require('../controllers/staff.controllers');
+const { userPost, createRole, pausePlayApp } = require('../controllers/staff.controllers');
 const { superRole, checkFields, checkTokenStaff,adminRole, multiRole, requireToken } = require('../middlewares')
 const { isRoleValid } = require('../helpers/db-validators');
 const { getOrder, createOrder, } = require('../controllers/purchaseOrder.controllers');
@@ -54,11 +54,11 @@ router.get('/orders/byQuery',[
 ], getStaffOrdersByQuery); 
 
 // quiero REFORMAR!!!
-router.get('/ordersNoProcess',[
-    requireToken,
-    multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
-    checkFields
-], getStaffOrdersNoProcess); 
+// router.get('/ordersNoProcess',[
+//     requireToken,
+//     multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
+//     checkFields
+// ], getStaffOrdersNoProcess); 
 
 // son los productos q se editan en el dashboard
 router.get('/product',[
@@ -74,6 +74,11 @@ router.put('/orderStatus',[
     checkFields
 ],editOrderStatus)
 
+router.post('/pausePlayApp',[
+    requireToken,
+    multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
+    checkFields
+],pausePlayApp)
 
 
 

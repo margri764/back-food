@@ -21,14 +21,6 @@ router.post('/login',[
     checkFields
 ],login);
 
-
-
-// router.post('/loginStaff',[
-//     check('email','el correo no es valido').isEmail(),
-//     check('password','El password es obligatorio, mas de 6 letras').not().isEmpty(),
-//     checkFields
-// ],loginStaff);
-
 // Validar y revalidar token
 router.get( '/renewToken',[
 
