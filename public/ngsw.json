@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1675550443550,
+  "timestamp": 1675554757870,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -14,7 +14,7 @@
         "/224.f5fc0a0d9fa21cd6.js",
         "/favicon.ico",
         "/index.html",
-        "/main.c801db9530c836ff.js",
+        "/main.0ce6c1123597b36b.js",
         "/manifest.webmanifest",
         "/polyfills.9bdfa9e648edbe6f.js",
         "/runtime.3d0176ff31e0e1d6.js",
@@ -236,8 +236,8 @@
     "/assets/vegan4.png": "09b0b11a1edc668c58b3d7c56c0e8e33715ad117",
     "/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
     "/fontawesome-webfont.8a7cb27d142e3e19.ttf": "13b1eab65a983c7a73bc7997c479d66943f7c6cb",
-    "/index.html": "0a0fefee55fd59f4726744ab0d95240c772b35bf",
-    "/main.c801db9530c836ff.js": "a9bcae6f3d2a901d8e082584f198a6829994a255",
+    "/index.html": "576f618df1462c7b93bd1b5c08c10bd03f7cbea3",
+    "/main.0ce6c1123597b36b.js": "c613bd83d8bdee0e204d1bab87c403c0fe26f3ef",
     "/manifest.webmanifest": "14b31475aeab678434ea5ea23c40076269fb419f",
     "/polyfills.9bdfa9e648edbe6f.js": "3dfaa31f768b71675a7cc2286f5cf857bb742801",
     "/runtime.3d0176ff31e0e1d6.js": "3ded9e59f542e945ac231b1703e13ed34e725544",

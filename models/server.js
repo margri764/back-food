@@ -10,8 +10,8 @@ class Server{
 
         constructor(){
             this.app = express();
-            // this.port = 8000;
-            this.port = process.env.PORT;
+            this.port = 8000;
+            // this.port = process.env.PORT;
             this.conectarDB();
             this.middlewares();
             this.routes();
@@ -25,7 +25,7 @@ class Server{
     middlewares(){
 
         const whiteList = [process.env.ORIGIN1, 
-            "http://192.168.1.103:8081","http://192.168.1.103:8080","http://127.0.0.1:8080", "http://127.0.0.1:8081"];
+            "http://192.168.1.103:8081","http://192.168.1.103:8080","http://127.0.0.1:8080", "http://127.0.0.1:8081", "htpps://www.revimackagro.com", "https://www.feintdevs.com", "https://dulcealmadeco.com"];
         this.app.use(express.json());
         this.app.use(cookieParser());  
         this.app.use(cors(
@@ -55,6 +55,7 @@ class Server{
     }    
 
     routes(){
+        this.app.use('/api/send-email', require('../routes/email.routes'));
         this.app.use('/api/auth', require('../routes/auth.routes'));
         this.app.use('/api/auth/renewToken', require('../routes/auth.routes'));
         this.app.use('/api/user', require('../routes/user.routes'));
