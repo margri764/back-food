@@ -14,15 +14,10 @@ const editOrderStatus = async ( req , res ) => {
     
         const { id, status  } = req.body;
 
-        console.log(id);
-        
         const staff = req.userAuth
 
-    
         // busco si la orden de compra existe        
         const purchaseOrder = await PurchaseOrder.findById( id ) || null;
-        // console.log(purchaseOrder._id);
-
         
         if(purchaseOrder == null){
             return res.status(400).json({
@@ -240,27 +235,27 @@ const getStaffOrdersByQuery= async ( req , res ) => {
  
  }
 
-const getStaffOrdersNoProcess = async ( req, res ) =>{
+// const getStaffOrdersNoProcess = async ( req, res ) =>{
 
-    // const statusNoProcess = await PurchaseOrder.find({statusOrder})
+//     // const statusNoProcess = await PurchaseOrder.find({statusOrder})
 
-    const [ total, unFinishedPurchaseOrder ] = await Promise.all([
-        PurchaseOrder.countDocuments( {finished : false}),
-        PurchaseOrder.find( {finished : false} ).populate('user')
+//     const [ total, unFinishedPurchaseOrder ] = await Promise.all([
+//         PurchaseOrder.countDocuments( {finished : false}),
+//         PurchaseOrder.find( {finished : false} ).populate('user')
          
-    ])  
+//     ])  
    
-    res.status(200).json({
-        total,
-        unFinishedPurchaseOrder
-    })
+//     res.status(200).json({
+//         total,
+//         unFinishedPurchaseOrder
+//     })
 
 
-}
+// }
 
 module.exports = { 
                     getStaffOrders,
                     editOrderStatus,
-                    getStaffOrdersNoProcess,
+                    // getStaffOrdersNoProcess,
                     getStaffOrdersByQuery
                  }

@@ -205,9 +205,29 @@ const pausePlayApp= async (req, res) => {
 const { playOrPause, ...rest } = req.body;
 const staff = req.userAuth; // siempre son user, puede ser staff o cliente
 
+// ***** OJO NO BORRAR!!!  solo se usa la primera vez y lo hago yo. Me creo una cuenta como Staff SUPER_ROLE ********
+    // const staffEditor = {
+    //     date : new Date(),
+    //     staff :  staff._id,
+    //     status : playOrPause    
+    // };
+
+    // const app = new App ( {state: true, staff: staff._id, statusApp : staffEditor})
+
+    // await app.save();
+
+    // res.json({       
+    //     success : true
+    // });
+//************************* HASTA ACA ********************/
+
+//************************* lo de abajo se comenta la primera vez, hasta el catch *******************
+//              RECORDAR !!! poner el id de la app en duro
+
+
 try {
 
-const app = await App.findOne( {_id : "63de9ae39b37004d5306da3f"}) || null;
+const app = await App.findOne( {_id : "63ded9966f0a0e7c1360a41c"}) || null;
 
 if(app == null){
     return res.status(400).json({
@@ -216,17 +236,20 @@ if(app == null){
     })
 }
 
-// ***** OJO NO BORRAR!!!  solo se usa la primera vez y lo hago yo. Me creo una cuenta como Staff SUPER_ROLE ********
-    // const staffEditor = {
-    //     date : new Date(),
-    //     staff :  staff._id,
-    //     status : playOrPause    
-    // };
+if(app.status == playOrPause ){
+    return res.status(400).json({
+        success: false,
+        msg : `La app ya se encuentra en estado ${playOrPause}`
+    })
+}
 
-    // const app = new App ( {state: true, staff: "639137f05c777a9e951281b2", statusApp : staffEditor})
+//borro las primeras posiciones para q no graben tantos estados
+if( app.statusApp.length >5){
+    let tempStates = [];
+    tempStates = app.statusApp.splice(0,2)
 
-    // await app.save();
-//************************* HASTA ACA ********************/
+    await App.findByIdAndUpdate( "63ded9966f0a0e7c1360a41c", {status : playOrPause, staff : staff._id, statusApp : tempStates, ...rest },{new:true})
+}
 
 const staffEditor = {
     date : new Date(),
@@ -234,19 +257,17 @@ const staffEditor = {
     status : playOrPause    
 };
 
-let stateFromDB = [];
+//obtengo el array de la base de datos y le agrego el nuevo estado
 let arrState = [];
-app.statusApp.map((item)=>{ stateFromDB.push(item)})
-console.log(stateFromDB);
-stateFromDB.push(staffEditor);
+app.statusApp.map((item)=>{ arrState.push(item)})
+arrState.push(staffEditor);
  
 
-    // id de la app en duro?
-     await App.findByIdAndUpdate( "63de9ae39b37004d5306da3f", {state : playOrPause, staff : staff._id, statusApp : arrState, ...rest },{new:true})
+await App.findByIdAndUpdate( "63ded9966f0a0e7c1360a41c", {status : playOrPause, staff : staff._id, statusApp : arrState, ...rest },{new:true})
 
-    res.json({       
-        success : true
-    });
+res.json({       
+success : true
+});
 
 } catch (error) {
     console.log("desde pausePlayApp: ",error);
