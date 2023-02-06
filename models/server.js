@@ -25,7 +25,7 @@ class Server{
     middlewares(){
 
         const whiteList = [process.env.ORIGIN1, 
-            "http://192.168.1.103:8081","http://192.168.1.103:8080","http://127.0.0.1:8080", "http://127.0.0.1:8081", "htpps://www.revimackagro.com", "https://www.feintdevs.com", "https://dulcealmadeco.com"];
+            "http://192.168.1.103:8081","http://192.168.1.103:8080","http://127.0.0.1:8080", "http://127.0.0.1:8081", "htpps://www.revimackagro.com", "https://www.feintdevs.com", "https://www.dulcealmadeco.com"];
         this.app.use(express.json());
         this.app.use(cookieParser());  
         this.app.use(cors(
