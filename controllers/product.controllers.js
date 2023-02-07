@@ -409,58 +409,58 @@ if(operation.toUpperCase() == "DECREMENTAR %") {
 }
 }
 
-const pauseCategory = async ( req, res) => {
+// const pauseCategory = async ( req, res) => {
 
-  try {
+//   try {
   
-    // esto viene del middleware Category
-    const { categoryId, name } = req.validCat 
+//     // esto viene del middleware Category
+//     const { categoryId, name } = req.validCat 
     
-    const  { playOrPause }  = req.body;
+//     const  { playOrPause }  = req.body;
     
-    console.log(categoryId, name, playOrPause);
+//     console.log(categoryId, name, playOrPause);
 
-    // si es true pauso la categoria
-    if(playOrPause){
-      await Product.updateMany(
-        { "category" : categoryId }, 
-        { "$set": { stock : false} },   // el stock en false el modo de pausar
-        { "multi": true }
-        )
-        await Category.findByIdAndUpdate( categoryId,{state:false}, {new:true} )
+//     // si es true pauso la categoria
+//     if(playOrPause){
+//       await Product.updateMany(
+//         { "category" : categoryId }, 
+//         { "$set": { stock : false} },   // el stock en false el modo de pausar
+//         { "multi": true }
+//         )
+//         await Category.findByIdAndUpdate( categoryId,{state:false}, {new:true} )
 
-        res.json({
-          success: true,
-          msj : `Se pauso correctamente la categoria  ${name}. Recuerde que no se mostrarán los productos en la app`  
-       });  
+//         res.json({
+//           success: true,
+//           msj : `Se pauso correctamente la categoria  ${name}. Recuerde que no se mostrarán los productos en la app`  
+//        });  
       
     
-      }else{
-        await Product.updateMany(
-          { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
-          { "$set": { stock : true } },   
-          { "multi": true }
-          )
-        await Category.findByIdAndUpdate( categoryId,{state:true}, {new:true} )
+//       }else{
+//         await Product.updateMany(
+//           { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
+//           { "$set": { stock : true } },   
+//           { "multi": true }
+//           )
+//         await Category.findByIdAndUpdate( categoryId,{state:true}, {new:true} )
         
-        res.json({
-          success: true,
-          msj : `La categoria  ${name}, está operativa`  
-       });  
+//         res.json({
+//           success: true,
+//           msj : `La categoria  ${name}, está operativa`  
+//        });  
       
-      }
+//       }
         
 
-  } catch (error) {
-    console.log('error desde pauseCategory: ', error);
+//   } catch (error) {
+//     console.log('error desde pauseCategory: ', error);
   
-    return res.status(500).json({
-      success: false,
-      msg: "Oops algo salió mal al intentar pausar una categoria"
-    })
+//     return res.status(500).json({
+//       success: false,
+//       msg: "Oops algo salió mal al intentar pausar una categoria"
+//     })
   
-  }
-}
+//   }
+// }
 
 const deleteProduct = async (req, res) => {
  
@@ -542,19 +542,25 @@ const deleteProduct = async (req, res) => {
     
 }
 
-const pauseProductByID = async (req, res) => {
+const pausePlayProductByID = async (req, res) => {
 
-   const {isPaused } = req.query;
+ const pauseOrPlay = req.query.pauseOrPlay;
 
+
+
+   if(pauseOrPlay == undefined){
+    return res.status(400).json ({
+      success: false,
+      msg: "Se debe incluir un query en true o false"
+    })
+   }
    
-  // los productos los elimino de base de datos y la img de cloudinary
     try {
     
       const { id } = req.params;
       const { ...rest } = req.body;
   
       let product = await Product.findOne({ _id : id });
-      // console.log('product: ', product);  
   
       if(!product) {
         return res.status(400).json({ 
@@ -571,8 +577,8 @@ const pauseProductByID = async (req, res) => {
       }
 
 
-  
-      // busca si el producto q quiere eliminar esta en una orden temporal, puede estar en cualquiera de las colecciones de productos PERO ademas tiene q cumplir con la condicion de q este "INCOMPLETE"
+      // NO SE SI ESTO LO VOY A USAR TENGO NOTAS ACERCA DE ESTO
+      // busca si el producto q quiere PAUSAR esta en una orden temporal, puede estar en cualquiera de las colecciones de productos PERO ademas tiene q cumplir con la condicion de q este "INCOMPLETE"
       const existInTempOrder = await TempPurchaseOrder.find({
         $or:[
                  { "fries._id"   :  product._id }, 
@@ -592,31 +598,22 @@ const pauseProductByID = async (req, res) => {
         });
       }
 
-   console.log(isPaused);
 
-  // esto es la pausa
-      if(isPaused == "false" ){
-        console.log('here');
-          await Product.findByIdAndUpdate( product.id,  { stock : false , rest },{ new:true });
-      } 
-      
-      if(isPaused == "true"){
-        console.log('now here');
+    // si viene FALSE significa q quiero pausar  
 
-        await Product.findByIdAndUpdate( product.id,  { stock : true , rest },{ new:true });
+       console.log(pauseOrPlay);
+      if(pauseOrPlay == "false" ){
+        console.log('quiero pausar');
+          product = await Product.findByIdAndUpdate( product.id,  { stock : false , rest },{ new:true }).populate("category", "name");
+      }else{
+        console.log('quiero activar');
+        product = await Product.findByIdAndUpdate( product.id,  { stock : true , rest },{ new:true }).populate("category", "name");;
       }
-          // if(!product.stock) {
-          //   return res.status(400).json({ 
-          //     success: false,
-          //     msg: "El producto que intenta PAUSAR ya esta pausado",      
-          //   });
-          // }
     
       res.json({ 
         success: true,
-        msg: "ok",      
+        category: product.category      
        });
-   
 
     } catch (error) {
   
@@ -678,25 +675,17 @@ const pausePlayCategory = async (req, res) => {
        });
      }
 
-  console.log(isPaused);
 
  // esto es la pausa
      if(isPaused == "false" ){
-       console.log('here');
          await Product.findByIdAndUpdate( product.id,  { stock : false , rest },{ new:true });
      } 
      
      if(isPaused == "true"){
-       console.log('now here');
 
        await Product.findByIdAndUpdate( product.id,  { stock : true , rest },{ new:true });
      }
-         // if(!product.stock) {
-         //   return res.status(400).json({ 
-         //     success: false,
-         //     msg: "El producto que intenta PAUSAR ya esta pausado",      
-         //   });
-         // }
+  
    
      res.json({ 
        success: true,
@@ -764,8 +753,9 @@ module.exports = {
               deleteProduct,
               updateManyPrice,
               deleteManyProduct,
-              pauseProductByID,
-              pauseCategory,
-              getStaffProducts
+              pausePlayProductByID,
+              getStaffProducts,
+              pausePlayCategory
+              // pauseCategory,
 
 }

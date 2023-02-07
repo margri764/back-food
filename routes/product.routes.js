@@ -2,7 +2,7 @@
 
 const { Router } = require ('express');
 const { check } = require ('express-validator');
-const { createProduct, getProductByCategory, updateProduct, deleteProduct, updateManyPrice, deleteManyProduct, pauseProductByID, getPausedProduct, pauseCategory } = require('../controllers/product.controllers');
+const { createProduct, getProductByCategory, updateProduct, deleteProduct, updateManyPrice, deleteManyProduct, pauseProductByID, getPausedProduct, pauseCategory, pausePlayCategory, pausePlayProductByID } = require('../controllers/product.controllers');
 const { checkFields, checkTokenStaff, multiRole, requireToken} = require ('../middlewares');
 const { checkFileUp } = require('../middlewares/check-file');
 const { validCategory, validOperation } = require('../helpers/db-validators.js');
@@ -19,13 +19,13 @@ router.patch('/updateManyPrice/:category',[
     checkFields  
 ], updateManyPrice)
 
-// modificar todos los precios por categoria
+
 router.patch('/pauseCategory/:category',[
     requireToken,
     multiRole ('ADMIN_ROLE','SUPER_ROLE'),
     checkCategory,
     checkFields  
-], pauseCategory)
+], pausePlayCategory)
 
 router.put('/:category/:id',[
     requireToken,
@@ -60,7 +60,7 @@ router.patch('/noStock/:id',[
     requireToken,
     multiRole ('ADMIN_ROLE','SUPER_ROLE', 'STAFF_ROLE'),
     checkFields  
-], pauseProductByID)
+], pausePlayProductByID)
 
 // SEGURO Q SE PUEDE HACER DESDE EL FRONT PARA NO AGREGAR ESTE ENDPOINT envio al front el listado de todos los productos q estan pausados
 router.get('/noStock',[
