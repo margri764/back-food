@@ -14,15 +14,19 @@
             required: true
         },
    
-       status: {
+        status: {
            type: Boolean, 
            default: true,
-       },
-       statusApp: {
-        type: Array,
-    },
-    
-   
+        },
+
+        statusApp: {
+             type: Array,
+        },
+
+        msg :{
+             type: String,
+             default: "Se toman pedidos hasta las 13 y 23hs. Disculpá las molestias. Volvé pronto!!"
+        }
        }, 
        { timestamps : true}
        );

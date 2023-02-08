@@ -206,7 +206,8 @@ const { playOrPause, ...rest } = req.body;
 const staff = req.userAuth; // siempre son user, puede ser staff o cliente
 
 // ***** OJO NO BORRAR!!!  solo se usa la primera vez y lo hago yo. Me creo una cuenta como Staff SUPER_ROLE ********
-    // const staffEditor = {
+   
+// const staffEditor = {
     //     date : new Date(),
     //     staff :  staff._id,
     //     status : playOrPause    
@@ -227,7 +228,8 @@ const staff = req.userAuth; // siempre son user, puede ser staff o cliente
 
 try {
 
-const app = await App.findOne( {_id : "63ded9966f0a0e7c1360a41c"}) || null;
+    // son 3!!!!!! id q tengo q pone en duro
+const app = await App.findOne( {_id : "63e3a00c233dd67f0c2e40d9"}) || null;
 
 if(app == null){
     return res.status(400).json({
@@ -248,7 +250,8 @@ if( app.statusApp.length >5){
     let tempStates = [];
     tempStates = app.statusApp.splice(0,2)
 
-    await App.findByIdAndUpdate( "63ded9966f0a0e7c1360a41c", {status : playOrPause, staff : staff._id, statusApp : tempStates, ...rest },{new:true})
+    // son 3!!!!!! id q tengo q pone en duro
+    await App.findByIdAndUpdate( "63e3a00c233dd67f0c2e40d9", {status : playOrPause, staff : staff._id, statusApp : tempStates, ...rest },{new:true})
 }
 
 const staffEditor = {
@@ -263,7 +266,7 @@ app.statusApp.map((item)=>{ arrState.push(item)})
 arrState.push(staffEditor);
  
 
-await App.findByIdAndUpdate( "63ded9966f0a0e7c1360a41c", {status : playOrPause, staff : staff._id, statusApp : arrState, ...rest },{new:true})
+await App.findByIdAndUpdate( "63e3a00c233dd67f0c2e40d9", {status : playOrPause, staff : staff._id, statusApp : arrState, ...rest },{new:true})
 
 res.json({       
 success : true
@@ -278,6 +281,42 @@ success : true
 }
 }
 
+const getAppState= async (req, res) => {
+
+    const { playOrPause, ...rest } = req.body;
+
+    try {
+    
+        // son 3!!!!!! id q tengo q pone en duro
+    const app = await App.findOne( {_id : "63e3a00c233dd67f0c2e40d9"}) || null;
+    
+    if(app == null){
+        return res.status(400).json({
+            success: false,
+            msg : 'Estado de App no encontrado en BD'
+        })
+    }
+    
+    if(app.status == playOrPause ){
+        return res.status(400).json({
+            success: false,
+            msg : `La app ya se encuentra en estado ${playOrPause}`
+        })
+    }
+    
+    res.json({       
+         success : true,
+         app
+    });
+    
+    } catch (error) {
+        console.log("desde getAppState: ",error);
+        return res.status(500).json({
+            success: false,
+            msg: 'Error al obtener el estado de la app'
+        });
+    }
+    }
 
 module.exports={
     userGet,
@@ -286,5 +325,6 @@ module.exports={
     usersDelete,
     getUserById,
     createRole,
-    pausePlayApp
+    pausePlayApp,
+    getAppState
 }
