@@ -5,7 +5,7 @@ const bcryptjs = require ('bcryptjs');
 const User = require ('../models/user');
 const Staff  = require ('../models/staff');
 const Role  = require ('../models/role');
-const App  = require ('../models/AppState');
+const App  = require ('../models/appState');
 
 
 
@@ -202,34 +202,33 @@ const usersDelete= async (req, res) => {
 
 const pausePlayApp= async (req, res) => {
 
-const { playOrPause, ...rest } = req.body;
+const { playOrPause, msg } = req.body;
 const staff = req.userAuth; // siempre son user, puede ser staff o cliente
 
 // ***** OJO NO BORRAR!!!  solo se usa la primera vez y lo hago yo. Me creo una cuenta como Staff SUPER_ROLE ********
    
 // const staffEditor = {
-    //     date : new Date(),
-    //     staff :  staff._id,
-    //     status : playOrPause    
-    // };
+//         date : new Date(),
+//         staff :  staff._id,
+//         status : playOrPause    
+//     };
 
-    // const app = new App ( {state: true, staff: staff._id, statusApp : staffEditor})
+//     const app = new App ( {state: true, staff: staff._id, statusApp : staffEditor})
 
-    // await app.save();
+//     await app.save();
 
-    // res.json({       
-    //     success : true
-    // });
+//     res.json({       
+//         success : true
+//     });
 //************************* HASTA ACA ********************/
 
 //************************* lo de abajo se comenta la primera vez, hasta el catch *******************
+
 //              RECORDAR !!! poner el id de la app en duro
-
-
 try {
 
-    // son 3!!!!!! id q tengo q pone en duro
-const app = await App.findOne( {_id : "63e3a00c233dd67f0c2e40d9"}) || null;
+// son 3!!!!!! id q tengo q pone en duro
+const app = await App.findOne( {_id : "63e4d7f734c1648864c3794b"}) || null;
 
 if(app == null){
     return res.status(400).json({
@@ -251,7 +250,7 @@ if( app.statusApp.length >5){
     tempStates = app.statusApp.splice(0,2)
 
     // son 3!!!!!! id q tengo q pone en duro
-    await App.findByIdAndUpdate( "63e3a00c233dd67f0c2e40d9", {status : playOrPause, staff : staff._id, statusApp : tempStates, ...rest },{new:true})
+    await App.findByIdAndUpdate( "63e4d7f734c1648864c3794b", {status : playOrPause, staff : staff._id, statusApp : tempStates, ...rest },{new:true})
 }
 
 const staffEditor = {
@@ -266,7 +265,7 @@ app.statusApp.map((item)=>{ arrState.push(item)})
 arrState.push(staffEditor);
  
 
-await App.findByIdAndUpdate( "63e3a00c233dd67f0c2e40d9", {status : playOrPause, staff : staff._id, statusApp : arrState, ...rest },{new:true})
+await App.findByIdAndUpdate( "63e4d7f734c1648864c3794b", {status : playOrPause, staff : staff._id, statusApp : arrState, msg:msg},{new:true})
 
 res.json({       
 success : true
@@ -283,12 +282,12 @@ success : true
 
 const getAppState= async (req, res) => {
 
-    const { playOrPause, ...rest } = req.body;
+    const { playOrPause } = req.body;
 
     try {
     
         // son 3!!!!!! id q tengo q pone en duro
-    const app = await App.findOne( {_id : "63e3a00c233dd67f0c2e40d9"}) || null;
+    const app = await App.findOne( {_id : "63e4d7f734c1648864c3794b"}) || null;
     
     if(app == null){
         return res.status(400).json({
@@ -303,11 +302,11 @@ const getAppState= async (req, res) => {
             msg : `La app ya se encuentra en estado ${playOrPause}`
         })
     }
-    
-    res.json({       
-         success : true,
-         app
-    });
+        res.json({       
+            success : true,
+            app
+       });
+
     
     } catch (error) {
         console.log("desde getAppState: ",error);
@@ -316,7 +315,7 @@ const getAppState= async (req, res) => {
             msg: 'Error al obtener el estado de la app'
         });
     }
-    }
+}
 
 module.exports={
     userGet,

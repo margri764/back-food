@@ -6,7 +6,7 @@
    const {Schema, model} = require ('mongoose');
 
 
-   const  AppSateSchema = Schema({
+   const  AppStateSchema = Schema({
    
         staff:{
             type: Schema.Types.ObjectId,
@@ -31,7 +31,7 @@
        { timestamps : true}
        );
    
-       AppSateSchema.methods.toJSON = function(){
+       AppStateSchema.methods.toJSON = function(){
        const {__v,password, ...order} = this.toObject();
        // const {__v,password,_id,...usuario} = this.toObject();
        // usuario.uid= _id;
@@ -39,4 +39,4 @@
    }
    
    
-   module.exports= model(' AppSate', AppSateSchema);
+   module.exports= model('AppState', AppStateSchema);
