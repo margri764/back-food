@@ -227,7 +227,7 @@ const staff = req.userAuth; // siempre son user, puede ser staff o cliente
 //              RECORDAR !!! poner el id de la app en duro
 try {
 
-// son 3!!!!!! id q tengo q pone en duro
+// son 3!!!!!! id q tengo q pone en duro aca y uno en el GET APP!!!
 const app = await App.findOne( {_id : "63e4d7f734c1648864c3794b"}) || null;
 
 if(app == null){
@@ -250,7 +250,7 @@ if( app.statusApp.length >5){
     tempStates = app.statusApp.splice(0,2)
 
     // son 3!!!!!! id q tengo q pone en duro
-    await App.findByIdAndUpdate( "63e4d7f734c1648864c3794b", {status : playOrPause, staff : staff._id, statusApp : tempStates, ...rest },{new:true})
+    await App.findByIdAndUpdate( "63e4d7f734c1648864c3794b", {status : playOrPause, staff : staff._id, statusApp : tempStates },{new:true})
 }
 
 const staffEditor = {
