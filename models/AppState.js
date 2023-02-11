@@ -1,7 +1,6 @@
 
 
-/* En teoria deberia ser una sola orden, salvo q un cliente haga varias compras, cierre el pedido lo pague y
-   en el mismo dia se acuerde de algo y vuelva a comprar */
+
 
    const {Schema, model} = require ('mongoose');
 
@@ -21,6 +20,11 @@
 
         statusApp: {
              type: Array,
+        },
+
+        hourlyRate: {
+             type: String,
+             default: ''
         },
 
         msg :{

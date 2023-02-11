@@ -160,7 +160,6 @@ const getStaffOrders= async ( req , res ) => {
 
 const getStaffOrdersByQuery= async ( req , res ) => {
 
-    // let { year, month, day, hour, searchType } = req.query;
     const date = req.query;
 
     if(!date){
