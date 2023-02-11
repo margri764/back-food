@@ -2,11 +2,11 @@
 
 const {response} = require ('express');
 const bcryptjs = require ('bcryptjs');
-var moment = require('moment'); 
 const User = require ('../models/user');
 const Staff  = require ('../models/staff');
 const Role  = require ('../models/role');
 const App  = require ('../models/appState');
+const { checkHourly } = require('../helpers/check-hourly');
 
 
 
@@ -228,8 +228,12 @@ const staff = req.userAuth; // siempre son user, puede ser staff o cliente
 //              RECORDAR !!! poner el id de la app en duro
 try {
 
-// son 3!!!!!! id q tengo q pone en duro aca y uno en el GET APP!!!
-const app = await App.findOne( {_id : "63e7c7d778ff6866ce95d30f"}) || null;
+
+/* son 3!!!!!! id q tengo q pone en duro aca 
+  uno en el GET APP!!! 
+  dos en createHourly */
+
+const app = await App.findOne( {_id : "63e814791633f9af768888ca"}) || null;
 
 if(app == null){
     return res.status(400).json({
@@ -251,7 +255,7 @@ if( app.statusApp.length >5){
     tempStates = app.statusApp.splice(0,2)
 
     // son 3!!!!!! id q tengo q pone en duro
-    await App.findByIdAndUpdate( "63e7c7d778ff6866ce95d30f", {status : playOrPause, staff : staff._id, statusApp : tempStates },{new:true})
+    await App.findByIdAndUpdate( "63e814791633f9af768888ca", {status : playOrPause, staff : staff._id, statusApp : tempStates },{new:true})
 }
 
 const staffEditor = {
@@ -266,7 +270,7 @@ app.statusApp.map((item)=>{ arrState.push(item)})
 arrState.push(staffEditor);
  
 
-await App.findByIdAndUpdate( "63e7c7d778ff6866ce95d30f", {status : playOrPause, staff : staff._id, statusApp : arrState, msg:msg},{new:true})
+await App.findByIdAndUpdate( "63e814791633f9af768888ca", {status : playOrPause, staff : staff._id, statusApp : arrState, msg:msg},{new:true})
 
 res.json({       
 success : true
@@ -283,70 +287,57 @@ success : true
 
 const getAppState= async (req, res) => {
 
-    const { playOrPause } = req.body;
 
-    try {
-    
-        // son 3!!!!!! id q tengo q pone en duro
-    const app = await App.findOne( {_id : "63e7c7d778ff6866ce95d30f"}) || null;
-    
-    if(app == null){
-        return res.status(400).json({
-            success: false,
-            msg : 'Estado de App no encontrado en BD'
-        })
-    }
-    
-    if(app.status == playOrPause ){
-        return res.status(400).json({
-            success: false,
-            msg : `La app ya se encuentra en estado ${playOrPause}`
-        })
-    }
+try {
 
-    let now = moment().locale('es-AR').format('HH:mm');
-    now = moment(`${now}`, 'HH:mm')
+    // son 3!!!!!! id q tengo q pone en duro
+const app = await App.findOne( {_id : "63e814791633f9af768888ca"}) || null;
 
-    let beginningTime = '15:00'
-    beginningTime = moment( `${beginningTime}`, 'HH:mm');
-    
-    let endTime = '16:00'
-    endTime= moment( `${endTime}`, 'HH:mm');
-    
-    console.log(now.isBefore(endTime)); // deberá aparecer true
+if(app == null){
+    return res.status(400).json({
+        success: false,
+        msg : 'Estado de App no encontrado en BD'
+    })
+}
+
+// if(app.status == playOrPause ){
+//     return res.status(400).json({
+//         success: false,
+//         msg : `La app ya se encuentra en estado ${playOrPause}`
+//     })
+// }
+
+const { noonHour, nightHour, days  } = app;
+
+const check = checkHourly( noonHour, nightHour, days )
+
+console.log(check);
+
+    res.json({       
+        success : true,
+        app,
+        check 
+        // now
+    });
 
 
-
-    if(now.isBefore(endTime) && now.isAfter(beginningTime)){ // 
-        console.log('es verdadero');
-    }else{
-        console.log('es false');
-    }
-
-        res.json({       
-            success : true,
-            app, 
-            // now
-       });
-
-    
-    } catch (error) {
-        console.log("desde getAppState: ",error);
-        return res.status(500).json({
-            success: false,
-            msg: 'Error al obtener el estado de la app'
-        });
-    }
+} catch (error) {
+    console.log("desde getAppState: ",error);
+    return res.status(500).json({
+        success: false,
+        msg: 'Error al obtener el estado de la app'
+    });
+}
 }
 
 const createHourlyRate = async (req, res) => {
 
-    const { time } = req.body;
+    const { noonHour, nightHour, day } = req.body;
   
     try {
     
     // son 3!!!!!! id q tengo q pone en duro aca y uno en el GET APP!!!
-    const app = await App.findOne( {_id : "63e7c7d778ff6866ce95d30f"}) || null;
+    const app = await App.findOne( {_id : "63e814791633f9af768888ca"}) || null;
     
     if(app == null){
         return res.status(400).json({
@@ -355,17 +346,17 @@ const createHourlyRate = async (req, res) => {
         })
     }
     
-    if(app.status == playOrPause ){
-        return res.status(400).json({
-            success: false,
-            msg : `La app ya se encuentra en estado ${playOrPause}`
-        })
-    }
+    // if(app.status == playOrPause ){
+    //     return res.status(400).json({
+    //         success: false,
+    //         msg : `La app ya se encuentra en estado ${playOrPause}`
+    //     })
+    // }
     
 
     
         // son 3!!!!!! id q tengo q pone en duro
-        await App.findByIdAndUpdate( "63e7c7d778ff6866ce95d30f", { hourlyRate : playOrPause},{new:true})
+        await App.findByIdAndUpdate( "63e814791633f9af768888ca", { noonHour : noonHour , nightHour : nightHour , days: day },{new:true})
    
     
     res.json({       
@@ -379,7 +370,7 @@ const createHourlyRate = async (req, res) => {
             msg: 'Error al cera el horario de atencion'
         });
     }
-    }
+}
     
 
 

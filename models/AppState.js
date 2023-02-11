@@ -22,11 +22,20 @@
              type: Array,
         },
 
-        hourlyRate: {
-             type: String,
-             default: ''
+        noonHour :{
+           type: String,
+           default : ''
         },
 
+        nightHour :{
+           type: String,
+           default : ''
+        },
+
+        days :{
+          type: Array,
+        },
+       
         msg :{
              type: String,
              default: "Se toman pedidos hasta las 13 y 23hs. Disculpá las molestias. Volvé pronto!!"
