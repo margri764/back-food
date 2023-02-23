@@ -207,6 +207,7 @@ const { playOrPause, msg } = req.body;
 const staff = req.userAuth; // siempre son user, puede ser staff o cliente
 
 // ***** OJO NO BORRAR!!!  solo se usa la primera vez y lo hago yo. Me creo una cuenta como Staff SUPER_ROLE ********
+// *********************** staff/pausePlayApp (desde aca en POSTMAN) *****************************************************
    
 // const staffEditor = {
 //         date : new Date(),
@@ -229,11 +230,11 @@ const staff = req.userAuth; // siempre son user, puede ser staff o cliente
 try {
 
 
-/* son 3!!!!!! id q tengo q pone en duro aca 
-  uno en el GET APP!!! 
+/* son 3 id q tengo q pone en duro aca,
+  uno en el GET APP!!!, 
   dos en createHourly */
 
-const app = await App.findOne( {_id : "63e814791633f9af768888ca"}) || null;
+const app = await App.findOne( {_id : "63f797ca71ce9b2fd2298aec"}) || null;
 
 if(app == null){
     return res.status(400).json({
@@ -255,7 +256,7 @@ if( app.statusApp.length >5){
     tempStates = app.statusApp.splice(0,2)
 
     // son 3!!!!!! id q tengo q pone en duro
-    await App.findByIdAndUpdate( "63e814791633f9af768888ca", {status : playOrPause, staff : staff._id, statusApp : tempStates },{new:true})
+    await App.findByIdAndUpdate( "63f797ca71ce9b2fd2298aec", {status : playOrPause, staff : staff._id, statusApp : tempStates },{new:true})
 }
 
 const staffEditor = {
@@ -270,7 +271,7 @@ app.statusApp.map((item)=>{ arrState.push(item)})
 arrState.push(staffEditor);
  
 
-await App.findByIdAndUpdate( "63e814791633f9af768888ca", {status : playOrPause, staff : staff._id, statusApp : arrState, msg:msg},{new:true})
+await App.findByIdAndUpdate( "63f797ca71ce9b2fd2298aec", {status : playOrPause, staff : staff._id, statusApp : arrState, msg:msg},{new:true})
 
 res.json({       
 success : true
@@ -291,7 +292,7 @@ const getAppState= async (req, res) => {
 try {
 
     // son 3!!!!!! id q tengo q pone en duro
-const app = await App.findOne( {_id : "63e814791633f9af768888ca"}) || null;
+const app = await App.findOne( {_id : "63f797ca71ce9b2fd2298aec"}) || null;
 
 if(app == null){
     return res.status(400).json({
@@ -300,17 +301,11 @@ if(app == null){
     })
 }
 
-// if(app.status == playOrPause ){
-//     return res.status(400).json({
-//         success: false,
-//         msg : `La app ya se encuentra en estado ${playOrPause}`
-//     })
-// }
 
 const { noonHour, nightHour, days  } = app;
 
-const check = checkHourly( noonHour, nightHour, days )
-
+// const check = checkHourly( noonHour, nightHour, days )
+let check= true
 console.log(check);
 
     res.json({       
@@ -332,12 +327,18 @@ console.log(check);
 
 const createHourlyRate = async (req, res) => {
 
-    const { noonHour, nightHour, day } = req.body;
-  
+    const { hourlyRate } = req.body;
+    // console.log(req.body);
+    
+    
+    const arrHourly = [];
+    arrHourly.push(req.body);
+    
+    console.log(arrHourly);
     try {
     
     // son 3!!!!!! id q tengo q pone en duro aca y uno en el GET APP!!!
-    const app = await App.findOne( {_id : "63e814791633f9af768888ca"}) || null;
+    const app = await App.findOne( {_id : "63f797ca71ce9b2fd2298aec"}) || null;
     
     if(app == null){
         return res.status(400).json({
@@ -345,19 +346,8 @@ const createHourlyRate = async (req, res) => {
             msg : 'Estado de App no encontrado en BD'
         })
     }
-    
-    // if(app.status == playOrPause ){
-    //     return res.status(400).json({
-    //         success: false,
-    //         msg : `La app ya se encuentra en estado ${playOrPause}`
-    //     })
-    // }
-    
-
-    
-        // son 3!!!!!! id q tengo q pone en duro
-        await App.findByIdAndUpdate( "63e814791633f9af768888ca", { noonHour : noonHour , nightHour : nightHour , days: day },{new:true})
-   
+    // son 3!!!!!! id q tengo q pone en duro
+    await App.findByIdAndUpdate( "63f797ca71ce9b2fd2298aec", { hourRate : arrHourly },{new:true} )
     
     res.json({       
     success : true
@@ -367,7 +357,7 @@ const createHourlyRate = async (req, res) => {
         console.log("desde createHourlyRate: ",error);
         return res.status(500).json({
             success: false,
-            msg: 'Error al cera el horario de atencion'
+            msg: 'Error al crear el horario de atencion'
         });
     }
 }

@@ -8,15 +8,15 @@ const fileUpload = require('express-fileupload');
 
 class Server{
 
-        constructor(){
-            this.app = express();
-            this.port = 8000;
-            // this.port = process.env.PORT;
-            this.conectarDB();
-            this.middlewares();
-            this.routes();
-            
-        }
+    constructor(){
+        this.app = express();
+        // this.port = 8000;
+        this.port = process.env.PORT;
+        this.conectarDB();
+        this.middlewares();
+        this.routes();
+        
+    }
 
     async conectarDB() {
         await dbConnection();

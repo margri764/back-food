@@ -22,15 +22,22 @@
              type: Array,
         },
 
-        noonHour :{
-           type: String,
-           default : ''
-        },
+      
+      //   noonHour: {
+      //    type: [String, Boolean],
+      //    default: ['', false]
+      //  },
 
-        nightHour :{
-           type: String,
-           default : ''
-        },
+       hourRate: [{
+                  hour: {
+                     type: String,
+                     required : true
+                  },
+                  status: {
+                     type:  Boolean,
+                     required : true
+                  }
+       }],
 
         days :{
           type: Array,
