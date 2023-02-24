@@ -1,12 +1,8 @@
 
 
 
-const User = require ('../models/user');
 const PurchaseOrder = require('../models/purchaseOrder');
-const Product = require('../models/product');
-const PurchaseOrderStatus = require('../models/purchaseOrderStatus');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
-const checkStatus  = require('../helpers/check_status');
 
 // es la orden q se crea al momento de comprar
 const createOrder= async ( req , res ) => {
@@ -220,8 +216,7 @@ const editOrder= async ( req , res ) => {
 
     const {id, status} = req.body
 
-    const purchaseOrder = await PurchaseOrder.findByIdAndUpdate(id,{statusOrder: status},{new:true})
-
+    const purchaseOrder = await PurchaseOrder.findByIdAndUpdate(id, {statusOrder: status}, {new:true})
 
     if(!purchaseOrder){
 

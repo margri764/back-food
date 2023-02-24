@@ -4,7 +4,7 @@ const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
 
-const { userPost, createRole, pausePlayApp, getAppState, createHourlyRate } = require('../controllers/staff.controllers');
+const { userPost, createRole, pausePlayApp, getAppState, createHourlyRate, updateHourlyRateById } = require('../controllers/staff.controllers');
 const { superRole, checkFields, checkTokenStaff,adminRole, multiRole, requireToken } = require('../middlewares')
 const { isRoleValid } = require('../helpers/db-validators');
 const { getOrder, createOrder, } = require('../controllers/purchaseOrder.controllers');
@@ -90,37 +90,17 @@ router.patch('/hourlyRate',[
     checkFields
 ], createHourlyRate)
 
+router.patch('/hourlyRate/:id',[
+    requireToken,
+    multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
+    checkFields
+], updateHourlyRateById)
 
 
-
-
-// router.post('/',[
-//     requireToken,
-//     multiRole("SUPER_ROLE","ADMIN_ROLE","STAFF_ROLE"),
-//     check('status').custom( checkStatus),
-//     checkFields
-    
-// ],createOrder); 
 
 module.exports= router;
 
-// router.put('/orderStatus/:id',[
-//     checkTokenStaff,
-//     multiRole("SUPER_ROLE","ADMIN_ROLE"),
-//     checkFields
-// ],editOrderStatus); 
 
-
-// SOLO EL SUPER ROLE PUEDE ENTRAR AQUI!!!
-
-// router.delete('/:id',
-// [
-//     checkToken,
-//     multiRole ('ADMIN_ROLE','USER_ROLE',''),
-//     check('id','No es un id valido de mongoDB').isMongoId(),
-//     check('id').custom( checkId ),
-//     checkFields
-// ], usersDelete);
 
 
 

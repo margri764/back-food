@@ -1,9 +1,6 @@
 
 
-
-
    const {Schema, model} = require ('mongoose');
-
 
    const  AppStateSchema = Schema({
    
@@ -22,22 +19,19 @@
              type: Array,
         },
 
-      
-      //   noonHour: {
-      //    type: [String, Boolean],
-      //    default: ['', false]
-      //  },
+        hourRate: [
+                   {
+                     hour: {
+                           type: String,
+                           required : true,
+                     },
+                     status: {
+                           type: Boolean,
+                           required : true,
 
-       hourRate: [{
-                  hour: {
-                     type: String,
-                     required : true
-                  },
-                  status: {
-                     type:  Boolean,
-                     required : true
-                  }
-       }],
+                     }
+                   }
+        ],
 
         days :{
           type: Array,
@@ -52,10 +46,9 @@
        );
    
        AppStateSchema.methods.toJSON = function(){
-       const {__v,password, ...order} = this.toObject();
-       // const {__v,password,_id,...usuario} = this.toObject();
-       // usuario.uid= _id;
-       return order; 
+       const {__v,password, ...app} = this.toObject();
+
+       return app; 
    }
    
    

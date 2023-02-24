@@ -128,7 +128,6 @@ const getUserById = async (req,res=response)=>{
     });
 }
 
-
 const userPut= async (req, res) => {
     
 try {
@@ -203,7 +202,7 @@ const usersDelete= async (req, res) => {
 
 const pausePlayApp= async (req, res) => {
 
-const { playOrPause, msg } = req.body;
+const { playOrPause } = req.body;
 const staff = req.userAuth; // siempre son user, puede ser staff o cliente
 
 // ***** OJO NO BORRAR!!!  solo se usa la primera vez y lo hago yo. Me creo una cuenta como Staff SUPER_ROLE ********
@@ -215,7 +214,8 @@ const staff = req.userAuth; // siempre son user, puede ser staff o cliente
 //         status : playOrPause    
 //     };
 
-//     const app = new App ( {state: true, staff: staff._id, statusApp : staffEditor})
+
+//     const app = new App ( {state: true, staff: staff._id, statusApp : staffEditor} )
 
 //     await app.save();
 
@@ -234,7 +234,7 @@ try {
   uno en el GET APP!!!, 
   dos en createHourly */
 
-const app = await App.findOne( {_id : "63f797ca71ce9b2fd2298aec"}) || null;
+const app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
 
 if(app == null){
     return res.status(400).json({
@@ -256,7 +256,7 @@ if( app.statusApp.length >5){
     tempStates = app.statusApp.splice(0,2)
 
     // son 3!!!!!! id q tengo q pone en duro
-    await App.findByIdAndUpdate( "63f797ca71ce9b2fd2298aec", {status : playOrPause, staff : staff._id, statusApp : tempStates },{new:true})
+    await App.findByIdAndUpdate( "63f8b8d794a7c29fe4a94db3", {status : playOrPause, staff : staff._id, statusApp : tempStates },{new:true})
 }
 
 const staffEditor = {
@@ -271,7 +271,7 @@ app.statusApp.map((item)=>{ arrState.push(item)})
 arrState.push(staffEditor);
  
 
-await App.findByIdAndUpdate( "63f797ca71ce9b2fd2298aec", {status : playOrPause, staff : staff._id, statusApp : arrState, msg:msg},{new:true})
+await App.findByIdAndUpdate( "63f8b8d794a7c29fe4a94db3", {status : playOrPause, staff : staff._id, statusApp : arrState, msg:msg},{new:true})
 
 res.json({       
 success : true
@@ -292,7 +292,7 @@ const getAppState= async (req, res) => {
 try {
 
     // son 3!!!!!! id q tengo q pone en duro
-const app = await App.findOne( {_id : "63f797ca71ce9b2fd2298aec"}) || null;
+const app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
 
 if(app == null){
     return res.status(400).json({
@@ -302,11 +302,12 @@ if(app == null){
 }
 
 
-const { noonHour, nightHour, days  } = app;
+let rate = [];
+app.hourRate.forEach(element => { rate.push(element.hour)});
+const check = checkHourly( rate);
 
-// const check = checkHourly( noonHour, nightHour, days )
-let check= true
-console.log(check);
+
+
 
     res.json({       
         success : true,
@@ -327,30 +328,38 @@ console.log(check);
 
 const createHourlyRate = async (req, res) => {
 
-    const { hourlyRate } = req.body;
-    // console.log(req.body);
-    
-    
-    const arrHourly = [];
-    arrHourly.push(req.body);
-    
-    console.log(arrHourly);
+    const { hour, status } = req.body;
+
+    if(hour == '' || typeof status != "boolean" ){
+        return res.status(400).json({
+            success: false,
+            msg : 'Los datos ingresados no son correctos, solo "10:00 - 12:00" + true o false ' 
+        })
+    }
+
     try {
     
     // son 3!!!!!! id q tengo q pone en duro aca y uno en el GET APP!!!
-    const app = await App.findOne( {_id : "63f797ca71ce9b2fd2298aec"}) || null;
+    const app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
     
     if(app == null){
         return res.status(400).json({
             success: false,
-            msg : 'Estado de App no encontrado en BD'
+            msg : 'App no encontrada en BD'
         })
     }
+
+    const newHourRate = {
+        hour: hour,
+        status: status,
+      };
+    
+
     // son 3!!!!!! id q tengo q pone en duro
-    await App.findByIdAndUpdate( "63f797ca71ce9b2fd2298aec", { hourRate : arrHourly },{new:true} )
+    await App.findByIdAndUpdate( "63f8b8d794a7c29fe4a94db3", { $push: { hourRate: newHourRate } } ,{new:true} )
     
     res.json({       
-    success : true
+        success : true
     });
     
     } catch (error) {
@@ -362,7 +371,52 @@ const createHourlyRate = async (req, res) => {
     }
 }
     
+const updateHourlyRateById = async (req, res) => {
 
+    const { hour, status } = req.body;
+    const { id } = req.params;
+
+    console.log(hour,status, id);
+
+    if(hour == '' || typeof status != "boolean" ){
+        return res.status(400).json({
+            success: false,
+            msg : 'Los datos ingresados no son correctos, solo "10:00 - 12:00" + true o false ' 
+        })
+    }
+
+    try {
+    
+    const app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
+    
+    if(app == null){
+        return res.status(400).json({
+            success: false,
+            msg : 'App no encontrada en BD'
+        })
+    }
+
+
+    const filter = { _id: app._id }; // Define el filtro para encontrar el documento que quieres actualizar
+    const update = { $set: { 'hourRate.$[elem].status': status } }; // Define la actualización que quieres hacer
+    const options = { arrayFilters: [{ 'elem._id': id }] }; // Define el filtro para el objeto dentro del array que quieres actualizar
+
+    await App.updateOne(filter, update, options);
+
+    
+    res.json({       
+        success : true,
+    });
+    
+    } catch (error) {
+        console.log("desde updateHourlyRateById: ",error);
+        return res.status(500).json({
+            success: false,
+            msg: 'Error al editar el horario de atencion'
+        });
+    }
+}
+   
 
 module.exports={
     userGet,
@@ -373,5 +427,6 @@ module.exports={
     createRole,
     pausePlayApp,
     getAppState,
-    createHourlyRate
+    createHourlyRate,
+    updateHourlyRateById
 }
