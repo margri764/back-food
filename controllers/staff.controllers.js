@@ -306,9 +306,6 @@ let rate = [];
 app.hourRate.forEach(element => { rate.push(element.hour)});
 const check = checkHourly( rate);
 
-
-
-
     res.json({       
         success : true,
         app,
@@ -329,6 +326,8 @@ const check = checkHourly( rate);
 const createHourlyRate = async (req, res) => {
 
     const { hour, status } = req.body;
+
+    console.log(hour, status);
 
     if(hour == '' || typeof status != "boolean" ){
         return res.status(400).json({
@@ -357,11 +356,15 @@ const createHourlyRate = async (req, res) => {
 
     // son 3!!!!!! id q tengo q pone en duro
     await App.findByIdAndUpdate( "63f8b8d794a7c29fe4a94db3", { $push: { hourRate: newHourRate } } ,{new:true} )
-    
+   
+    const updatedApp = await App.findOne(app._id); // Busca el documento actualizado
+
     res.json({       
-        success : true
+        success : true,
+        updatedApp
     });
     
+
     } catch (error) {
         console.log("desde createHourlyRate: ",error);
         return res.status(500).json({
@@ -376,7 +379,6 @@ const updateHourlyRateById = async (req, res) => {
     const { hour, status } = req.body;
     const { id } = req.params;
 
-    console.log(hour,status, id);
 
     if(hour == '' || typeof status != "boolean" ){
         return res.status(400).json({
@@ -401,11 +403,14 @@ const updateHourlyRateById = async (req, res) => {
     const update = { $set: { 'hourRate.$[elem].status': status } }; // Define la actualización que quieres hacer
     const options = { arrayFilters: [{ 'elem._id': id }] }; // Define el filtro para el objeto dentro del array que quieres actualizar
 
-    await App.updateOne(filter, update, options);
+   await App.updateOne(filter, update, options);
+
+   const updatedApp = await App.findOne(filter); // Busca el documento actualizado
 
     
     res.json({       
         success : true,
+        updatedApp
     });
     
     } catch (error) {
@@ -413,6 +418,46 @@ const updateHourlyRateById = async (req, res) => {
         return res.status(500).json({
             success: false,
             msg: 'Error al editar el horario de atencion'
+        });
+    }
+}
+   
+const deleteHourlyRateById = async (req, res) => {
+
+    const { id } = req.params;
+
+    try {
+        const app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
+    
+        if(app == null){
+            return res.status(400).json({
+                success: false,
+                msg : 'App no encontrada en BD'
+            })
+        }
+   
+          const result = app.hourRate.pull({ _id: id });
+
+          await app.save();
+
+          const updatedApp = await App.findOne(app._id); // Busca el documento actualizado
+
+
+          if (result.modifiedCount === 0) {
+            res.status(404).json({ mensaje: 'No se encontró el horario' });
+          } else {
+            res.status(200).json({ 
+                success: true,
+                msg: 'Horario eliminado con éxito',
+                updatedApp
+            });
+          }  
+    
+    } catch (error) {
+        console.log("desde deleteHourlyRateById: ",error);
+        return res.status(500).json({
+            success: false,
+            msg: 'Error al eliminar el horario de atencion'
         });
     }
 }
@@ -428,5 +473,6 @@ module.exports={
     pausePlayApp,
     getAppState,
     createHourlyRate,
-    updateHourlyRateById
+    updateHourlyRateById,
+    deleteHourlyRateById
 }

@@ -4,7 +4,7 @@ const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
 
-const { userPost, createRole, pausePlayApp, getAppState, createHourlyRate, updateHourlyRateById } = require('../controllers/staff.controllers');
+const { userPost, createRole, pausePlayApp, getAppState, createHourlyRate, updateHourlyRateById, deleteHourlyRateById } = require('../controllers/staff.controllers');
 const { superRole, checkFields, checkTokenStaff,adminRole, multiRole, requireToken } = require('../middlewares')
 const { isRoleValid } = require('../helpers/db-validators');
 const { getOrder, createOrder, } = require('../controllers/purchaseOrder.controllers');
@@ -93,8 +93,17 @@ router.patch('/hourlyRate',[
 router.patch('/hourlyRate/:id',[
     requireToken,
     multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
+    check('id','No es un id valido de mongoDB').isMongoId(),
     checkFields
 ], updateHourlyRateById)
+
+router.delete('/hourlyRate/:id',[
+    requireToken,
+    multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
+    check('id','No es un id valido de mongoDB').isMongoId(),
+    checkFields
+], deleteHourlyRateById)
+
 
 
 
