@@ -7,10 +7,9 @@ const Category = require ('../models/category');
 const createCategory =  async (req, res) => { 
 
     const name= req.body.name.toUpperCase(); 
-    
-    console.log(name);
-    
+    const user = req.userAuth
     const categoryDB = await Category.findOne({name});
+
     if(categoryDB){
         return res.status(400).json({
             msg:` La categoria ${categoryDB.name} ya existe `
@@ -18,7 +17,7 @@ const createCategory =  async (req, res) => {
     }
     const data = {
         name,
-        user: req.staffAuth._id
+        user: user._id
     }
 
     const category = new Category ( data );

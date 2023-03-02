@@ -6,6 +6,8 @@ let valid = [];
 const checkHourly = ( rate  ) => {
     if(rate.length != 0){
         rate.forEach(element => { checkHour(element) });
+    }else{
+        return true; // si no hay horario en el back siempre tiene q estar disponible
     }
     
     if(valid.indexOf(true) != -1) {

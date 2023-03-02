@@ -128,6 +128,31 @@ const getUserById = async (req,res=response)=>{
     });
 }
 
+const getStaff = async (req,res=response)=>{
+
+
+    let staff  = await Staff.find({
+        $and:[
+              { stateAccount : true}
+            ]})
+   
+   
+    if( !staff){
+        return res.status(400).json({
+            success: false,
+            msg: 'Usuario no encontrado'
+        });
+    }
+
+    res.status(200).json({ 
+        success : true,
+        staff
+
+    });
+}
+
+
+
 const userPut= async (req, res) => {
     
 try {
@@ -301,18 +326,14 @@ if(app == null){
     })
 }
 
-
 let rate = [];
 app.hourRate.forEach(element => { rate.push(element.hour)});
 const check = checkHourly( rate);
-
     res.json({       
         success : true,
         app,
         check 
-        // now
     });
-
 
 } catch (error) {
     console.log("desde getAppState: ",error);
@@ -474,5 +495,7 @@ module.exports={
     getAppState,
     createHourlyRate,
     updateHourlyRateById,
-    deleteHourlyRateById
+    deleteHourlyRateById,
+    getStaff    
+
 }

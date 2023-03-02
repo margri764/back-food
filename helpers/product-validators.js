@@ -112,12 +112,6 @@ const getDrinkFromDB = async ( order )=>{
     let tempArrDrink = [];
     let arrDrink = [];
 
-        //  const productAndQuantity = product.map( (item, i) =>({ 
-    //       ...item, 
-    //      newQ : item.newQ =  arrQuantities[i]
-         
-    //     }))
-
     tempArrDrink = order.map( (elem, i) => ({
         ...elem,
          new: elem.new= elem.drinkQuantity[i]
@@ -125,26 +119,7 @@ const getDrinkFromDB = async ( order )=>{
 console.log(tempArrDrink);
       return tempArrDrink
 
-    //   const biArray = [
-    //     [1, 2, 3],
-    //     [4, 5, 6],
-    //     [7, 8, 9],
-    //   ];
-    //   biArray.forEach(element => {
-    //     element.forEach(elem => {
-    //       console.log(elem);
-    //     });
-    //   });
-
-
-    // quiero ver si puedo acceder a los _id de las ordenes guardadas
-
-
-
- 
-  
-}
-
+    }
 
 const checkTempOrdBeforeDelProduct = async ( productId)=>{
 

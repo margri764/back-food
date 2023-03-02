@@ -9,7 +9,7 @@
  
  
 //  const { checkToken } = require ('../middlewares/check-jwt');
- const { adminRole, checkFields, checkTokenStaff, multiRole, } = require('../middlewares');
+ const { adminRole, checkFields, checkTokenStaff, multiRole, requireToken, } = require('../middlewares');
 
  
  
@@ -29,8 +29,7 @@
  //crear una categoria  
 
  router.post('/',[ 
- 
-     checkTokenStaff,
+     requireToken,
      multiRole('ADMIN_ROLE','SUPER_ROLE'),
      check('name','el nombre es obligatorio').not().isEmpty(),
      checkFields  
@@ -40,18 +39,15 @@
  
  //actualizar una categoria - privado cualquier persona con token valido
  router.put('/:id',[
- 
-    //  checkToken,
+     requireToken,
      check('name','el nombre es obligatorio').not().isEmpty(),
      check('id').custom( checkCategory),
      checkFields
- 
  ],updateCategory);
  
  //Borrar una categoria - privado solos si tiene role "ADMIN"
  router.delete('/:id',[
- 
-    //  checkToken,
+     requireToken,
      adminRole,
      check('id', 'no es un id de Mongo valido').isMongoId(),
      check('id').custom( checkCategory),

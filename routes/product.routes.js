@@ -38,7 +38,7 @@ router.post('/:category',[
     requireToken,
     multiRole ('ADMIN_ROLE','SUPER_ROLE'),
     checkFileUp,
-    check('category').custom( category => validCategory(category, ['BURGER', 'PIZZA', 'HEALTHY', 'VEGAN', 'DRINK', 'FRIES'])),
+    check('category').custom( category => validCategory(category, ['BURGER', 'PIZZA', 'HEALTHY', 'VEGAN', 'DRINK', 'FRIES', 'OFFER'])),
     checkFields  
 ], createProduct );
 

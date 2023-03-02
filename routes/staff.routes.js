@@ -4,7 +4,7 @@ const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
 
-const { userPost, createRole, pausePlayApp, getAppState, createHourlyRate, updateHourlyRateById, deleteHourlyRateById } = require('../controllers/staff.controllers');
+const { userPost, createRole, pausePlayApp, getAppState, createHourlyRate, updateHourlyRateById, deleteHourlyRateById, getStaff } = require('../controllers/staff.controllers');
 const { superRole, checkFields, checkTokenStaff,adminRole, multiRole, requireToken } = require('../middlewares')
 const { isRoleValid } = require('../helpers/db-validators');
 const { getOrder, createOrder, } = require('../controllers/purchaseOrder.controllers');
@@ -23,6 +23,12 @@ router.post('/createStaff',[
     checkFields
     
 ],userPost); 
+
+router.get('/getStaff',[
+    requireToken,
+    multiRole("SUPER_ROLE","ADMIN_ROLE"),
+    checkFields
+],getStaff); 
 
 router.post('/createAdmin',[
     requireToken,

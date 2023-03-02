@@ -95,12 +95,14 @@ const getProductByCategory = async (req, res) => {
 
   //la idea con esto es q los arreglos de comidas se llenen con categorias q existan en BD
 
-const findCatOne  = await Category.findOne( {name: "BURGER"} )  || null;
-const findCatTwo  = await Category.findOne( {name: "PIZZA"} )   || null;
-const findCatThree = await Category.findOne( {name: "HEALTHY"} ) || null;
-const findCatFour = await Category.findOne( {name: "VEGAN"} )   || null;
-const findCatFive = await Category.findOne( {name: "DRINK"} )   || null;
-const findCatSix  = await Category.findOne( {name: "FRIES"} )   || null;
+const findCatOne  = await    Category.findOne( {name: "BURGER"} )  || null;
+const findCatTwo  = await    Category.findOne( {name: "PIZZA"} )   || null;
+const findCatThree = await   Category.findOne( {name: "HEALTHY"} ) || null;
+const findCatFour = await    Category.findOne( {name: "VEGAN"} )   || null;
+const findCatFive = await    Category.findOne( {name: "DRINK"} )   || null;
+const findCatSix  = await    Category.findOne( {name: "FRIES"} )   || null;
+const findCatSeven  = await  Category.findOne( {name: "OFFER"} )   || null;
+
 
 // OJO VALIDAR SI ESTAN EN STOCK O EXISTEN EN BD!!!!!!!!!!!!!!!!!
 
@@ -110,25 +112,19 @@ let healthy =  []; // three
 let vegan   =  []; // four
 let drink   =  []; // five
 let fries   =  []; // six
+let offer   =  []; // seven
 
 
- [ burger, pizza, healthy, vegan, drink, fries ] = await Promise.all([
- 
-
+ [ burger, pizza, healthy, vegan, drink, fries, offer ] = await Promise.all([
    
    (findCatOne != null) ? burger = await Product.find( {status : true, stock: true, category : findCatOne._id} ).populate("category", ["name","state"]) : [],
    (findCatTwo != null) ? pizza = await Product.find( {status : true, stock: true, category : findCatTwo._id} ).populate("category", ["name","state"]) : [],
-   
    (findCatThree != null) ? healthy = await Product.find( {status : true, stock: true, category : findCatThree._id} ).populate("category", ["name","state"]) : [],
-   
    (findCatFour != null) ? vegan = await Product.find( {status : true, stock: true, category : findCatFour._id} ).populate("category", ["name","state"]) : [],
    (findCatFive != null) ? drink = await Product.find( {status : true, stock: true, category : findCatFive._id} ).populate("category", ["name","state"]):[],
-   
-   (findCatSix != null) ? fries = await Product.find( {status : true, stock: true, category : findCatSix._id} ).populate("category", ["name","state"]) : []
-   
-  
+   (findCatSix != null) ? fries = await Product.find( {status : true, stock: true, category : findCatSix._id} ).populate("category", ["name","state"]) : [],
+   (findCatSeven != null) ? offer = await Product.find( {status : true, stock: true, category : findCatSeven._id} ).populate("category", ["name","state"]) : []
 ])
-
 
 res.json({
       burger,
@@ -136,7 +132,8 @@ res.json({
       healthy,
       vegan,
       drink,
-      fries
+      fries,
+      offer 
   });
 }
 
@@ -150,6 +147,7 @@ const findCatThree = await Category.findOne( {name: "HEALTHY"} ) || null;
 const findCatFour = await Category.findOne( {name: "VEGAN"} )   || null;
 const findCatFive = await Category.findOne( {name: "DRINK"} )   || null;
 const findCatSix  = await Category.findOne( {name: "FRIES"} )   || null;
+const findCatSeven  = await Category.findOne( {name: "OFFER"} )   || null;
 
 // OJO VALIDAR SI ESTAN EN STOCK O EXISTEN EN BD!!!!!!!!!!!!!!!!!
 
@@ -159,9 +157,10 @@ let healthy =  []; // three
 let vegan   =  []; // four
 let drink   =  []; // five
 let fries   =  []; // six
+let offer   =  []; // seven
 
 
- [ burger, pizza, healthy, vegan, drink, fries ] = await Promise.all([
+ [ burger, pizza, healthy, vegan, drink, fries, offer ] = await Promise.all([
  
 
    
@@ -170,7 +169,8 @@ let fries   =  []; // six
    (findCatThree != null) ? healthy = await Product.find( {status : true, category : findCatThree._id} ).populate("category", ["name","state"]) : [],
    (findCatFour != null) ? vegan = await Product.find( {status : true, category : findCatFour._id} ).populate("category", ["name","state"]) : [],
    (findCatFive != null) ? drink = await Product.find( {status : true, category : findCatFive._id} ).populate("category", ["name","state"]):[],
-   (findCatSix != null) ? fries = await Product.find( {status : true, category : findCatSix._id} ).populate("category", ["name","state"]) : []
+   (findCatSix != null) ? fries = await Product.find( {status : true, category : findCatSix._id} ).populate("category", ["name","state"]) : [],
+   (findCatSeven != null) ? offer = await Product.find( {status : true, category : findCatSeven._id} ).populate("category", ["name","state"]) : []
 ])
 
 
@@ -180,7 +180,8 @@ res.json({
       healthy,
       vegan,
       drink,
-      fries
+      fries,
+      offer
   });
 }
 
@@ -639,6 +640,7 @@ const pausePlayCategory = async (req, res) => {
      })
    }
 }
+
 const deleteManyProduct = async (req, res) => {
   try {
 
@@ -680,60 +682,6 @@ const deleteManyProduct = async (req, res) => {
     
 }
 
-// const pauseCategory = async ( req, res) => {
-
-//   try {
-  
-//     // esto viene del middleware Category
-//     const { categoryId, name } = req.validCat 
-    
-//     const  { playOrPause }  = req.body;
-    
-//     console.log(categoryId, name, playOrPause);
-
-//     // si es true pauso la categoria
-//     if(playOrPause){
-//       await Product.updateMany(
-//         { "category" : categoryId }, 
-//         { "$set": { stock : false} },   // el stock en false el modo de pausar
-//         { "multi": true }
-//         )
-//         await Category.findByIdAndUpdate( categoryId,{state:false}, {new:true} )
-
-//         res.json({
-//           success: true,
-//           msj : `Se pauso correctamente la categoria  ${name}. Recuerde que no se mostrarán los productos en la app`  
-//        });  
-      
-    
-//       }else{
-//         await Product.updateMany(
-//           { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
-//           { "$set": { stock : true } },   
-//           { "multi": true }
-//           )
-//         await Category.findByIdAndUpdate( categoryId,{state:true}, {new:true} )
-        
-//         res.json({
-//           success: true,
-//           msj : `La categoria  ${name}, está operativa`  
-//        });  
-      
-//       }
-        
-
-//   } catch (error) {
-//     console.log('error desde pauseCategory: ', error);
-  
-//     return res.status(500).json({
-//       success: false,
-//       msg: "Oops algo salió mal al intentar pausar una categoria"
-//     })
-  
-//   }
-// }
-
-
 module.exports = {
               createProduct,
               getPausedProduct,
@@ -745,6 +693,5 @@ module.exports = {
               pausePlayProductByID,
               getStaffProducts,
               pausePlayCategory
-              // pauseCategory,
 
 }
