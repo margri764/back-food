@@ -4,12 +4,10 @@ const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
 
-const { userPost, createRole, pausePlayApp, getAppState, createHourlyRate, updateHourlyRateById, deleteHourlyRateById, getStaff } = require('../controllers/staff.controllers');
-const { superRole, checkFields, checkTokenStaff,adminRole, multiRole, requireToken } = require('../middlewares')
-const { isRoleValid } = require('../helpers/db-validators');
-const { getOrder, createOrder, } = require('../controllers/purchaseOrder.controllers');
-const { getStaffOrders, editOrderStatus, getStaffOrdersNoProcess, getStaffOrdersByQuery } = require('../controllers/staffOrders.controllers');
-const { checkStatus } = require('../helpers/check_status');
+const { createRole, pausePlayApp, getAppState, createHourlyRate, updateHourlyRateById, deleteHourlyRateById, getStaff, createStaff, staffUpdate, deleteStaff } = require('../controllers/staff.controllers');
+const { superRole, checkFields, multiRole, requireToken } = require('../middlewares')
+const { isStaffRoleValid, checkIdStaff } = require('../helpers/db-validators');
+const { getStaffOrders, editOrderStatus, getStaffOrdersByQuery } = require('../controllers/staffOrders.controllers');
 const { getStaffProducts } = require('../controllers/product.controllers');
 
 
@@ -20,9 +18,10 @@ const { getStaffProducts } = require('../controllers/product.controllers');
 router.post('/createStaff',[
     requireToken,
     multiRole("SUPER_ROLE","ADMIN_ROLE"),
+    check('role').custom( role => isStaffRoleValid(role)),
     checkFields
     
-],userPost); 
+],createStaff); 
 
 router.get('/getStaff',[
     requireToken,
@@ -30,12 +29,28 @@ router.get('/getStaff',[
     checkFields
 ],getStaff); 
 
-router.post('/createAdmin',[
+router.put('/editStaff/:id',[
     requireToken,
-    superRole,
+    check('id','No es un id valido de mongoDB').isMongoId(),
+    check('id').custom( checkIdStaff ),
+    check('role').custom( isStaffRoleValid ),
     checkFields
+], staffUpdate);
+
+router.patch('/deleteStaff/:id',[
+    requireToken,
+    multiRole("SUPER_ROLE","ADMIN_ROLE"),
+    check('id','No es un id valido de mongoDB').isMongoId(),
+    check('role').custom( isStaffRoleValid ),
+    checkFields
+], deleteStaff);
+
+// router.post('/createAdmin',[
+//     requireToken,
+//     superRole,
+//     checkFields
     
-],userPost); 
+// ],userPost); 
 
 
 router.post('/createRole',[

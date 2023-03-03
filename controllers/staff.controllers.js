@@ -10,21 +10,22 @@ const { checkHourly } = require('../helpers/check-hourly');
 
 
 
-const userPost= async (req, res = response) => {
+const createStaff= async (req, res = response) => {
     
  const { password, email, role, ...rest} = req.body;
 
- const roleValid = await Role.findOne({rol: role}) || null;
+//  const roleValid = await Role.findOne({rol: role}) || null;
 
- if( roleValid == null){
-    return res.status(401).json({
-        success:false,
-        msg: `No existe el rol: ${role}  en Base de Datos`
-    })
-}
-
+//  if( roleValid == null){
+//     return res.status(401).json({
+//         success:false,
+//         msg: `No existe el rol: ${role}  en Base de Datos`
+//     })
+// }
+let emailDotCom = email;
+emailDotCom = emailDotCom +"@shell.com"
     
-let staff = await Staff.findOne({email: email}) || null;
+let staff = await Staff.findOne({email: emailDotCom}) || null;
 
 if( staff !== null){
     return res.status(400).json({
@@ -34,7 +35,7 @@ if( staff !== null){
 }
 
 
- staff = new Staff({ password, email, role, ...rest});
+ staff = new Staff({ password, email: emailDotCom, role, ...rest});
 
 // encriptar contraseña
 const salt = bcryptjs.genSaltSync();
@@ -75,34 +76,6 @@ const createRole= async (req, res = response) => {
    
 }
 
-const userGet = async (req,res=response)=>{
-
-    const { limit , from }=req.query;
-    const [ total, usuarios] = await Promise.all([
-        User.countDocuments( {state:true}),
-        User.find( {state:true} )
-            .skip( Number (from))
-            .limit( Number (limit))
-    ])  
-   
-    // NO SE PUEDE LLAMAR UN EMPLEADO QUE ESTA BLOQUEADO O ELIMINADO
-
-    // if(staff !== null){
-
-    //     if( staff.stateAccount == false){
-    //        return  res.status(400).json({
-    //             success:false,
-    //             msg:"Empleado eliminado o bloqueado"
-    //         })
-    //     }
-    // }
-
-    res.json({ 
-      usuarios
-
-    });
-}
-
 const getUserById = async (req,res=response)=>{
 
     const { id }  = req.params;
@@ -130,11 +103,12 @@ const getUserById = async (req,res=response)=>{
 
 const getStaff = async (req,res=response)=>{
 
+    // let staff  = await Staff.find({
+    //     $and:[
+    //           { stateAccount : true}
+    //         ]})
 
-    let staff  = await Staff.find({
-        $and:[
-              { stateAccount : true}
-            ]})
+   let staff  = await Staff.find();
    
    
     if( !staff){
@@ -151,28 +125,26 @@ const getStaff = async (req,res=response)=>{
     });
 }
 
-
-
-const userPut= async (req, res) => {
+const staffUpdate= async (req, res) => {
     
 try {
-    
 
     const { id } = req.params;
-    const {...rest } = req.body;
-    // console.log(req.params,req.body);
+    const {email, ...rest } = req.body;
     
     //busco al usuario de la req por id
-    let searchUser = await User.findOne({_id : id} ) || null;
+    let searchStaff = await Staff.findOne({_id : id} ) || null;
     
-    if(searchUser !== null){
+    if(searchStaff !== null){
+      let emailDotCom = email;
+       emailDotCom = emailDotCom +"@shell.com"
       
-        const user = await User.findByIdAndUpdate( searchUser._id, rest,{new:true})
+    const staff = await Staff.findByIdAndUpdate( searchStaff._id, {email : emailDotCom, rest},{new:true})
 
-        res.status(200).json({
-            success : true,
-            user
-        })
+    res.status(200).json({
+        success : true,
+        staff
+    })
  
     }else{
         return res.status(400).json({
@@ -182,7 +154,7 @@ try {
     }
 
 } catch (error) {
-    console.log(error);
+    console.log('desde updateStaff: ',error);
     return res.status(500).json({
         success: false,
         msg: 'Error al editar usuario'
@@ -211,18 +183,23 @@ try {
     // });
 }
 
-const usersDelete= async (req, res) => {
+const deleteStaff = async (req, res) => {
 
     const { id } = req.params;
 
-    const user = await User.findByIdAndUpdate(id,{state:false})
-    const usuarioAuth = req.usuarioAuth;
+    const result = await Staff.findByIdAndUpdate( id, {stateAccount : false}, {new:true} );
 
-    res.json({       
-        user,
-        usuarioAuth
-        
-    });
+    if (result === null) {
+        res.status(404).json({ success: false, msg: 'No se encontró el miembro del Staff' });
+    } else if (result.nModified === 0) {
+        res.status(404).json({ success: false, msg: 'No se actualizó el miembro del Staff' });
+    } else {
+        res.status(200).json({ 
+            success : true,
+            msg: "Staff eliminado correctamente"
+        });
+    }  
+
 }
 
 const pausePlayApp= async (req, res) => {
@@ -485,10 +462,9 @@ const deleteHourlyRateById = async (req, res) => {
    
 
 module.exports={
-    userGet,
-    userPost,
-    userPut,
-    usersDelete,
+    createStaff,
+    staffUpdate,
+    deleteStaff,
     getUserById,
     createRole,
     pausePlayApp,

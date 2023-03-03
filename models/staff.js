@@ -6,30 +6,30 @@ const {Schema, model} = require ('mongoose');
 
 const StaffSchema = Schema({
 
-    firstName:  {
+    fullName:  {
         type:String,
-        default:''
+        default:'',
+        required: true
     },
     
-    lastName:  {
-        type:String,
-        default:''
-    },
-
     password: {
         type: String,
-        default:''
+        default:'',
+        required: true
     },
 
     email: {
         type: String,
         default:'',
-        // unique: true,
+        unique: true,
+        required: true
+
     },
  
     phone:{
         type: String,
         default:'',
+        required: true
     },
 
     address :{
@@ -40,8 +40,8 @@ const StaffSchema = Schema({
     role: {
         type: String,
         required: true,
-        default: 'USER_ROLE',
-        emun: [ 'ADMIN_ROLE','USER_ROLE']
+        default: 'STAFF_ROLE',
+        emun: [ 'ADMIN_ROLE','STAFF_ROLE', 'SUPER_ROLE']
     },
 
     stateAccount: {
@@ -53,7 +53,7 @@ const StaffSchema = Schema({
     );
 
     StaffSchema.methods.toJSON = function(){
-    const {__v,password, ...staff} = this.toObject();
+    const {__v, password, ...staff} = this.toObject();
     // const {__v,password,_id,...usuario} = this.toObject();
     // usuario.uid= _id;
     return staff; 

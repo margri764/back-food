@@ -212,7 +212,13 @@ const login = async (req, res=response)=>{
         
         if(emailToCheck.includes(process.env.EMAILSTAFF)){
 
-            user = await Staff.findOne({email});
+            user = await Staff.findOne({email}) || null;
+            if(user == null){
+                return res.status(400).json({
+                    success : false,
+                    msg: "Staff no encontrado en BD"
+                })
+            }
         }else{
 
             user = await User.findOne({email});

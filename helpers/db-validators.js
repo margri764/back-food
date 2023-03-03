@@ -2,15 +2,28 @@
 
 const Role = require ('../models/role');
 const User = require ('../models/user');
+const Staff = require ('../models/staff');
 const Category = require ('../models/category');
 const Product = require('../models/product');
 
 
 const isRoleValid = async (role='USER_ROLE') => {
-    const checkRol = await Role.findOne({role});
+
+    const checkRol = await Role.findOne({rol : role.toUpperCase()});
     if(!checkRol){
-        throw new Error (`el role ${role} no esta regitrado en DB`)
+        throw new Error (`el rol ${role} no esta regitrado en DB`)
     }
+}
+
+const isStaffRoleValid = async (role='STAFF_ROLE') => {
+
+  if(role == '' || role == undefined || role == null ){
+    throw new Error (`${role} no es un Rol válido`)
+  }
+  const checkRol = await Role.findOne({rol : role.toUpperCase()});
+  if(!checkRol){
+      throw new Error (`el rol ${role} no esta regitrado en DB`)
+  }
 }
 
 const checkEmail = async (email) =>{
@@ -28,6 +41,14 @@ const checkId = async ( id ) =>{
           throw new Error (`El id: ${ id } no existe en BD`);
           }
   }
+
+const checkIdStaff = async ( id ) =>{
+  const idChecked = await Staff.findById(id);
+    if(!idChecked){
+        throw new Error (`El id: ${ id } no existe en BD`);
+        }
+}
+
 
   const checkCategory = async ( id ) =>{
     
@@ -75,10 +96,12 @@ module.exports={
     isRoleValid,
     checkEmail,
     checkId,
+    checkIdStaff,
     checkCategory,
     checkProduct,
     validCategory,
-    validOperation
+    validOperation,
+    isStaffRoleValid
 
 
 }
