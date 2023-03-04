@@ -131,15 +131,19 @@ try {
 
     const { id } = req.params;
     const {email, ...rest } = req.body;
-    
     //busco al usuario de la req por id
     let searchStaff = await Staff.findOne({_id : id} ) || null;
     
     if(searchStaff !== null){
       let emailDotCom = email;
        emailDotCom = emailDotCom +"@shell.com"
+    
+    const tempStaff = {
+        ...rest,
+        email : emailDotCom
+    }   
       
-    const staff = await Staff.findByIdAndUpdate( searchStaff._id, {email : emailDotCom, rest},{new:true})
+    const staff = await Staff.findByIdAndUpdate( searchStaff._id, tempStaff ,{new:true})
 
     res.status(200).json({
         success : true,
@@ -459,6 +463,77 @@ const deleteHourlyRateById = async (req, res) => {
         });
     }
 }
+
+const pausePlayStaffById = async (req, res) => {
+
+    const pauseOrPlay = req.query.pauseOrPlay;
+   
+      if(pauseOrPlay == undefined){
+       return res.status(400).json ({
+         success: false,
+         msg: "Se debe incluir un query en true o false"
+       })
+      }
+      
+       try {
+       
+         const { id } = req.params;
+         const { ...rest } = req.body;
+     
+         let staff = await Staff.findOne({ _id : id });
+     
+        //  if(!staff) {
+        //    return res.status(400).json({ 
+        //      success: false,
+        //      msg: "Staff no encontrado",      
+        //    });
+        //  }
+   
+         let result;
+   
+       // si viene FALSE significa q quiero pausar  
+         if(pauseOrPlay == "false" ){
+            result = await Staff.findByIdAndUpdate( staff._id,  { stateAccount : false , rest },{ new:true });
+            console.log(pauseOrPlay);
+            if (result === null) {
+                res.status(404).json({ success: false, msg: 'No se encontró el miembro del Staff' });
+            } else if (result.nModified === 0) {
+                res.status(404).json({ success: false, msg: 'No se pausó el miembro del Staff' });
+            } else {
+                res.status(200).json({ 
+                    success : true,
+                    msg: "Staff pausado correctamente"
+                });
+            }  
+        
+
+
+         }else{
+           result = await Staff.findByIdAndUpdate( staff._id,  { stateAccount : true , rest },{ new:true });
+         
+           if (result === null) {
+            res.status(404).json({ success: false, msg: 'No se encontró el miembro del Staff' });
+            } else if (result.nModified === 0) {
+                res.status(404).json({ success: false, msg: 'No se pausó el miembro del Staff' });
+            } else {
+                res.status(200).json({ 
+                    success : true,
+                    msg: "Staff ativado correctamente"
+                });
+            }  
+    
+         }
+       
+   
+       } catch (error) {
+     
+         console.log('desde pausePlayStaffByID: ', error);
+         return res.status(500).json({
+           success: false,
+           msg: "Opps algo salió mal al intentar PAUSAR/ACTIVAR un STAFF"
+         })
+       }
+   }
    
 
 module.exports={
@@ -472,6 +547,6 @@ module.exports={
     createHourlyRate,
     updateHourlyRateById,
     deleteHourlyRateById,
-    getStaff    
-
+    getStaff,
+    pausePlayStaffById    
 }

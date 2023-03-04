@@ -4,7 +4,7 @@ const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
 
-const { createRole, pausePlayApp, getAppState, createHourlyRate, updateHourlyRateById, deleteHourlyRateById, getStaff, createStaff, staffUpdate, deleteStaff } = require('../controllers/staff.controllers');
+const { createRole, pausePlayApp, getAppState, createHourlyRate, updateHourlyRateById, deleteHourlyRateById, getStaff, createStaff, staffUpdate, deleteStaff, pausePlayStaffById } = require('../controllers/staff.controllers');
 const { superRole, checkFields, multiRole, requireToken } = require('../middlewares')
 const { isStaffRoleValid, checkIdStaff } = require('../helpers/db-validators');
 const { getStaffOrders, editOrderStatus, getStaffOrdersByQuery } = require('../controllers/staffOrders.controllers');
@@ -44,6 +44,13 @@ router.patch('/deleteStaff/:id',[
     check('role').custom( isStaffRoleValid ),
     checkFields
 ], deleteStaff);
+
+router.patch('/pausePlayStaff/:id',[
+    requireToken,
+    check('id','No es un id valido de mongoDB').isMongoId(),
+    multiRole ('ADMIN_ROLE','SUPER_ROLE', 'STAFF_ROLE'),
+    checkFields  
+], pausePlayStaffById)
 
 // router.post('/createAdmin',[
 //     requireToken,
