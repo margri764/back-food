@@ -10,7 +10,7 @@ const createOrder= async ( req , res ) => {
     try {
 
         const user = req.userAuth
-        const { order, ...rest }= req.body;
+        const { order, delivery, ...rest }= req.body;
 
         
         let arrIDs = [];
@@ -29,11 +29,6 @@ const createOrder= async ( req , res ) => {
                 {"$set":{"statusOrder": "COMPLETE"}},   // le paso el valor de reemplazo
                 ) //Filtra los documentos que quieres actualizar
          
-        
-        orderIds.map((item)=>{
-            console.log("from: ", item.statusOrder) 
-            
-        })
 
         //   coloco en duro el id de un miembro del staff q no tiene datos, es solo para pasar la validacion del Schema de la PurchseOrden      
         const orderEdit = {
@@ -45,7 +40,7 @@ const createOrder= async ( req , res ) => {
 
         const tempOrder = {
             user : user._id,
-            addressDelivery : user.addressDelivery,
+            addressDelivery : delivery,
             order : orderIds,
             total : total,
             statusOrder: orderEdit,

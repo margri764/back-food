@@ -3,9 +3,8 @@ const { Router } = require ('express');
 const { check } = require ('express-validator');
 const { userPost, userPut, getUserById, usersDelete} = require('../controllers/user.controllers');
 const { checkEmailRegister, checkEmailStaff } = require ('../controllers/emailCheck')
-const { checkFields, multiRole, requireToken } = require('../middlewares');
+const { checkFields, multiRole, requireToken, userRole } = require('../middlewares');
 const { isRoleValid, checkEmail, checkId } = require('../helpers/db-validators');
-// const role = require('../models/role');
 const router = Router();
 
 
@@ -29,13 +28,19 @@ router.get('/checkemail',[
 // ],checkEmailStaff);
 
 // router.put('/:id',[
-router.put('/',[
+router.put('/:id',[
     requireToken,
     // check('id','No es un id valido de mongoDB').isMongoId(),
     // check('id').custom( checkId ),
     // check('role').custom( isRoleValid),
     // checkFields
-],userPut);
+], userPut);
+
+router.patch('/address',[
+    requireToken,
+    userRole ('SUPER_ROLE'),
+    checkFields  
+], userPut)
 
 
 router.get('/',[

@@ -127,37 +127,31 @@ const userPut= async (req, res) => {
 try {
     
     // const { id } = req.params;
-    const {...rest } = req.body;
+    const { ...rest } = req.body;
 
     const userToken = req.userAuth
-
-    console.log(userToken);
-
     
     //busco al usuario de la req por id
-    // let searchUser = await User.findOne({_id : userToken._id} ) || null;
-    
     const user = await User.findByIdAndUpdate( {_id : userToken._id}, rest,{new:true})
-    if(user !== null){
-      
 
-        res.status(200).json({
+    if (user === null) {
+        res.status(404).json({ success: false, msg: 'No se encontró el usuario' });
+    } else if (user.nModified === 0) {
+        res.status(404).json({ success: false, msg: 'No se actualizó la dirección del usuario' });
+    } else {
+
+        res.status(200).json({ 
             success : true,
             user
-        })
- 
-    }else{
-        return res.status(400).json({
-            success:false,
-            msg: "Usuario no encontrado"
-        })
-    }
+        });
+    }  
+
 
 } catch (error) {
-    console.log(error);
+    console.log("Desde userPut: ", error);
     return res.status(500).json({
         success: false,
-        msg: 'Error al editar usuario'
+        msg: 'Error al editar la dirección del usuario'
     });
 }
 

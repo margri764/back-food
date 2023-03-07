@@ -1,7 +1,26 @@
 
 // const Staff = require('../models/staff');
 
+const userRole= (role) => {
 
+    return (req, res, next) => {
+   
+       if(!req.userAuth){
+           return res.status(500).json({
+               msg: 'se intenta verificar el role sin validar el token primero'
+           })
+       }
+   
+       if(!role == req.userAuth.role){
+   
+   
+           return res.status(403).json({
+               msg: `esta accion  requiere de un Usuario con estos roles: ${roles}`
+           })
+       }
+       next();
+   }
+}
 
 
 const adminRole= ( req, res, next )=>{
@@ -67,4 +86,5 @@ module.exports= {
     adminRole,
     multiRole,
     superRole,
+    userRole
     }

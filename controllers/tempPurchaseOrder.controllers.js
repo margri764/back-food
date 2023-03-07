@@ -28,7 +28,6 @@ const createTempOrder = async ( req , res ) => {
           drink : drink,
           fries : fries,
           total : req.body.total,
-          addressDelivery : user.addressDelivery,
           // otherExpenses : tempProductArray,
           ...rest
       }
