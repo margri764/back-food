@@ -387,9 +387,6 @@ const logout = (req, res) => {
 
 
 
-
-
-
 module.exports={
     login, 
     loginStaff,
@@ -397,6 +394,7 @@ module.exports={
     confirm,
     phone,
     refreshToken,
-    logout
+    logout,
+
 }
 

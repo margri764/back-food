@@ -1,7 +1,7 @@
 
 const { Router } = require ('express');
 const { check } = require ('express-validator');
-const { userPost, userPut, getUserById, usersDelete} = require('../controllers/user.controllers');
+const { userPost, userPut, getUserById, usersDelete, settingUser, getSettingUser} = require('../controllers/user.controllers');
 const { checkEmailRegister, checkEmailStaff } = require ('../controllers/emailCheck')
 const { checkFields, multiRole, requireToken, userRole } = require('../middlewares');
 const { isRoleValid, checkEmail, checkId } = require('../helpers/db-validators');
@@ -59,6 +59,17 @@ router.delete('/:id',
     checkFields
 ], usersDelete);
 
+router.post("/setting", [
+    requireToken
+],settingUser);
+
+router.put("/setting", [
+    requireToken
+],settingUser);
+
+router.get("/setting", [
+    requireToken
+],getSettingUser);
 
 module.exports= router;
 

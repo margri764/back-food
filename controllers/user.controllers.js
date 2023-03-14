@@ -3,6 +3,7 @@ const {response} = require ('express');
 const User = require ('../models/user');
 const UserSignUp = require ('../models/userSignUp');
 const Staff = require ('../models/staff');
+const Setting = require ('../models/setting');
 
 
 
@@ -156,25 +157,6 @@ try {
 }
 
 
-
-    // let user = await User.findByIdAndUpdate( id, {new:true} );
-
-    // const userTemp = {
-    //         firstName : user.firstName,
-    //         lastName : user.lastName,
-    //         email : user.email,
-    //         phone: user.phone,
-    //         ...rest
-    // }
-
-    //  user = new User (userTemp);
- 
-    // await user.save();
-
-    // res.json({    
-    //     msg:true,
-    //     // user
-    // });
 }
 
 const usersDelete= async (req, res) => {
@@ -191,11 +173,100 @@ const usersDelete= async (req, res) => {
     });
 }
 
+const getSettingUser = async (req, res) => {
+
+     const userToken = req.userAuth
+
+     
+     try {
+     // depende del valor del email del staff de cada empresa, busca en una u otra coleccion
+         
+ 
+        const result = await Setting.findOne( {user: userToken._id} );
+        
+        if(result === null){
+            return res.status(200).json({
+                success : false
+            })
+        }else{
+            return res.status(200).json({
+                success : true
+            })
+
+        }
+ 
+ 
+         } catch (error) {
+             console.log("desde getSettingUser: ", error);
+             return res.status(500).json({
+                 success: false,
+                 msg: 'Error al buscar configuraciones'
+             });
+         }
+}
+
+const settingUser = async (req, res) => {
+    
+    const { bata, shop, farmacia, email } = req.body;
+    console.log(req.body);
+
+    const { typeRequest} = req.query;
+    const userToken = req.userAuth
+
+    console.log( typeRequest);
+
+    if( typeRequest === undefined || typeRequest === ''){
+        return res.status(400).json({
+            success: false,
+            msg: "No se incluyo ningun valor al campo Setting o en TypeRequest"
+        })
+    }
+
+    try {
+
+        if(typeRequest === "post"){
+
+   
+
+            const saveSetting = new Setting ( {bata: bata,  shop: shop,  email: email, farmacia: farmacia, user : userToken._id } );
+            await saveSetting.save();
+
+            return res.status(200).json({
+                success: true,
+                saveSetting
+            })
+        }
+
+        if(typeRequest === "put"){
+
+         
+
+           const saveSetting = await Setting.findByIdAndUpdate( {id : userToken._id},{setting}, {new : true})
+           return res.status(200).json({
+                success: true,
+                saveSetting
+           })
+
+        }
+
+   } catch (error) {
+    console.log('error desde settingUser: ', error);
+        res.status(500).json({
+            msg: 'Error al intentar editar settings de usuarios',
+            success: false
+        })       
+    }
+    
+};
+
+
 
 module.exports={
     userGet,
     userPost,
     userPut,
     usersDelete,
-    getUserById
+    getUserById,
+    settingUser,
+    getSettingUser
 }
