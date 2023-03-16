@@ -2,12 +2,9 @@
 const { Router } = require ('express');
 const { check } = require ('express-validator');
 const { userPost, userPut, getUserById, usersDelete, settingUser, getSettingUser} = require('../controllers/user.controllers');
-const { checkEmailRegister, checkEmailStaff } = require ('../controllers/emailCheck')
 const { checkFields, multiRole, requireToken, userRole } = require('../middlewares');
 const { isRoleValid, checkEmail, checkId } = require('../helpers/db-validators');
 const router = Router();
-
-
 
 
 
@@ -21,20 +18,6 @@ router.post('/',[
 
 ],userPost);
 
-router.get('/checkemail',[
-],checkEmailRegister);
-
-// router.get('/checkemailStaff',[
-// ],checkEmailStaff);
-
-// router.put('/:id',[
-router.put('/:id',[
-    requireToken,
-    // check('id','No es un id valido de mongoDB').isMongoId(),
-    // check('id').custom( checkId ),
-    // check('role').custom( isRoleValid),
-    // checkFields
-], userPut);
 
 router.patch('/address',[
     requireToken,
@@ -44,14 +27,11 @@ router.patch('/address',[
 
 
 router.get('/',[
-
-    // aca necesito el token por Bearer
-  requireToken,
-],getUserById);
+    requireToken,
+], getUserById);
 
 //el requireToken,proteje esta ruta con los JWT para q no sea publica 
-router.delete('/:id',
-[
+router.delete('/:id',[
     requireToken,
     multiRole ('ADMIN_ROLE','USER_ROLE',''),
     check('id','No es un id valido de mongoDB').isMongoId(),
@@ -61,15 +41,19 @@ router.delete('/:id',
 
 router.post("/setting", [
     requireToken
-],settingUser);
+], settingUser);
 
 router.put("/setting", [
     requireToken
-],settingUser);
+], settingUser);
 
 router.get("/setting", [
     requireToken
-],getSettingUser);
+], getSettingUser);
+
+router.put('/:id',[
+    requireToken,
+], userPut);
 
 module.exports= router;
 

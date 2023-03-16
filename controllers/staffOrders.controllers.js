@@ -1,9 +1,5 @@
 
-const User = require ('../models/user');
 const PurchaseOrder = require('../models/purchaseOrder');
-const Product = require('../models/product');
-const PurchaseOrderStatus = require('../models/purchaseOrderStatus');
-const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const checkStatus  = require('../helpers/check_status');
 const { customDate }  = require('../helpers/format-date');
 
@@ -26,10 +22,6 @@ const editOrderStatus = async ( req , res ) => {
             })
         }
 
-        // busco en "PurchaseOrderStatus" si hay algun doc q tenga esa orden asociada
-        
-        // let purchaseOrderStatus = await PurchaseOrderStatus.findOne( {order : purchaseOrder._id} ) || null;
-        // console.log(purchaseOrderStatus);
 
         // recibo el status en el body y lo evaluo
          checkStatus(status);
@@ -39,9 +31,7 @@ const editOrderStatus = async ( req , res ) => {
             finished = true
          }
 
-        /*   esto son los datos q necesito para el campo "statusOrder" (está en el models de PurchaseOrderStatus), es un array de objetos
-        q me permite ir guardando los cambios de estados con elm dato del momento en q se hizo y quien lo hizo (recordar q puede 
-            cambiar el miembro del staff tambien)*/
+
         const orderEdit = {
             date : new Date(),
             staff : staff._id,
@@ -69,19 +59,7 @@ const editOrderStatus = async ( req , res ) => {
             })
         } 
 
-        //     /*si no hay ningun estado de orden asociado a la orden de compra la genero, el push es xq en el models  */
-        //  orderStatus = new PurchaseOrderStatus ({statusOrder : orderEdit, order : purchaseOrder._id })
-         
-        // //  en este punto hago un update en el sattus de la orden tambien, en el get del front deberia llamar solo a las ordenes de compra q no tengan el estado en complete y en el estado para conocer todos los movimientos y quien es el responsable (podria tener en la orden una referencia a este modelo de estado)
-        //   await PurchaseOrder.findByIdAndUpdate( purchaseOrder._id, { statusOrder : status} ,{new:true})
 
-
-        //  await orderStatus.save()
-
-        //     return res.status(200).json({
-        //         success : true,
-        //         orderStatus
-        //     })
      
     } catch (error) {
         console.log(error);

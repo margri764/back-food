@@ -4,16 +4,16 @@
 const jwt = require ('jsonwebtoken');
 
 
-const generateToken = ( _id ) =>{ 
+const generateToken =  ( _id ) =>{ 
 
         const payload =  {_id } ; 
-        
         const expiresIn = 60 * 60 * 60;
         // console.log("desde generateToken: ",payload);
 
         try {
-
             const token = jwt.sign(payload , process.env.SECRETORPRIVATEKEY,{ expiresIn })
+            // console.log(token);
+
             return { token, expiresIn };
         } catch (error) {
             console.log("desde generate Token",error);

@@ -13,7 +13,6 @@ const userRole= (role) => {
    
        if(!role == req.userAuth.role){
    
-   
            return res.status(403).json({
                msg: `esta accion  requiere de un Usuario con estos roles: ${roles}`
            })

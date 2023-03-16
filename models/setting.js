@@ -6,23 +6,27 @@ const {Schema, model} = require ('mongoose');
 const SettingSchema = Schema({
 
 
-    shop: {
-        type: String,
+      shop: {
+        type: Boolean,
       },
+
       bata: {
-        type: String,
+        type: Boolean,
       },
+
       email: {
         type: Boolean,
       },
+
       farmacia: {
-        type: String,
+        type: Boolean,
       },
-    user:{
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true
-     },
+
+      user:{
+          type: Schema.Types.ObjectId,
+          ref: "User",
+          required: true
+       },
 
     }, { timestamps:true}
     );

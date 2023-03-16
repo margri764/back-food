@@ -1,12 +1,12 @@
 
 const {response} = require ('express');
 const bcryptjs = require('bcryptjs');
-const { JWTGenerator } = require('../helpers/jwt-generator');
 const createSMS = require ('../config/sms')
 const UserSignUp = require ('../models/userSignUp');
 const User = require ('../models/user');
 const Staff = require('../models/staff');
 const { generateToken, generateRefreshToken } = require('../helpers/tokenManager');
+const { checkUserEmail } = require('../helpers/check_user_type');
 
 
 
@@ -201,54 +201,11 @@ const login = async (req, res=response)=>{
 
     const { email, password } = req.body;
 
-    // depende del valor del email del staff de cada empresa, busca en una u otra coleccion
-    let emailToCheck = email.split("@");
-    
-    let user;
-    let userVerified;
-    
     try {
     // depende del valor del email del staff de cada empresa, busca en una u otra coleccion
         
-        if(emailToCheck.includes(process.env.EMAILSTAFF)){
+         const user = await checkUserEmail(email);
 
-            user = await Staff.findOne({email}) || null;
-            if(user == null){
-                return res.status(400).json({
-                    success : false,
-                    msg: "Staff no encontrado en BD"
-                })
-            }
-        }else{
-
-            user = await User.findOne({email});
-            userVerified = true;
-            
-        }     
-
-        if(user.stateAccount === false) {
-            return res.status(400).json({
-                success: false,
-                msg: 'Usuario eliminado de la BD'
-            })
-        }
-        
-        
-        // userVerified solo es para ver si ya esta verificado
-        // si se trata de un email q no es de la empresa busca en los clientes
-        
-        let userLogin; //lo hice xq solo entra si se cumple una condicion
-        if(userVerified){
-            
-            userLogin = await UserSignUp.findOne({email});
-            
-            if(userLogin.state === "UNVERIFIED") {
-                return res.status(400).json({
-                    success: false,
-                    msg: 'Usuario en proceso de verificacion, revise su Email'
-                })}
-         }
-        
         if(user){
             const checkPassword = bcryptjs.compareSync(password, user.password)
             if(!checkPassword) {
@@ -257,24 +214,12 @@ const login = async (req, res=response)=>{
                     msg: 'Password incorrecto'
                 })}
         }
-        // if(!user) {
-        //     return res.status(401).json({
-        //         success: false,
-        //         msg: 'Usuario no registrado, dirijase a Registro'
-        //     });
-        // }
-        
         
         /* si llego hasta aca es xq el usuario login ya esta creado y entonces el usuario tambien ya se creo aunque
         me falten datos, como la app tiene delivery tengo mas instancias para recolectar datos.
         Aca abajo lo mismo, tiene q ver con el TIPO de email  */ 
-       
-        if(userVerified){
-              user = await User.findOne({ user_login : userLogin._id});
-        }
         
         const token = generateToken(user._id);
-
         generateRefreshToken(user._id, res);
 
          res.status(200).json({
@@ -292,77 +237,87 @@ const login = async (req, res=response)=>{
     }
 }
 
-const loginStaff = async (req, res=response)=>{
+const emailToAsyncValidatorLogin = async (req, res) => {
 
-    const {email, password} = req.body;
-    
     try {
-        
-        let user = await Staff.findOne({email});
-        
-        
-        if(!user.stateAccount) {
-            return res.status(400).json({
-                success: false,
-                msg: 'Usuario eliminado'
-            })
-        }
-        
-        
-        if(user){
-            const checkPassword = bcryptjs.compareSync(password, user.password)
-            if(!checkPassword) {
-                return res.status(400).json({
-                    success: false,
-                    msg: 'Password incorrecto'
-                })
-            }
-        }
+      const email = req.query.q;
+      const emailToCheck = email.split('@');
+      let user = null;
+  
+      if (emailToCheck[1].includes(process.env.EMAILSTAFF)) {
+        user = await Staff.findOne({ email });
+      } else {
+        user = await User.findOne({ email });
+      }
 
+      console.log(user);
+      // esto se ve raro xq uso una validacion asyncrona el formularios reactivos
+      if (!user) {
         
-        if(!user) {
-            return res.status(401).json({
-                success: false,
-                msg: 'Usuario no registrado, contacte al administrador'
-            });
-        }
-        
-        
-        /* si llego hasta aca es xq el usuario login ya esta creado y entonces el usuario tambien ya se creo aunque
-        me falten datos, como la app tiene delivery tengo mas instancias para recolectar datos*/ 
-        
+        return res.status(400).json({
+            success: false,
+            msg: `No existe usuario con el email ${email} en nuestra base de Datos`
+        })
 
-        const token = await generateToken(user._id);
-
-        generateRefreshToken(user._id, res);
-
-
-
-         res.status(200).json({
-            success: true,
-            token,
-            user
-            })
-
-
-   } catch (error) {
-        res.status(500).json({
-            msg: 'hable con el administrador',
-            success: false
-        })       
+      }else{      
+        res.status(200).json({
+          success: true,
+          msg: 'Usuario OK'
+        });
+      }
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        msg: 'Ups! algo salió mal, reintentá más tarde'
+      });
     }
-}
+};
 
+const emailToAsyncValidatorRegister = async (req, res) => {
+
+    try {
+      const email = req.query.q;
+      const emailToCheck = email.split('@');
+      let user = null;
+  
+      if (emailToCheck[1].includes(process.env.EMAILSTAFF)) {
+        user = await Staff.findOne({ email });
+      } else {
+        user = await User.findOne({ email });
+      }
+
+      // esto se ve raro xq uso una validacion asyncrona el formularios reactivos
+      if (!user) {
+       
+         return res.status(200).json({
+            success: true,
+            msg: 'Email válido'
+          });
+      }else{
+        return res.status(400).json({
+            success: false,
+            msg: `Ya existe usuario con el email ${email} en nuestra base de Datos`
+        })
+    
+    }
+    
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        msg: 'Ups! algo salió mal, reintentá más tarde'
+      });
+    }
+};
 
 const refreshToken = async (req, res) => {
 
     const _id = req._id
-
     // console.log('_id desde refresh controller', _id);
     try {
         const { token, expiresIn } = generateToken (_id);
-
+        // console.log(token);
         const user = await User.findById(_id) || null;
+        // console.log("desde refreshToken: ", user);
 
 
         
@@ -378,23 +333,21 @@ const refreshToken = async (req, res) => {
     }
 };
 
-
 const logout = (req, res) => {
     
     res.clearCookie("refreshToken");
     res.json({ ok: true });
 };
 
-
-
 module.exports={
     login, 
-    loginStaff,
     signUp,
     confirm,
     phone,
     refreshToken,
     logout,
+    emailToAsyncValidatorLogin,
+    emailToAsyncValidatorRegister,
 
 }
 

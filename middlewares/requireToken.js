@@ -1,8 +1,8 @@
 
 const jwt = require ('jsonwebtoken');
-const  User =  require('../models/user');
-const  Staff =  require('../models/staff');
-const  tokenVerificationErrors   = require ("../helpers/tokenManager");
+const User =  require('../models/user');
+const Staff =  require('../models/staff');
+const tokenVerificationErrors   = require ("../helpers/tokenManager");
 
 
 const requireToken = async ( req, res, next ) => {
@@ -20,19 +20,17 @@ const requireToken = async ( req, res, next ) => {
         token = token.split(" ")[1];
 
         const { _id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY)
-
-        let userAuth;
-        let userStaff;
-        
+        let userAuth = null;
+        let userStaff = null;
 
         // lo tengo separado xq hay dos colecciones de usuarios de la app
          userAuth = await User.findById( _id ) || null;
          userStaff = await Staff.findById( _id ) || null;
 
-
+       
         if(userAuth == null && userStaff == null){
               return res.status(500).json({
-                  msg:'Token no valido - Usuario no existe en DB'
+                  msg:'Token no valido - Usuario no existe en DBdddd'
               })
         }
 

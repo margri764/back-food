@@ -3,13 +3,6 @@ const jwt = require ('jsonwebtoken');
 
 const JWTGenerator = ( _id ) =>{ 
 
-
-
-    // const getToken = (payload) => {
-    //     return jwt.sign({
-    //         data: payload
-    //     }, 'SECRET', { expiresIn: '1h' });
-    // }
     
     return new Promise( (resolve, reject) =>{
 

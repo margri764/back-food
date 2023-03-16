@@ -1,7 +1,8 @@
 const { Router } = require ('express');
 const {check} = require ('express-validator');
-const { checkFields, requireToken, requireRefreshToken } = require('../middlewares')
-const { confirm, signUp, login, phone, loginStaff, refreshToken, logout} = require('../controllers/auth.controllers');
+const { checkFields, requireRefreshToken } = require('../middlewares')
+const { confirm, signUp, login, phone, refreshToken, logout, emailToAsyncValidator, emailToAsyncValidatorLogin, emailToAsyncValidatorRegister} = require('../controllers/auth.controllers');
+const { checkUserEmail } = require('../helpers/check_user_type');
 const router = Router();
 
 // ver si necesito mas checks
@@ -17,13 +18,21 @@ router.post('/signup/phone',[
 
 router.post('/login',[
     check('email','el correo no es valido').isEmail(),
+    check('email').custom( checkUserEmail),
     check('password','El password es obligatorio, mas de 6 letras').not().isEmpty(),
     checkFields
 ],login);
 
+//para valdiacion asyncrona formulario reactivo
+router.get('/emailSyncLogin',[
+], emailToAsyncValidatorLogin);
+
+//para valdiacion asyncrona formulario reactivo
+router.get('/emailSyncRegister',[
+], emailToAsyncValidatorRegister);
+
 // Validar y revalidar token
 router.get( '/renewToken',[
-
     // aca necesito el refreshToken desde Bearer 
     requireRefreshToken
 ] , refreshToken  );

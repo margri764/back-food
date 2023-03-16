@@ -129,7 +129,6 @@ try {
     
     // const { id } = req.params;
     const { ...rest } = req.body;
-
     const userToken = req.userAuth
     
     //busco al usuario de la req por id
@@ -183,14 +182,14 @@ const getSettingUser = async (req, res) => {
          
  
         const result = await Setting.findOne( {user: userToken._id} );
-        
         if(result === null){
             return res.status(200).json({
                 success : false
             })
         }else{
             return res.status(200).json({
-                success : true
+                success : true,
+                result
             })
 
         }
@@ -207,18 +206,15 @@ const getSettingUser = async (req, res) => {
 
 const settingUser = async (req, res) => {
     
-    const { bata, shop, farmacia, email } = req.body;
-    console.log(req.body);
+    const { bata, shop, farmacia, email, typeRequest } = req.body;
 
-    const { typeRequest} = req.query;
+
     const userToken = req.userAuth
-
-    console.log( typeRequest);
 
     if( typeRequest === undefined || typeRequest === ''){
         return res.status(400).json({
             success: false,
-            msg: "No se incluyo ningun valor al campo Setting o en TypeRequest"
+            msg: "No se incluyo ningun valor al campo TypeRequest"
         })
     }
 
@@ -226,8 +222,14 @@ const settingUser = async (req, res) => {
 
         if(typeRequest === "post"){
 
-   
-
+            const findSetting = await Setting.findOne({user:userToken._id}) ?? null;
+            console.log(findSetting);
+            if(findSetting != null || findSetting != undefined){
+                return res.status(400).json({
+                    success: false,
+                    msg: `Ya existe un documento con las Configuraciones para el usuario ${userToken.firstName} ${userToken.lastName}`
+                })
+            }
             const saveSetting = new Setting ( {bata: bata,  shop: shop,  email: email, farmacia: farmacia, user : userToken._id } );
             await saveSetting.save();
 
@@ -239,14 +241,19 @@ const settingUser = async (req, res) => {
 
         if(typeRequest === "put"){
 
-         
+           const result = await Setting.findOneAndUpdate( {user: userToken._id}, {bata: bata,  shop: shop,  email: email, farmacia: farmacia, user : userToken._id}, {new : true} );
 
-           const saveSetting = await Setting.findByIdAndUpdate( {id : userToken._id},{setting}, {new : true})
-           return res.status(200).json({
-                success: true,
-                saveSetting
-           })
-
+           if (result === null) {
+            res.status(404).json({ success: false, msg: 'No se encontró SETTING' });
+           } else if (result.nModified === 0) {
+            res.status(404).json({ success: false, msg: 'No se actualizaron las configuraciones de usuario' });
+           } else {
+            res.status(200).json({ 
+                success : true,
+                result 
+            });
+        }  
+    
         }
 
    } catch (error) {

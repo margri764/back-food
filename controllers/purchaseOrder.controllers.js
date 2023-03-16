@@ -12,12 +12,13 @@ const createOrder= async ( req , res ) => {
         const user = req.userAuth
         const { order, delivery, ...rest }= req.body;
 
+        console.log(req.body);
         
         let arrIDs = [];
         let tempTotal = [];
-        console.log(order)
         
-        order.forEach( item => { arrIDs.push(item.tempOrder) });
+        order.forEach( item => { arrIDs.push(item._id) });
+        console.log(  arrIDs)
 
         tempTotal = order.filter( item =>  item.total);
         tempTotal.forEach( item => { total = item.total });
