@@ -2,8 +2,8 @@
 
 const { Router } = require ('express');
 const { check } = require ('express-validator');
-const { createProduct, getProductByCategory, updateProduct, deleteProduct, updateManyPrice, deleteManyProduct, pauseProductByID, getPausedProduct, pauseCategory, pausePlayCategory, pausePlayProductByID } = require('../controllers/product.controllers');
-const { checkFields, checkTokenStaff, multiRole, requireToken} = require ('../middlewares');
+const { createProduct, updateProduct, deleteProduct, updateManyPrice, deleteManyProduct, getPausedProduct, pausePlayCategory, pausePlayProductByID, getProduct } = require('../controllers/product.controllers');
+const { checkFields, multiRole, requireToken} = require ('../middlewares');
 const { checkFileUp } = require('../middlewares/check-file');
 const { validCategory, validOperation } = require('../helpers/db-validators.js');
 const { checkCategory } = require('../middlewares/check-category');
@@ -45,7 +45,7 @@ router.post('/:category',[
 
 // OJO REVISAR SI CHEQUEA TODO BIEN NO LLEVAN TOKEN xq es lo q se tiene q cargar si o si en el inicio de la app
 router.get('/',[
-], getProductByCategory)
+], getProduct)
 
 
 // los STAFF solo deberian poder pausar un producto, oferta, etc

@@ -208,8 +208,10 @@ const deleteStaff = async (req, res) => {
 
 const pausePlayApp= async (req, res) => {
 
-const { playOrPause } = req.body;
+const { playOrPause, msg } = req.body;
 const staff = req.userAuth; // siempre son user, puede ser staff o cliente
+
+console.log(playOrPause);
 
 // ***** OJO NO BORRAR!!!  solo se usa la primera vez y lo hago yo. Me creo una cuenta como Staff SUPER_ROLE ********
 // *********************** staff/pausePlayApp (desde aca en POSTMAN) *****************************************************
@@ -240,7 +242,7 @@ try {
   uno en el GET APP!!!, 
   dos en createHourly */
 
-const app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
+let app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
 
 if(app == null){
     return res.status(400).json({
@@ -277,10 +279,11 @@ app.statusApp.map((item)=>{ arrState.push(item)})
 arrState.push(staffEditor);
  
 
-await App.findByIdAndUpdate( "63f8b8d794a7c29fe4a94db3", {status : playOrPause, staff : staff._id, statusApp : arrState, msg:msg},{new:true})
+app = await App.findByIdAndUpdate( "63f8b8d794a7c29fe4a94db3", {status : playOrPause, staff : staff._id, statusApp : arrState, msg:msg},{new:true})
 
 res.json({       
-success : true
+    success : true,
+    app,
 });
 
 } catch (error) {
@@ -308,7 +311,9 @@ if(app == null){
 }
 
 let rate = [];
-app.hourRate.forEach(element => { rate.push(element.hour)});
+let tempRate = [];
+tempRate = app.hourRate.filter(element => element.status == true )
+tempRate.forEach(element => { rate.push(element.hour)});
 const check = checkHourly( rate);
     res.json({       
         success : true,
@@ -424,6 +429,40 @@ const updateHourlyRateById = async (req, res) => {
     }
 }
    
+const updateCustomMsg = async (req, res) => {
+
+    const { msg } = req.body;
+
+    console.log(msg);
+
+    try {
+    
+    let app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
+    
+    if(app == null){
+        return res.status(400).json({
+            success: false,
+            msg : 'App no encontrada en BD'
+        })
+    }
+
+   app = await App.findByIdAndUpdate ( app._id ,{ msg:msg}, {new:true});
+
+    res.json({       
+        success : true,
+        app
+    });
+    
+    } catch (error) {
+        console.log("desde: ",error);
+        return res.status(500).json({
+            success: false,
+            msg: 'Error al editar el msg personalizado'
+        });
+    }
+}
+
+
 const deleteHourlyRateById = async (req, res) => {
 
     const { id } = req.params;
@@ -547,6 +586,7 @@ module.exports={
     createHourlyRate,
     updateHourlyRateById,
     deleteHourlyRateById,
+    updateCustomMsg,
     getStaff,
     pausePlayStaffById    
 }

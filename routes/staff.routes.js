@@ -4,7 +4,7 @@ const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
 
-const { createRole, pausePlayApp, getAppState, createHourlyRate, updateHourlyRateById, deleteHourlyRateById, getStaff, createStaff, staffUpdate, deleteStaff, pausePlayStaffById } = require('../controllers/staff.controllers');
+const { createRole, pausePlayApp, getAppState, createHourlyRate, updateHourlyRateById, deleteHourlyRateById, getStaff, createStaff, staffUpdate, deleteStaff, pausePlayStaffById, updateCustomMsg } = require('../controllers/staff.controllers');
 const { superRole, checkFields, multiRole, requireToken } = require('../middlewares')
 const { isStaffRoleValid, checkIdStaff } = require('../helpers/db-validators');
 const { getStaffOrders, editOrderStatus, getStaffOrdersByQuery } = require('../controllers/staffOrders.controllers');
@@ -21,13 +21,18 @@ router.post('/createStaff',[
     check('role').custom( role => isStaffRoleValid(role)),
     checkFields
     
-],createStaff); 
+], createStaff); 
+
+router.patch('/updateCustomMsg', [
+    requireToken,
+    multiRole("SUPER_ROLE","ADMIN_ROLE"),
+], updateCustomMsg);
 
 router.get('/getStaff',[
     requireToken,
     multiRole("SUPER_ROLE","ADMIN_ROLE"),
     checkFields
-],getStaff); 
+], getStaff); 
 
 router.put('/editStaff/:id',[
     requireToken,
@@ -52,19 +57,11 @@ router.patch('/pausePlayStaff/:id',[
     checkFields  
 ], pausePlayStaffById)
 
-// router.post('/createAdmin',[
-//     requireToken,
-//     superRole,
-//     checkFields
-    
-// ],userPost); 
-
 
 router.post('/createRole',[
     requireToken,
     superRole,
     checkFields
-    
 ],createRole); 
 
 // obtengo todas las ordenes
@@ -80,20 +77,6 @@ router.get('/orders/byQuery',[
     multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
     checkFields
 ], getStaffOrdersByQuery); 
-
-// quiero REFORMAR!!!
-// router.get('/ordersNoProcess',[
-//     requireToken,
-//     multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
-//     checkFields
-// ], getStaffOrdersNoProcess); 
-
-// son los productos q se editan en el dashboard
-router.get('/product',[
-    requireToken,
-    multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
-    checkFields
-], getStaffProducts); 
 
 // no lleva token xq es lo q primero hace la app
 router.get('/appState',[

@@ -127,6 +127,7 @@ const getStaffOrders= async ( req , res ) => {
         })
         
     } catch (error) {
+        console.log('desde GetStaff Orders: ', error);
         return res.status(500).json ({
             success : false,
             msg : `Ooops algo salió mal al intentar obtener las ordenes de compra `

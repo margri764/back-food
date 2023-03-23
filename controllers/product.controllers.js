@@ -10,7 +10,6 @@ const cloudinary= require ('cloudinary').v2;
 cloudinary.config( process.env.CLOUDINARY_URL);
 
 
-
 const createProduct =  async (req, res) => {
     
     const { category }  = req.params;
@@ -93,96 +92,71 @@ res.status(200).json({
 
 const getProductByCategory = async (req, res) => {
 
-  //la idea con esto es q los arreglos de comidas se llenen con categorias q existan en BD
-
-const findCatOne  = await    Category.findOne( {name: "BURGER"} )  || null;
-const findCatTwo  = await    Category.findOne( {name: "PIZZA"} )   || null;
-const findCatThree = await   Category.findOne( {name: "HEALTHY"} ) || null;
-const findCatFour = await    Category.findOne( {name: "VEGAN"} )   || null;
-const findCatFive = await    Category.findOne( {name: "DRINK"} )   || null;
-const findCatSix  = await    Category.findOne( {name: "FRIES"} )   || null;
-const findCatSeven  = await  Category.findOne( {name: "OFFER"} )   || null;
+  const userOrStaff = req.query.whoIs;
 
 
-// OJO VALIDAR SI ESTAN EN STOCK O EXISTEN EN BD!!!!!!!!!!!!!!!!!
-
-let burger  =  []; // one
-let pizza   =  []; // two
-let healthy =  []; // three
-let vegan   =  []; // four
-let drink   =  []; // five
-let fries   =  []; // six
-let offer   =  []; // seven
-
-
- [ burger, pizza, healthy, vegan, drink, fries, offer ] = await Promise.all([
-   
-   (findCatOne != null) ? burger = await Product.find( {status : true, stock: true, category : findCatOne._id} ).populate("category", ["name","state"]) : [],
-   (findCatTwo != null) ? pizza = await Product.find( {status : true, stock: true, category : findCatTwo._id} ).populate("category", ["name","state"]) : [],
-   (findCatThree != null) ? healthy = await Product.find( {status : true, stock: true, category : findCatThree._id} ).populate("category", ["name","state"]) : [],
-   (findCatFour != null) ? vegan = await Product.find( {status : true, stock: true, category : findCatFour._id} ).populate("category", ["name","state"]) : [],
-   (findCatFive != null) ? drink = await Product.find( {status : true, stock: true, category : findCatFive._id} ).populate("category", ["name","state"]):[],
-   (findCatSix != null) ? fries = await Product.find( {status : true, stock: true, category : findCatSix._id} ).populate("category", ["name","state"]) : [],
-   (findCatSeven != null) ? offer = await Product.find( {status : true, stock: true, category : findCatSeven._id} ).populate("category", ["name","state"]) : []
-])
-
-res.json({
-      burger,
-      pizza,
-      healthy,
-      vegan,
-      drink,
-      fries,
-      offer 
+  if (userOrStaff === undefined || userOrStaff === null) {
+    return res.status(400).json({
+      success: false,
+      msg: 'Se debe especificar si es una petición de un usuario o de un miembro del staff'
+    });
+  }
+  
+  const categoryNames = ["BURGER", "PIZZA", "HEALTHY", "VEGAN", "DRINK", "FRIES", "OFFER"];
+  const categories = {};
+  
+  for (const categoryName of categoryNames) {
+    const category = await Category.findOne({ name: categoryName });
+  
+    if (category && userOrStaff == "user" ) {
+      const products = await Product.find({ status: true, stock: true, category: category._id }).populate("category", ["name", "state"]);
+      categories[categoryName] = products;
+    } 
+    else {
+      categories[categoryName] = [];
+    }
+  }
+  console.log(userOrStaff);
+  
+  
+  res.status(200).json({
+    burger: categories.BURGER,
+    pizza: categories.PIZZA,
+    healthy: categories.HEALTHY,
+    vegan: categories.VEGAN,
+    drink: categories.DRINK,
+    fries: categories.FRIES,
+    offer: categories.OFFER
   });
 }
 
-const getStaffProducts= async (req, res) => {
+const getProduct= async (req, res) => {
 
-  //la idea con esto es q los arreglos de comidas se llenen con categorias q existan en BD
+const categoryNames = ["BURGER", "PIZZA", "HEALTHY", "VEGAN", "DRINK", "FRIES", "OFFER"];
+const categories = {};
 
-const findCatOne  = await Category.findOne( {name: "BURGER"} )  || null;
-const findCatTwo  = await Category.findOne( {name: "PIZZA"} )   || null;
-const findCatThree = await Category.findOne( {name: "HEALTHY"} ) || null;
-const findCatFour = await Category.findOne( {name: "VEGAN"} )   || null;
-const findCatFive = await Category.findOne( {name: "DRINK"} )   || null;
-const findCatSix  = await Category.findOne( {name: "FRIES"} )   || null;
-const findCatSeven  = await Category.findOne( {name: "OFFER"} )   || null;
+for (const categoryName of categoryNames) {
+  const category = await Category.findOne({ name: categoryName });
 
-// OJO VALIDAR SI ESTAN EN STOCK O EXISTEN EN BD!!!!!!!!!!!!!!!!!
+  if (category ) {
+    const products = await Product.find({ status: true, category: category._id }).populate("category", ["name", "state"]);
+    categories[categoryName] = products;
+  } 
+  else {
+    categories[categoryName] = [];
+  }
+}
 
-let burger  =  []; // one
-let pizza   =  []; // two
-let healthy =  []; // three
-let vegan   =  []; // four
-let drink   =  []; // five
-let fries   =  []; // six
-let offer   =  []; // seven
+res.status(200).json({
+  burger: categories.BURGER,
+  pizza: categories.PIZZA,
+  healthy: categories.HEALTHY,
+  vegan: categories.VEGAN,
+  drink: categories.DRINK,
+  fries: categories.FRIES,
+  offer: categories.OFFER
+});
 
-
- [ burger, pizza, healthy, vegan, drink, fries, offer ] = await Promise.all([
- 
-
-   
-   (findCatOne != null) ? burger = await Product.find( {status : true, category : findCatOne._id} ).populate("category", ["name","state"]) : [],
-   (findCatTwo != null) ? pizza = await Product.find( {status : true, category : findCatTwo._id} ).populate("category", ["name","state"]) : [],
-   (findCatThree != null) ? healthy = await Product.find( {status : true, category : findCatThree._id} ).populate("category", ["name","state"]) : [],
-   (findCatFour != null) ? vegan = await Product.find( {status : true, category : findCatFour._id} ).populate("category", ["name","state"]) : [],
-   (findCatFive != null) ? drink = await Product.find( {status : true, category : findCatFive._id} ).populate("category", ["name","state"]):[],
-   (findCatSix != null) ? fries = await Product.find( {status : true, category : findCatSix._id} ).populate("category", ["name","state"]) : [],
-   (findCatSeven != null) ? offer = await Product.find( {status : true, category : findCatSeven._id} ).populate("category", ["name","state"]) : []
-])
-
-
-res.json({
-      burger,
-      pizza,
-      healthy,
-      vegan,
-      drink,
-      fries,
-      offer
-  });
 }
 
 const updateProduct = async ( req, res) => {
@@ -288,7 +262,7 @@ tempProduct = {
 }
   
   const product= await Product.findByIdAndUpdate( productEdit._id, tempProduct,{new:true})
-  
+  console.log(product);
 
   res.json( {
     success: true,  
@@ -467,12 +441,12 @@ const deleteProduct = async (req, res) => {
     
     // }
     
-     await Product.findByIdAndUpdate( product.id,  { status : false , rest },{ new:true });
+      product = await Product.findByIdAndUpdate( product.id,  { status : false , rest },{ new:true }).populate("category", "name");
 
-
+console.log(product);
   res.json({ 
       success: true,
-      msg: "Producto eliminado correctamente",      
+      product      
   });
 
 
@@ -545,12 +519,13 @@ const pausePlayProductByID = async (req, res) => {
       if(pauseOrPlay == "false" ){
           product = await Product.findByIdAndUpdate( product.id,  { stock : false , rest },{ new:true }).populate("category", "name");
       }else{
-        product = await Product.findByIdAndUpdate( product.id,  { stock : true , rest },{ new:true }).populate("category", "name");;
+        product = await Product.findByIdAndUpdate( product.id,  { stock : true , rest },{ new:true }).populate("category", "name");
       }
     
       res.json({ 
         success: true,
-        category: product.category      
+        category: product.category, 
+        product      
        });
 
     } catch (error) {
@@ -616,12 +591,12 @@ const pausePlayCategory = async (req, res) => {
 
  // esto es la pausa
      if(isPaused == "false" ){
-         await Product.findByIdAndUpdate( product.id,  { stock : false , rest },{ new:true });
+         await Product.findByIdAndUpdate( product.id,  { stock : false , rest },{ new:true }).populate("category", "name");
      } 
      
      if(isPaused == "true"){
 
-       await Product.findByIdAndUpdate( product.id,  { stock : true , rest },{ new:true });
+       await Product.findByIdAndUpdate( product.id,  { stock : true , rest },{ new:true }).populate("category", "name");
      }
   
    
@@ -691,7 +666,7 @@ module.exports = {
               updateManyPrice,
               deleteManyProduct,
               pausePlayProductByID,
-              getStaffProducts,
+              getProduct,
               pausePlayCategory
 
 }
