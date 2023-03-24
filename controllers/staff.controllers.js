@@ -103,13 +103,8 @@ const getUserById = async (req,res=response)=>{
 
 const getStaff = async (req,res=response)=>{
 
-    // let staff  = await Staff.find({
-    //     $and:[
-    //           { stateAccount : true}
-    //         ]})
 
-   let staff  = await Staff.find();
-   
+    let staff = await Staff.find({ fullName: { $ne: 'no-staff' }, stateAccount: true });
    
     if( !staff){
         return res.status(400).json({
@@ -211,7 +206,6 @@ const pausePlayApp= async (req, res) => {
 const { playOrPause, msg } = req.body;
 const staff = req.userAuth; // siempre son user, puede ser staff o cliente
 
-console.log(playOrPause);
 
 // ***** OJO NO BORRAR!!!  solo se usa la primera vez y lo hago yo. Me creo una cuenta como Staff SUPER_ROLE ********
 // *********************** staff/pausePlayApp (desde aca en POSTMAN) *****************************************************
@@ -462,7 +456,6 @@ const updateCustomMsg = async (req, res) => {
     }
 }
 
-
 const deleteHourlyRateById = async (req, res) => {
 
     const { id } = req.params;
@@ -532,7 +525,7 @@ const pausePlayStaffById = async (req, res) => {
    
        // si viene FALSE significa q quiero pausar  
          if(pauseOrPlay == "false" ){
-            result = await Staff.findByIdAndUpdate( staff._id,  { stateAccount : false , rest },{ new:true });
+            result = await Staff.findByIdAndUpdate( staff._id,  { status: false , rest },{ new:true });
             console.log(pauseOrPlay);
             if (result === null) {
                 res.status(404).json({ success: false, msg: 'No se encontró el miembro del Staff' });
@@ -548,7 +541,7 @@ const pausePlayStaffById = async (req, res) => {
 
 
          }else{
-           result = await Staff.findByIdAndUpdate( staff._id,  { stateAccount : true , rest },{ new:true });
+           result = await Staff.findByIdAndUpdate( staff._id,  { status : true , rest },{ new:true });
          
            if (result === null) {
             res.status(404).json({ success: false, msg: 'No se encontró el miembro del Staff' });
@@ -560,10 +553,7 @@ const pausePlayStaffById = async (req, res) => {
                     msg: "Staff ativado correctamente"
                 });
             }  
-    
          }
-       
-   
        } catch (error) {
      
          console.log('desde pausePlayStaffByID: ', error);
@@ -572,7 +562,7 @@ const pausePlayStaffById = async (req, res) => {
            msg: "Opps algo salió mal al intentar PAUSAR/ACTIVAR un STAFF"
          })
        }
-   }
+}
    
 
 module.exports={

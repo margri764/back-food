@@ -48,7 +48,11 @@ const StaffSchema = Schema({
         type: Boolean,
         default: true
     },
-
+    
+    status: {
+        type: Boolean,
+        default: true
+    },
     }, { timestamps:true}
     );
 

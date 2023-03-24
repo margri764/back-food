@@ -261,8 +261,7 @@ tempProduct = {
 
 }
   
-  const product= await Product.findByIdAndUpdate( productEdit._id, tempProduct,{new:true})
-  console.log(product);
+  const product= await Product.findByIdAndUpdate( productEdit._id, tempProduct,{new:true}).populate("category", ["name", "state"]);
 
   res.json( {
     success: true,  
