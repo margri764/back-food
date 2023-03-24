@@ -25,7 +25,7 @@ const userGet = async (req,res=response)=>{
     });
 }
 
-const getUserById = async (req,res=response)=> {
+const getUserByToken = async (req,res=response)=> {
 
     // const { id }  = req.params;
     const userToken = req.userAuth
@@ -69,6 +69,34 @@ const getUserById = async (req,res=response)=> {
             });
         }
 }
+
+const getAllUsers = async (req, res=response)=> {
+
+    try {
+        const users = await User.find();
+
+        if (users.length === 0) {
+          return res.status(404).json({
+            success: false,
+            msg: 'No se encontraron usuarios'
+          });
+        }
+
+            res.status(200).json({ 
+            success : true,
+            users
+        
+        });
+
+        } catch (error) {
+            console.log("error desde get AllUser: ",error);
+            return res.status(500).json({
+                success: false,
+                msg: 'Error al obtener todos los usuarios'
+            });
+        }
+}
+
 
 const userPost= async (req, res = response) => {
     
@@ -158,18 +186,33 @@ try {
 
 }
 
-const usersDelete= async (req, res) => {
+const userDelete= async (req, res) => {
 
     const { id } = req.params;
 
-    const user = await User.findByIdAndUpdate(id,{state:false})
-    const usuarioAuth = req.usuarioAuth;
+    try {
+        const user = await User.findByIdAndUpdate(id, {state:false}, {new:true})
 
-    res.json({       
-        user,
-        usuarioAuth
-        
-    });
+        if(user == null){
+            return res.status(400).json({
+                success: false,
+                masg: 'Usuario no encontrado'
+            })
+        }
+    
+        res.status(200).json({    
+            success: true,   
+            user,
+        });
+    } catch (error) {
+        console.log('desde deleteUser: ', error);
+        return res.status(500).json({
+            success: false,
+            msg: 'Error al eliminar usuario'
+        });
+    }
+
+
 }
 
 const getSettingUser = async (req, res) => {
@@ -272,8 +315,9 @@ module.exports={
     userGet,
     userPost,
     userPut,
-    usersDelete,
-    getUserById,
+    userDelete,
+    getUserByToken,
     settingUser,
-    getSettingUser
+    getSettingUser,
+    getAllUsers
 }

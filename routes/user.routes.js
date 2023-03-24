@@ -1,7 +1,7 @@
 
 const { Router } = require ('express');
 const { check } = require ('express-validator');
-const { userPost, userPut, getUserById, usersDelete, settingUser, getSettingUser} = require('../controllers/user.controllers');
+const { userPost, userPut, userDelete, settingUser, getSettingUser, getUserByToken, getAllUsers} = require('../controllers/user.controllers');
 const { checkFields, multiRole, requireToken, userRole } = require('../middlewares');
 const { isRoleValid, checkEmail, checkId } = require('../helpers/db-validators');
 const router = Router();
@@ -28,7 +28,12 @@ router.patch('/address',[
 
 router.get('/',[
     requireToken,
-], getUserById);
+], getUserByToken);
+
+router.get('/getAllUser',[
+    requireToken,
+], getAllUsers);
+
 
 //el requireToken,proteje esta ruta con los JWT para q no sea publica 
 router.delete('/:id',[
@@ -37,7 +42,7 @@ router.delete('/:id',[
     check('id','No es un id valido de mongoDB').isMongoId(),
     check('id').custom( checkId ),
     checkFields
-], usersDelete);
+], userDelete);
 
 router.post("/setting", [
     requireToken
