@@ -88,6 +88,14 @@ const TempPurchaseOrderSchema = Schema({
         deafault : 1
     },
 
+
+    customMenu :[ 
+                {
+                  type: String,
+                  default: []
+                },
+    ],
+
     total:{
         type: Number,
         required : true

@@ -4,9 +4,7 @@ const User = require ('../models/user');
 const UserSignUp = require ('../models/userSignUp');
 const Staff = require ('../models/staff');
 const Setting = require ('../models/setting');
-
-
-
+const PurchaseOrder = require ('../models/purchaseOrder');
 
 const userGet = async (req,res=response)=>{
 
@@ -82,10 +80,10 @@ const getAllUsers = async (req, res=response)=> {
           });
         }
 
-            res.status(200).json({ 
-            success : true,
-            users
-        
+        res.status(200).json({ 
+        success : true,
+        users
+    
         });
 
         } catch (error) {
@@ -191,7 +189,7 @@ const userDelete= async (req, res) => {
     const { id } = req.params;
 
     try {
-        const user = await User.findByIdAndUpdate(id, {state:false}, {new:true})
+        const user = await User.findByIdAndUpdate(id, {stateAccount:false}, {new:true})
 
         if(user == null){
             return res.status(400).json({
@@ -209,6 +207,36 @@ const userDelete= async (req, res) => {
         return res.status(500).json({
             success: false,
             msg: 'Error al eliminar usuario'
+        });
+    }
+
+
+}
+
+const activeUserAccount= async (req, res) => {
+
+    const { _id } = req.body;
+
+    try {
+        const result = await User.findByIdAndUpdate(_id, {stateAccount:true}, {new:true})
+
+        if (result === null) {
+            res.status(404).json({ success: false, msg: 'No se encontró el Usuario' });
+        } else if (result.nModified === 0) {
+            res.status(404).json({ success: false, msg: 'No se activo el Usuario'});
+        } else {
+            res.status(200).json({ 
+                success : true,
+                msg: result 
+            });
+        } 
+    
+    
+    } catch (error) {
+        console.log('desde activeUserAccount: ', error);
+        return res.status(500).json({
+            success: false,
+            msg: 'Error al activar usuario'
         });
     }
 
@@ -266,7 +294,7 @@ const settingUser = async (req, res) => {
         if(typeRequest === "post"){
 
             const findSetting = await Setting.findOne({user:userToken._id}) ?? null;
-            console.log(findSetting);
+
             if(findSetting != null || findSetting != undefined){
                 return res.status(400).json({
                     success: false,
@@ -309,6 +337,43 @@ const settingUser = async (req, res) => {
     
 };
 
+// const getUserHistoryPurchases = async (req, res) => {
+    
+//     const {_id, firstName, lastName} = req.body
+
+//     try {
+//         const orders = PurchaseOrder.find( {user: _id, finished:true} ) || null;
+    
+//         if(orders ==null){
+//             return res.status(400).json({
+//                 success: false,
+//                 msg: `Ordenes no encontradas para el usuario ${firstName} ${lastName}`
+//             })
+//         }else{
+//             return res.status(200).json ({
+//                 success: true,
+//                 orders
+//             })
+//         }
+        
+//     } catch (error) {
+//         console.log('error desde settigetUserHistoryPurchasesngUser: ', error);
+//         res.status(500).json({
+//             msg: 'Error al intentar obtener ordenes de Usuario',
+//             success: false
+//         })   
+//     }
+  
+    
+   
+
+//     res.json({ 
+//       usuarios
+
+//     });
+// };
+
+
 
 
 module.exports={
@@ -319,5 +384,7 @@ module.exports={
     getUserByToken,
     settingUser,
     getSettingUser,
-    getAllUsers
+    getAllUsers,
+    activeUserAccount,
+    // getUserHistoryPurchases
 }

@@ -15,11 +15,10 @@ const mainProdValidator = async ( product )=>{
 
     
     const productVal = await Product.find({_id : { $in: arrIDs }});
-
     // con esto valido si alguna bebida esta NO EXISTE en BD
     if(productVal){
         if(arrIDs.length !== productVal.length){
-            throw new Error (`No existe en BD unas de las bebidas, invalidar pedido y forzar reload de productos en el front`)
+            throw new Error (`No existe el producto principal, invalidar pedido y forzar reload de productos en el front`)
         }
     }
 
@@ -46,9 +45,7 @@ const drinkValidator = async ( drink )=>{
 
       drink.forEach( item => { arrIDs.push(item._id) });
 
-    
     const product = await Product.find({_id : { $in: arrIDs }});
-
     // con esto valido si alguna bebida esta NO EXISTE en BD
     if(product){
         if(arrIDs.length !== product.length){

@@ -1,7 +1,7 @@
 
 const { Router } = require ('express');
 const { check } = require ('express-validator');
-const { userPost, userPut, userDelete, settingUser, getSettingUser, getUserByToken, getAllUsers} = require('../controllers/user.controllers');
+const { userPost, userPut, userDelete, settingUser, getSettingUser, getUserByToken, getAllUsers, activeUserAccount} = require('../controllers/user.controllers');
 const { checkFields, multiRole, requireToken, userRole } = require('../middlewares');
 const { isRoleValid, checkEmail, checkId } = require('../helpers/db-validators');
 const router = Router();
@@ -24,6 +24,12 @@ router.patch('/address',[
     userRole ('SUPER_ROLE'),
     checkFields  
 ], userPut)
+
+router.patch('/activeUserAccount',[
+    requireToken,
+    userRole ('SUPER_ROLE'),
+    checkFields  
+], activeUserAccount)
 
 
 router.get('/',[

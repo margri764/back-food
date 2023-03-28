@@ -295,7 +295,7 @@ const getAppState= async (req, res) => {
 try {
 
     // son 3!!!!!! id q tengo q pone en duro
-const app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
+let app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
 
 if(app == null){
     return res.status(400).json({
@@ -304,11 +304,18 @@ if(app == null){
     })
 }
 
-let rate = [];
-let tempRate = [];
-tempRate = app.hourRate.filter(element => element.status == true )
-tempRate.forEach(element => { rate.push(element.hour)});
-const check = checkHourly( rate);
+    let rate = [];
+    let tempRate = [];
+    tempRate = app.hourRate.filter(element => element.status == true )
+    tempRate.forEach(element => { rate.push(element.hour)});
+    const check = checkHourly( rate);
+
+    // if(check){
+    //     app = await App.findByIdAndUpdate( app._id, {status: true}, {new:true})
+    // }else{
+    //     app = await App.findByIdAndUpdate( app._id, {status: false}, {new:true})
+    // }
+
     res.json({       
         success : true,
         app,

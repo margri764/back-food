@@ -5,6 +5,7 @@ const User = require ('../models/user');
 const PurchaseOrder = require('../models/purchaseOrder');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const Product = require('../models/product');
+const updateStock = require('../helpers/stock-managment');
 
 
 const createTempOrder = async ( req , res ) => {
@@ -13,21 +14,37 @@ const createTempOrder = async ( req , res ) => {
 
      try {
 
-      const {productID, drink, fries, otherExpenses, ...rest}= req.body;
+      const {productID, drink, fries, otherExpenses, customMenu,  ...rest}= req.body;
+  
+      let productIDs = [];
+ 
+          productID.forEach((product) => {
+          productIDs.push( {_id:product._id, quantity : product.quantity} ); 
+          });
+          
+          drink.forEach((drink) => {
+          productIDs.push( {_id:drink._id, quantity : drink.quantity} );
+          });
 
-      //  guardo el plato principal
-      //  const product = await Product.findById(productID) || null;
+          fries.forEach((fries) => {
+          productIDs.push( {_id:fries._id, quantity : fries.quantity} );
+          });
 
-       
-       //si llego hasta aca es xq ya paso por los helpers q controlan que las bebidas q vienen en la peticion esten en stock y existan. No hago mas valdiaciones xq en el peor de los casos vendra un array vacio y  propiedad otherExpenses quedara como un array vacio
-       
+
+          // controlo si hay stock de esos productos
+          for (let i = 0; i < productIDs.length; i++) {
+            const item = productIDs[i];
+             await updateStock(item);
+
+          }
       
       const tempOrder = {
-          user : user,
+          user    : user,
           product : productID,
-          drink : drink,
-          fries : fries,
-          total : req.body.total,
+          drink   : drink,
+          fries   : fries,
+          total   : req.body.total,
+          customMenu : customMenu, 
           // otherExpenses : tempProductArray,
           ...rest
       }
@@ -43,6 +60,18 @@ const createTempOrder = async ( req , res ) => {
       })
       
      } catch (error) {
+
+      console.log('Error desde CreateTempOrder: ', error);
+      let errorMessage = 'Ooops algo salio mal al crear la orden';
+    
+      // Verificamos si el error es específico generado en la condición "if"
+      if (error.message.includes('No hay suficiente stock disponible para el producto')) {
+        errorMessage = error.message;
+      }
+        return res.status(500).json({
+            success: false,
+            msg: errorMessage
+        })
 
       return res.status(500).json({
         success: false,
