@@ -171,6 +171,50 @@ const deleteTempOrder= async (req, res) => {
   
 }
 
+const delTempOrderIfNoStock= async (req, res) => {
+ 
+  try {
+  
+     const arrIds  = req.params;
+    console.log('desde delTempOrder',arrIds);
+     let tempIDS= [];
+     let tempID ;
+
+        // controlo si hay stock de esos productos
+        for (let i = 0; i < arrIds.length; i++) {
+        const id = arrIds[i];
+        tempID= await checkIfExistTempOrder(id);
+        tempIDS.push(tempID)
+
+        console.log(tempIDS);
+      }
+
+    //  await TempPurchaseOrder.deleteMany({ _id: { $in: tempIDS } });
+   
+   
+    //  res.json({ 
+    //    success: true,
+    //    msg: "Orden eliminada correctamente",      
+    //  });
+
+  
+  } catch (error) {
+
+    console.log('Error desde delTempOrderIfNoStock: ', error);
+    let errorMessage = 'Ooops algo salio mal al intentar eliminar ordenes temporales';
+  
+    if (error.message.includes('No se encuentra la order Temporal para ser eliminada')) {
+      errorMessage = error.message;
+    }
+      return res.status(500).json({
+          success: false,
+          msg: errorMessage
+      })
+  }
+  
+}
+
+
 const tempOrderEdit= async (req, res) => {
  
 
@@ -223,6 +267,7 @@ module.exports={
         getTempOrder,
         deleteTempOrder,
         tempOrderEdit,
-        deleteManyTempOrder
+        deleteManyTempOrder,
+        delTempOrderIfNoStock
 
 }

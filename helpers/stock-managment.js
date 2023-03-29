@@ -20,5 +20,18 @@ const updateStock  = async (productId,) => {
     return {_id: existingProduct._id, quantity: updatedQuantity}
   }
 
+  
+const checkIfExistTempOrder  = async (tempOrderId) => {
 
-module.exports=  updateStock
+      const existingOrder = await TempPurchaseOrder.findOne({_id: tempOrderId});
+
+      console.log('desde checkIfEx: ', tempOrderId);
+      if (existingOrder === null) {
+        throw new Error(`No se encuentra la order Temporal para ser eliminada` );
+      }
+ 
+      return existingOrder._id
+    }
+  
+
+module.exports =  {updateStock, checkIfExistTempOrder}

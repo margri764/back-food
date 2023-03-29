@@ -5,7 +5,7 @@
 
 const { Router } = require ('express');
 const {check} = require ('express-validator');
-const { createTempOrder, getTempOrder, deleteTempOrder, tempOrderEdit, deleteManyTempOrder } = require('../controllers/tempPurchaseOrder.controllers');
+const { createTempOrder, getTempOrder, deleteTempOrder, tempOrderEdit, deleteManyTempOrder, delTempOrderIfNoStock } = require('../controllers/tempPurchaseOrder.controllers');
 const checkProduct = require('../helpers/check-product');
 const router = Router();
 const { requireToken, multiRole, checkFields    } = require('../middlewares');
@@ -28,8 +28,12 @@ router.get('/',[
 ],getTempOrder);
 
 router.delete('/:id',[
-    requireToken,
+    requireToken
 ],deleteTempOrder);
+
+router.delete('/tempOrderNoStock/deleteMany',[
+    requireToken
+], delTempOrderIfNoStock);
 
 router.put('/',[
     requireToken,

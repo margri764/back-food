@@ -4,7 +4,7 @@
 const PurchaseOrder = require('../models/purchaseOrder');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const Product = require('../models/product');
-const updateStock  = require('../helpers/stock-managment');
+const {updateStock}  = require('../helpers/stock-managment');
 
 const createOrder= async ( req , res ) => {
 
@@ -51,15 +51,15 @@ const createOrder= async ( req , res ) => {
                  });
              });
 
-            //  console.log(productIDs);
-
-            // controlo si hay stock de esos productos
-            for (let i = 0; i < productIDs.length; i++) {
-              const item = productIDs[i];
-              productToUpdate= await updateStock(item);
-              productsToUpdate.push(productToUpdate)
-
-            }
+             
+             // controlo si hay stock de esos productos
+             for (let i = 0; i < productIDs.length; i++) {
+               let item = productIDs[i];
+               productToUpdate= await updateStock(item);
+               productsToUpdate.push(productToUpdate)
+               
+              }
+              console.log('paso por create order');
 
             const productUpdates = productsToUpdate.map(item => ({
               updateOne: {
