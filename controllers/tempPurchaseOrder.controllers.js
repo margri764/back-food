@@ -1,11 +1,12 @@
 
 
 
+const cron = require('node-cron');
 const User = require ('../models/user');
 const PurchaseOrder = require('../models/purchaseOrder');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const Product = require('../models/product');
-const updateStock = require('../helpers/stock-managment');
+const {updateStock, checkIfExistTempOrder, updateStockFromTempOrder} = require('../helpers/stock-managment');
 
 
 const createTempOrder = async ( req , res ) => {
@@ -31,10 +32,11 @@ const createTempOrder = async ( req , res ) => {
           });
 
 
-          // controlo si hay stock de esos productos
+          /* controlo si hay stock de esos productos. Si uno de los productos esta sin stock en el front se hace la redireccion al home
+          para q elija otra opcion */
           for (let i = 0; i < productIDs.length; i++) {
             const item = productIDs[i];
-             await updateStock(item);
+             await updateStockFromTempOrder(item);
 
           }
       
@@ -54,7 +56,7 @@ const createTempOrder = async ( req , res ) => {
   
       order.save()
   
-      res.status(200).json({
+      return res.status(200).json({
           success: true,
           order,
       })
@@ -65,19 +67,14 @@ const createTempOrder = async ( req , res ) => {
       let errorMessage = 'Ooops algo salio mal al crear la orden';
     
       // Verificamos si el error es específico generado en la condición "if"
-      if (error.message.includes('No hay suficiente stock disponible para el producto')) {
+      if (error.message.includes('Producto ')) {
         errorMessage = error.message;
       }
         return res.status(500).json({
             success: false,
             msg: errorMessage
         })
-
-      return res.status(500).json({
-        success: false,
-        msg: "OOOps!!! algo salio mal al crear la orden temporal"
-      })
-      
+ 
      }
     
 }
@@ -175,27 +172,24 @@ const delTempOrderIfNoStock= async (req, res) => {
  
   try {
   
-     const arrIds  = req.params;
-    console.log('desde delTempOrder',arrIds);
+     const ids  = req.query.ids[0].split(',');
      let tempIDS= [];
      let tempID ;
-
+     
         // controlo si hay stock de esos productos
-        for (let i = 0; i < arrIds.length; i++) {
-        const id = arrIds[i];
+        for (let i = 0; i < ids.length; i++) {
+        const id = ids[i];
         tempID= await checkIfExistTempOrder(id);
         tempIDS.push(tempID)
-
-        console.log(tempIDS);
       }
 
-    //  await TempPurchaseOrder.deleteMany({ _id: { $in: tempIDS } });
+     await TempPurchaseOrder.deleteMany({ _id: { $in: tempIDS } });
    
    
-    //  res.json({ 
-    //    success: true,
-    //    msg: "Orden eliminada correctamente",      
-    //  });
+     return res.status(200).json({ 
+       success: true,
+       msg: "Orden eliminada correctamente",      
+     });
 
   
   } catch (error) {
@@ -262,12 +256,36 @@ const deleteManyTempOrder= async (req, res) => {
   
 }
 
+const delTempOrderByTime= async (req, res) => {
+ 
+  try {
+
+    cron.schedule('0 11:52 * * *', () => {
+      TempPurchaseOrder.deleteMany({ statusOrder: 'INCOMPLETE' })
+      console.log('se elimino las ordenes en incomplete ');
+    })
+
+    
+
+    
+    } catch (error) {
+      console.log('error desde delTempOrderByTime: ', error);
+    
+      return res.status(500).json({
+        success: false,
+        msg: "Oops algo salió mal al intentar eliminar tosas las ordenes temporales"
+      })
+    }
+  
+}
+
 module.exports={
         createTempOrder,
         getTempOrder,
         deleteTempOrder,
         tempOrderEdit,
         deleteManyTempOrder,
-        delTempOrderIfNoStock
+        delTempOrderIfNoStock,
+        delTempOrderByTime
 
 }

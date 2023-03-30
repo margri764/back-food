@@ -5,6 +5,8 @@ const cors = require ('cors');
 var cookieParser = require('cookie-parser');
 const { dbConnection } = require('../db/config.db');
 const fileUpload = require('express-fileupload');
+const  startCronJob  = require('../tasks/delete-tempOrders');
+
 
 class Server{
 
@@ -15,6 +17,7 @@ class Server{
         this.conectarDB();
         this.middlewares();
         this.routes();
+        startCronJob();
         
     }
 

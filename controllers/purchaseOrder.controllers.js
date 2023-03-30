@@ -14,7 +14,6 @@ const createOrder= async ( req , res ) => {
         const user = req.userAuth
         const { order, delivery, ...rest }= req.body;
 
-        
         let arrIDs = [];
         let tempTotal = [];
         let productToUpdate = [];
@@ -37,20 +36,20 @@ const createOrder= async ( req , res ) => {
                 deberia validar al momento de crear la orden temporal si es q hay stock o sea doble validacion xq esta el caso de 
                 que crea una orden temporal, espera media hora y hace la compra, en esos casos pueda que haya stock al momento de crearla
                 pero no al momento de comprarla */
-             orderIds.forEach((order) => {
-                 order.product.forEach((product) => {
-                 productIDs.push( {_id:product._id, quantity : product.quantity} ); 
-                 });
-                 
-                 order.drink.forEach((drink) => {
-                 productIDs.push( {_id:drink._id, quantity : drink.quantity} );
-                 });
-
-                 order.fries.forEach((fries) => {
-                 productIDs.push( {_id:fries._id, quantity : fries.quantity} );
-                 });
-             });
-
+              orderIds.forEach((order) => {
+                const orderId = order._id; // Acceder al _id del objeto order
+                // console.log('order:   ', order);
+                order.product.forEach((product) => {
+                  productIDs.push({_id: product._id, quantity: product.quantity, orderId: orderId});
+                });
+                order.drink.forEach((drink) => {
+                  productIDs.push({_id: drink._id, quantity: drink.quantity, orderId: orderId});
+                });
+                order.fries.forEach((fries) => {
+                  productIDs.push({_id: fries._id, quantity: fries.quantity, orderId: orderId});
+                });
+              });
+                
              
              // controlo si hay stock de esos productos
              for (let i = 0; i < productIDs.length; i++) {
@@ -59,7 +58,6 @@ const createOrder= async ( req , res ) => {
                productsToUpdate.push(productToUpdate)
                
               }
-              console.log('paso por create order');
 
             const productUpdates = productsToUpdate.map(item => ({
               updateOne: {
