@@ -3,23 +3,21 @@
 var moment = require('moment'); 
 let valid = [];
 
-const checkHourly = ( rate  ) => {
-    if(rate.length != 0){
-        rate.forEach(element => { checkHour(element) });
-    }else{
-        return true; // si no hay horario en el back siempre tiene q estar disponible
-    }
+// const checkHourly = ( rate  ) => {
+//     if(rate.length != 0){
+//         rate.forEach(element => { checkHour(element) });
+//     }else{
+//         return true; // si no hay horario en el back siempre tiene q estar disponible
+//     }
     
-    if(valid.indexOf(true) != -1) {
-        return true
-    }else{
-        return false
-    }
-}
+//     if(valid.indexOf(true) != -1) {
+//         return true
+//     }else{
+//         return false
+//     }
+// }
 
 const checkHour =  (rate, days)=>{
-
-    console.log(days);
 
     let now = moment().locale('es-AR').format('HH:mm');
     now = moment(`${now}`, 'HH:mm')
@@ -33,24 +31,22 @@ const checkHour =  (rate, days)=>{
     beginning = tempRate[0];
     end = tempRate[1];
     
-    console.log("days: ",days);
-
+    
+    
     beginningTime = moment( `${beginning}`, 'HH:mm');
     endTime= moment( `${end}`, 'HH:mm')
-
+    
     const currentDay = moment().day();
     const isValidDay = days.includes(currentDay);
+ 
     
     if(isValidDay && now.isBefore(endTime) && now.isAfter(beginningTime)){ // 
-         valid.push(true);
+         return true;
     }else{
-         valid.push(false);
+         return false;
         
     }
 
 
 }
-
-module.exports = {
-                 checkHourly
-                 }
+module.exports = { checkHour }

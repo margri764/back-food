@@ -6,7 +6,7 @@ const User = require ('../models/user');
 const Staff  = require ('../models/staff');
 const Role  = require ('../models/role');
 const App  = require ('../models/appState');
-const { checkHourly } = require('../helpers/check-hourly');
+const { checkHour } = require('../helpers/check-hourly');
 
 
 
@@ -304,22 +304,30 @@ if(app == null){
     })
 }
 
-let rate = [];
-let days = [];
+let rate= null;
+let dayArr = [];
+let arrCheck = [];
+let check = [];
+
 let tempRate = app.hourRate.filter(element => element.status == true);
 
-// var mapped = orders.map( (element, i) => {element.statusOrder.map( (item:any, ind:any) =>{ element = (item.createdAt);})
-// return { index: i, value: element };
-// })
+tempRate.map((element) => {
+  rate = element.hour; // agregar la hora al arreglo rate
 
+  element.days.map((day) => {
+    dayArr.push(day); // agregar cada día al arreglo dayArr
+  });
+  arrCheck.push(checkHour(rate, dayArr));
+dayArr=[];
+}
+);
 
-tempRate.map( element => { rate.push(element.hour);
-    element.days.map((day)=>{days.push(day.days)});  
+if(arrCheck.includes(true)){
+    check = true;
+}else{
+    check = false;
+}
 
-}); 
-
-
-const check = checkHourly(rate, days);
 
     res.json({       
         success : true,
@@ -338,9 +346,9 @@ const check = checkHourly(rate, days);
 
 const createHourlyRate = async (req, res) => {
 
-    const { hour, status, days } = req.body;
+    const { hour, status, day } = req.body;
 
-    console.log(hour, status, days);
+    console.log(hour, status, day);
 
     if(hour == '' || typeof status != "boolean" ){
         return res.status(400).json({
@@ -364,7 +372,7 @@ const createHourlyRate = async (req, res) => {
     const newHourRate = {
         hour: hour,
         status: status,
-        days : days
+        days : day
       };
     
 
