@@ -17,7 +17,9 @@ const checkHourly = ( rate  ) => {
     }
 }
 
-const checkHour =  (rate)=>{
+const checkHour =  (rate, days)=>{
+
+    console.log(days);
 
     let now = moment().locale('es-AR').format('HH:mm');
     now = moment(`${now}`, 'HH:mm')
@@ -30,10 +32,16 @@ const checkHour =  (rate)=>{
     tempRate = rate.split('-')
     beginning = tempRate[0];
     end = tempRate[1];
+    
+    console.log("days: ",days);
+
     beginningTime = moment( `${beginning}`, 'HH:mm');
     endTime= moment( `${end}`, 'HH:mm')
+
+    const currentDay = moment().day();
+    const isValidDay = days.includes(currentDay);
     
-    if(now.isBefore(endTime) && now.isAfter(beginningTime)){ // 
+    if(isValidDay && now.isBefore(endTime) && now.isAfter(beginningTime)){ // 
          valid.push(true);
     }else{
          valid.push(false);

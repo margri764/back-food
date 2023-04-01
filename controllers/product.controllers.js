@@ -139,7 +139,7 @@ for (const categoryName of categoryNames) {
   const category = await Category.findOne({ name: categoryName });
 
   if (category ) {
-    const products = await Product.find({ status: true, category: category._id }).populate("category", ["name", "state"]);
+    const products = await Product.find({ status: true, stock: true, category: category._id }).populate("category", ["name", "state"]);
     categories[categoryName] = products;
   } 
   else {

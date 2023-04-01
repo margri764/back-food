@@ -59,11 +59,14 @@ const createOrder= async ( req , res ) => {
                
               }
 
+              // preparo todos los productos de la orden para hacer el update
             const productUpdates = productsToUpdate.map(item => ({
               updateOne: {
                 filter: { _id: item._id },
-                update: { $set: { stockQuantity: item.quantity } }
-              }
+                update: { $set: { stockQuantity: item.quantity,
+                                  stock: false  
+                                }
+                        } }
             }));
             
             await Product.bulkWrite(productUpdates);

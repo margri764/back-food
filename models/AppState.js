@@ -28,15 +28,13 @@
                      status: {
                            type: Boolean,
                            required : true,
-
-                     }
+                     },
+                     days :{
+                           type: Array,
+                          }
                    }
         ],
 
-        days :{
-          type: Array,
-        },
-       
         msg :{
              type: String,
              default: "Se toman pedidos hasta las 13 y 23hs. Disculpá las molestias. Volvé pronto!!"

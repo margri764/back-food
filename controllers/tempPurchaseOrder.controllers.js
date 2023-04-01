@@ -256,28 +256,6 @@ const deleteManyTempOrder= async (req, res) => {
   
 }
 
-const delTempOrderByTime= async (req, res) => {
- 
-  try {
-
-    cron.schedule('0 11:52 * * *', () => {
-      TempPurchaseOrder.deleteMany({ statusOrder: 'INCOMPLETE' })
-      console.log('se elimino las ordenes en incomplete ');
-    })
-
-    
-
-    
-    } catch (error) {
-      console.log('error desde delTempOrderByTime: ', error);
-    
-      return res.status(500).json({
-        success: false,
-        msg: "Oops algo salió mal al intentar eliminar tosas las ordenes temporales"
-      })
-    }
-  
-}
 
 module.exports={
         createTempOrder,
@@ -286,6 +264,4 @@ module.exports={
         tempOrderEdit,
         deleteManyTempOrder,
         delTempOrderIfNoStock,
-        delTempOrderByTime
-
 }

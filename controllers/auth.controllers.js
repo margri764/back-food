@@ -238,7 +238,6 @@ const login = async (req, res=response)=>{
 }
 
 const emailToAsyncValidatorLogin = async (req, res) => {
-
     try {
       const email = req.query.q;
       const emailToCheck = email.split('@');
@@ -250,11 +249,10 @@ const emailToAsyncValidatorLogin = async (req, res) => {
         user = await User.findOne({ email });
       }
 
-      console.log(user);
       // esto se ve raro xq uso una validacion asyncrona el formularios reactivos
       if (!user) {
         
-        return res.status(400).json({
+         res.status(200).json({
             success: false,
             msg: `No existe usuario con el email ${email} en nuestra base de Datos`
         })
@@ -294,7 +292,7 @@ const emailToAsyncValidatorRegister = async (req, res) => {
             msg: 'Email válido'
           });
       }else{
-        return res.status(400).json({
+        return res.status(200).json({
             success: false,
             msg: `Ya existe usuario con el email ${email} en nuestra base de Datos`
         })

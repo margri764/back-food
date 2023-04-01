@@ -3,7 +3,6 @@ const TempPurchaseOrder = require ('../models/tempPurchaseOrder');
 const Product = require ('../models/product');
 
 const updateStock  = async (productId,) => {
-console.log(productId);
 
    /* recibe cada producto q esta en la TempPurchaseOrder y la cantidad q compro. Ahora busca en la coleccion de PRODUCT por id, para conocer el stock real */
     const existingProduct = await Product.findOne({_id: productId});
@@ -16,6 +15,7 @@ console.log(productId);
 
     /* si sale todo ok le resta a la cantidad del producto, la cantidad comprada y hace el update del producto */
     const updatedQuantity = existingProduct.stockQuantity - productId.quantity;
+
 
     return {_id: existingProduct._id, quantity: updatedQuantity}
 }

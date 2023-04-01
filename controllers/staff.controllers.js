@@ -236,7 +236,7 @@ try {
   uno en el GET APP!!!, 
   dos en createHourly */
 
-let app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
+let app = await App.findOne( {_id : "642873b34d575a66a74a1e5a"}) || null;
 
 if(app == null){
     return res.status(400).json({
@@ -258,7 +258,7 @@ if( app.statusApp.length >5){
     tempStates = app.statusApp.splice(0,2)
 
     // son 3!!!!!! id q tengo q pone en duro
-    await App.findByIdAndUpdate( "63f8b8d794a7c29fe4a94db3", {status : playOrPause, staff : staff._id, statusApp : tempStates },{new:true})
+    await App.findByIdAndUpdate( "642873b34d575a66a74a1e5a", {status : playOrPause, staff : staff._id, statusApp : tempStates },{new:true})
 }
 
 const staffEditor = {
@@ -273,7 +273,7 @@ app.statusApp.map((item)=>{ arrState.push(item)})
 arrState.push(staffEditor);
  
 
-app = await App.findByIdAndUpdate( "63f8b8d794a7c29fe4a94db3", {status : playOrPause, staff : staff._id, statusApp : arrState, msg:msg},{new:true})
+app = await App.findByIdAndUpdate( "642873b34d575a66a74a1e5a", {status : playOrPause, staff : staff._id, statusApp : arrState, msg:msg},{new:true})
 
 res.json({       
     success : true,
@@ -295,7 +295,7 @@ const getAppState= async (req, res) => {
 try {
 
     // son 3!!!!!! id q tengo q pone en duro
-let app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
+let app = await App.findOne( {_id : "642873b34d575a66a74a1e5a"}) || null;
 
 if(app == null){
     return res.status(400).json({
@@ -304,17 +304,22 @@ if(app == null){
     })
 }
 
-    let rate = [];
-    let tempRate = [];
-    tempRate = app.hourRate.filter(element => element.status == true )
-    tempRate.forEach(element => { rate.push(element.hour)});
-    const check = checkHourly( rate);
+let rate = [];
+let days = [];
+let tempRate = app.hourRate.filter(element => element.status == true);
 
-    // if(check){
-    //     app = await App.findByIdAndUpdate( app._id, {status: true}, {new:true})
-    // }else{
-    //     app = await App.findByIdAndUpdate( app._id, {status: false}, {new:true})
-    // }
+// var mapped = orders.map( (element, i) => {element.statusOrder.map( (item:any, ind:any) =>{ element = (item.createdAt);})
+// return { index: i, value: element };
+// })
+
+
+tempRate.map( element => { rate.push(element.hour);
+    element.days.map((day)=>{days.push(day.days)});  
+
+}); 
+
+
+const check = checkHourly(rate, days);
 
     res.json({       
         success : true,
@@ -333,9 +338,9 @@ if(app == null){
 
 const createHourlyRate = async (req, res) => {
 
-    const { hour, status } = req.body;
+    const { hour, status, days } = req.body;
 
-    console.log(hour, status);
+    console.log(hour, status, days);
 
     if(hour == '' || typeof status != "boolean" ){
         return res.status(400).json({
@@ -347,7 +352,7 @@ const createHourlyRate = async (req, res) => {
     try {
     
     // son 3!!!!!! id q tengo q pone en duro aca y uno en el GET APP!!!
-    const app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
+    const app = await App.findOne( {_id : "642873b34d575a66a74a1e5a"}) || null;
     
     if(app == null){
         return res.status(400).json({
@@ -359,11 +364,12 @@ const createHourlyRate = async (req, res) => {
     const newHourRate = {
         hour: hour,
         status: status,
+        days : days
       };
     
 
     // son 3!!!!!! id q tengo q pone en duro
-    await App.findByIdAndUpdate( "63f8b8d794a7c29fe4a94db3", { $push: { hourRate: newHourRate } } ,{new:true} )
+    await App.findByIdAndUpdate( "642873b34d575a66a74a1e5a", { $push: { hourRate: newHourRate } } ,{new:true} )
    
     const updatedApp = await App.findOne(app._id); // Busca el documento actualizado
 
@@ -397,7 +403,7 @@ const updateHourlyRateById = async (req, res) => {
 
     try {
     
-    const app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
+    const app = await App.findOne( {_id : "642873b34d575a66a74a1e5a"}) || null;
     
     if(app == null){
         return res.status(400).json({
@@ -438,7 +444,7 @@ const updateCustomMsg = async (req, res) => {
 
     try {
     
-    let app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
+    let app = await App.findOne( {_id : "642873b34d575a66a74a1e5a"}) || null;
     
     if(app == null){
         return res.status(400).json({
@@ -468,7 +474,7 @@ const deleteHourlyRateById = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const app = await App.findOne( {_id : "63f8b8d794a7c29fe4a94db3"}) || null;
+        const app = await App.findOne( {_id : "642873b34d575a66a74a1e5a"}) || null;
     
         if(app == null){
             return res.status(400).json({
