@@ -398,7 +398,7 @@ const createHourlyRate = async (req, res) => {
     
 const updateHourlyRateById = async (req, res) => {
 
-    const { hour, status } = req.body;
+    const { hour, status, days } = req.body;
     const { id } = req.params;
 
 
@@ -422,7 +422,10 @@ const updateHourlyRateById = async (req, res) => {
 
 
     const filter = { _id: app._id }; // Define el filtro para encontrar el documento que quieres actualizar
-    const update = { $set: { 'hourRate.$[elem].status': status } }; // Define la actualización que quieres hacer
+    const update = { $set: { 'hourRate.$[elem].status': status,
+                             'hourRate.$[elem].hour': hour,
+                             'hourRate.$[elem].days': days,
+                          } }; // Define la actualización que quieres hacer
     const options = { arrayFilters: [{ 'elem._id': id }] }; // Define el filtro para el objeto dentro del array que quieres actualizar
 
    await App.updateOne(filter, update, options);
