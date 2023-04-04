@@ -14,6 +14,11 @@ const CategorySchema = Schema({
         required: true
     },
 
+    paused :{
+        type:Boolean,
+        default: false,
+    },
+    
     user: {
         type: Schema.Types.ObjectId, 
         ref:'Staff',

@@ -30,6 +30,11 @@ const ProductSchema = Schema({
         default : true
     },
 
+    paused : {
+        type : Boolean,
+        default : false
+    },
+
     staff : {
         type: Schema.Types.ObjectId,
         ref: "Staff",
