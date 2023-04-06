@@ -1,5 +1,6 @@
 
 const Category = require ('../models/category');
+const Product = require ('../models/product');
 
 
 
@@ -60,8 +61,6 @@ const getCategoryById = async ( req, res ) =>{
         category
     );
 }
-
-
    
 const updateCategory = async ( req, res )=>{
 
@@ -82,11 +81,34 @@ const updateCategory = async ( req, res )=>{
 const deleteCategory = async ( req, res )=>{
 
     const { id } = req.params;
-    const category = await Category.findByIdAndUpdate( id, {state:false},{new:true});
 
-    res.status(200).json(
-        category
-    );
+    try {
+        
+        await Category.findByIdAndUpdate( id, {state:false},{new:true});
+    
+        await Product.updateMany({ category: id }, { status: false });
+    
+    
+        res.status(200).json({
+            success: true,
+            mas: "Categoria eliminada correctamente"
+        }
+        );
+
+    } catch (error) {
+        console.log('Desde deleteCategory: ', error);
+        let errorMessage = 'Ooops algo salio mal al intentar eliminar la categoria';
+      
+        if (error.message.includes('Intenta eliminar una categoria que no existe')) {
+          errorMessage = error.message;
+        }
+          return res.status(500).json({
+              success: false,
+              msg: errorMessage
+          })
+          
+  
+    }
 
 }
 

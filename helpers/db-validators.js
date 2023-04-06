@@ -54,7 +54,7 @@ const checkIdStaff = async ( id ) =>{
     
     const existsCategory = await Category.findById(id);
       if(!existsCategory){
-          throw new Error (`El id: ${ id } no existe en BD`);
+          throw new Error (`Intenta eliminar una categoria que no existe. Id: ${ id }`);
           }
   }
 

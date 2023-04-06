@@ -23,10 +23,18 @@ const createProduct =  async (req, res) => {
    let { name, ...rest } = postProduct; 
 
    
-   //busco si el producto ya esta creado lo q puedo usar es el nombre
-   let product =        await Product.findOne({name : name}) || null;
+   /* busco el nombre del producto para q no crear dos veces el mismo PERO tiene q estar con status:true o sea q si existe el nombre pero
+   se encuentra "eliminado" de BD se puede volver a cargar */ 
+   let product =        await Product.findOne({name : name, status: true}) || null; 
    const prodCategory = await Category.findOne({name : category.toUpperCase()},{state : true}) || null;
    const staff =        await Staff.findById(user._id) || null;
+
+   if( product != null){
+    return res.status(400).json({
+        success: false,
+        msg: 'Producto ya cargado'
+    })
+}
    
     if( !prodCategory){
       return res.status(400).json({
@@ -42,6 +50,8 @@ const createProduct =  async (req, res) => {
         })
     }
 
+    //esto tendria q estar en un middleware o helper
+
     if( staff.stateAccount == false){
         return res.status(400).json({
             success: false,
@@ -50,12 +60,7 @@ const createProduct =  async (req, res) => {
     }
     
 
-    if( product != null){
-        return res.status(400).json({
-            success: false,
-            msg: 'Producto ya cargado'
-        })
-    }
+
 
     const { tempFilePath } = req.files.file;
 
@@ -142,7 +147,6 @@ for (const categoryName of categoryNames) {
   } 
   else {
     categories[categoryName] = [];
-    console.log(`categoria ${categories[categoryName]} no existe en BD`);
   }
 }
 
@@ -512,12 +516,12 @@ const pausePlayProductByID = async (req, res) => {
         });
       }
 
-
+console.log(pauseOrPlay);
     // si viene FALSE significa q quiero pausar  
       if(pauseOrPlay == "false" ){
-          product = await Product.findByIdAndUpdate( product.id,  { stock : false , rest },{ new:true }).populate("category", "name");
+          product = await Product.findByIdAndUpdate( product.id, { paused : true , rest },{ new:true }).populate("category", "name", "state","paused");
       }else{
-        product = await Product.findByIdAndUpdate( product.id,  { stock : true , rest },{ new:true }).populate("category", "name");
+          product = await Product.findByIdAndUpdate( product.id, { paused : false , rest },{new:true }).populate("category", "name", "state","paused");
       }
     
       res.json({ 
@@ -550,18 +554,18 @@ const pausePlayCategory = async (req, res) => {
         msd : "No existe la categoria"
       })
     }
-console.log(playOrPause);
- // esta een pausa, quiero activar
+ // esta en pausa, quiero activar
      if(playOrPause == "false" ){
-         await Category.findByIdAndUpdate( _id, { paused : true  },{ new:true });
+         await Category.findByIdAndUpdate( _id, { paused : false  },{ new:true });
          const products = await Product.find({ category: _id });
          await Product.updateMany({ category: _id }, { paused: false });
 
      } 
+ // esta activo, quiero pausar
      
      if(playOrPause == "true"){
 
-       await Category.findByIdAndUpdate( _id, { paused : false },{ new:true });
+       await Category.findByIdAndUpdate( _id, { paused : true },{ new:true });
        const products = await Product.find({ category: _id });
        await Product.updateMany({ category: _id }, { paused: true });
 

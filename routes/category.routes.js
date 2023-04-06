@@ -46,7 +46,7 @@
  ],updateCategory);
  
  //Borrar una categoria - privado solos si tiene role "ADMIN"
- router.delete('/:id',[
+ router.put('/deleteCategory/:id',[
      requireToken,
      adminRole,
      check('id', 'no es un id de Mongo valido').isMongoId(),
