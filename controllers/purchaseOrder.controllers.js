@@ -5,6 +5,8 @@ const PurchaseOrder = require('../models/purchaseOrder');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const Product = require('../models/product');
 const {updateStock}  = require('../helpers/stock-managment');
+const { ObjectId } = require('mongodb');
+
 
 const createOrder= async ( req , res ) => {
 
@@ -82,7 +84,7 @@ const createOrder= async ( req , res ) => {
         // //   coloco en duro el id de un miembro del staff q no tiene datos, es solo para pasar la validacion del Schema de la PurchseOrden      
         const orderEdit = {
             date : new Date(),
-            staff : "64146a956a7c1e1ccb4e28c0",
+            staff : ObjectId("641d9aafa88c3483b9613f16"),
             status : 'SIN PROCESAR'    
         };
 

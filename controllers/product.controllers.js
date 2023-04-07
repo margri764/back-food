@@ -175,8 +175,10 @@ const  { body, img}  = req.body;
 // recibo el string del form-data body y lo parseo. El req.body trae todo el append o sea q la imagen y el body por separado por eso desestructuro, "body" es el nombre de la propiedad en el append
  let editProduct= JSON.parse(body);
 
+ let stockQuantityNumber = parseInt(editProduct.stockQuantity);
+
  const isPostiveNumber = Math.sign(editProduct.price); //verifica el signo del numero
- const isPostiveNumberQuantity = Math.sign(editProduct.stockQuantity); //verifica el signo del numero
+ const isPostiveNumberQuantity = Math.sign(stockQuantityNumber); //verifica el signo del numero
 //  
   if(isNaN(editProduct.price)){
     return res.status(400).json({
@@ -188,7 +190,7 @@ const  { body, img}  = req.body;
   if(isNaN(editProduct.stockQuantity)){
     return res.status(400).json({
       success: false,
-      msj : `El stock tiene que ser un numero mayor a 1. ${editProduct.stockQuantity.toUpperCase()} no es un numero `
+      msj : `El stock tiene que ser un numero mayor a 1. ${stockQuantityNumber.toUpperCase()} no es un numero `
     })
   }
 
@@ -206,7 +208,7 @@ const  { body, img}  = req.body;
   if(isPostiveNumberQuantity == -1){
     return res.status(400).json({
       success: false,
-      msj : `Solo se permite el ingreso de numeros mayores a 1. ${editProduct.stockQuantity} no es un numero permitido `
+      msj : `Solo se permite el ingreso de numeros mayores a 1. ${stockQuantityNumber} no es un numero permitido `
 
     })
   }
@@ -220,7 +222,7 @@ if(img == 'no-image' ){
   fileInReq = true;
 }
 
-const { name, stockQuantity, ...rest } = editProduct; 
+const { name,  ...rest } = editProduct; 
 
       
   let productEdit = await Product.findById(  id.trim() ) || null; //busca el id en la BD 
@@ -274,12 +276,12 @@ tempProduct = {
 
 }
 
-if(stockQuantity > 0){
+if(stockQuantityNumber > 0){
   tempProduct.stock = true;
 }else{
   tempProduct.stock = false;
 }
-tempProduct.stockQuantity = stockQuantity;
+tempProduct.stockQuantity = stockQuantityNumber;
   
   const product= await Product.findByIdAndUpdate( productEdit._id, tempProduct,{new:true}).populate("category", "name state");
 
@@ -489,7 +491,7 @@ const pausePlayProductByID = async (req, res) => {
    if(pauseOrPlay == undefined){
     return res.status(400).json ({
       success: false,
-      msg: "Se debe incluir un query en true o false"
+      msg: "Se debe incluir un query string en true o false"
     })
    }
    
