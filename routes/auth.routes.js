@@ -1,7 +1,7 @@
 const { Router } = require ('express');
 const {check} = require ('express-validator');
 const { checkFields, requireRefreshToken } = require('../middlewares')
-const { confirm, signUp, login, phone, refreshToken, logout, emailToAsyncValidatorLogin, emailToAsyncValidatorRegister, restorePassword, resetPassword} = require('../controllers/auth.controllers');
+const { confirm, signUp, login, phone, refreshToken, logout, emailToAsyncValidatorLogin, emailToAsyncValidatorRegister, resetPassword, generateTokenToPassword} = require('../controllers/auth.controllers');
 const { checkUserEmail } = require('../helpers/check_user_type');
 const router = Router();
 
@@ -16,7 +16,7 @@ router.post('/signup',[
 router.post('/restorePassword',[
     check('email','el correo no es valido').isEmail(),
     check('email').custom( checkUserEmail),
-], restorePassword); 
+], generateTokenToPassword); 
 
 router.post('/resetPassword',[
     check('email','el correo no es valido').isEmail(),

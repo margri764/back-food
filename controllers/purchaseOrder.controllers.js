@@ -64,7 +64,7 @@ const createOrder= async ( req , res ) => {
               updateOne: {
                 filter: { _id: item._id },
                 update: { $set: { stockQuantity: item.quantity,
-                                  stock: false  
+                                  stock: item.quantity === 0 ? false : true
                                 }
                         } }
             }));

@@ -114,14 +114,13 @@ const getProductByCategory = async (req, res) => {
     const category = await Category.findOne({ name: categoryName });
   
     if (category && userOrStaff == "user" ) {
-      const products = await Product.find({ status: true, stock: true, category: category._id }).populate("category", ["name", "state", "paused"]);
+      const products = await Product.find({ status: true, category: category._id }).populate("category", "name state paused");
       categories[categoryName] = products;
     } 
     else {
       categories[categoryName] = [];
     }
   }
-  console.log(userOrStaff);
   
   
   res.status(200).json({
@@ -142,7 +141,7 @@ const categories = {};
 for (const categoryName of categoryNames) {
   const category = await Category.findOne({ name: categoryName });
   if (category ) {
-    const products = await Product.find({ status: true, stock: true, category: category._id }).populate("category", ["name", "state", "paused"]);
+    const products = await Product.find({ status: true, category: category._id }).populate("category", "name state paused");
     categories[categoryName] = products;
   } 
   else {
@@ -177,7 +176,7 @@ const  { body, img}  = req.body;
  let editProduct= JSON.parse(body);
 
  const isPostiveNumber = Math.sign(editProduct.price); //verifica el signo del numero
-  
+ const isPostiveNumberQuantity = Math.sign(editProduct.stockQuantity); //verifica el signo del numero
 //  
   if(isNaN(editProduct.price)){
     return res.status(400).json({
@@ -186,11 +185,28 @@ const  { body, img}  = req.body;
     })
   }
 
+  if(isNaN(editProduct.stockQuantity)){
+    return res.status(400).json({
+      success: false,
+      msj : `El stock tiene que ser un numero mayor a 1. ${editProduct.stockQuantity.toUpperCase()} no es un numero `
+    })
+  }
+
+
   // significa q es negativo
   if(isPostiveNumber == -1){
     return res.status(400).json({
       success: false,
       msj : `Solo se permite el ingreso de numeros mayores a 1. ${editProduct.price} no es un numero permitido `
+
+    })
+  }
+  
+  // significa q es negativo
+  if(isPostiveNumberQuantity == -1){
+    return res.status(400).json({
+      success: false,
+      msj : `Solo se permite el ingreso de numeros mayores a 1. ${editProduct.stockQuantity} no es un numero permitido `
 
     })
   }
@@ -204,10 +220,7 @@ if(img == 'no-image' ){
   fileInReq = true;
 }
 
-
-
-
-const { name, ...rest } = editProduct; 
+const { name, stockQuantity, ...rest } = editProduct; 
 
       
   let productEdit = await Product.findById(  id.trim() ) || null; //busca el id en la BD 
@@ -235,11 +248,8 @@ if(fileInReq ) {
 
   // si la extension no es válida no se ejecuta mas, el metodo validExtensaion se encarga de contestar
 
-  const valid = validExtension(req.files.img, res);
-
-  if(valid != true){
-    return 
-  }
+  await validExtension(req.files.img, res);
+//OJO ARREGLAR EL ERROR PARA Q MUESTRE LOS TROW
 
   const { tempFilePath } = req.files.img;
 
@@ -263,8 +273,16 @@ tempProduct = {
  name 
 
 }
+
+if(stockQuantity > 0){
+  tempProduct.stock = true;
+}else{
+  tempProduct.stock = false;
+}
+tempProduct.stockQuantity = stockQuantity;
   
-  const product= await Product.findByIdAndUpdate( productEdit._id, tempProduct,{new:true}).populate("category", ["name", "state"]);
+  const product= await Product.findByIdAndUpdate( productEdit._id, tempProduct,{new:true}).populate("category", "name state");
+
 
   res.json( {
     success: true,  
@@ -479,6 +497,7 @@ const pausePlayProductByID = async (req, res) => {
     
       const { id } = req.params;
       const { ...rest } = req.body;
+
   
       let product = await Product.findOne({ _id : id });
   
@@ -516,12 +535,15 @@ const pausePlayProductByID = async (req, res) => {
         });
       }
 
+      console.log(pauseOrPlay, false);
     // si viene FALSE significa q quiero pausar  
       if(pauseOrPlay == "false" ){
-          product = await Product.findByIdAndUpdate( product.id, { paused : true , rest },{ new:true }).populate("category", "name", "state","paused");
+          product = await Product.findByIdAndUpdate( product.id, { paused : true , rest },{ new:true }).populate("category", "name state paused");
       }else{
-          product = await Product.findByIdAndUpdate( product.id, { paused : false , rest },{new:true }).populate("category", "name", "state","paused");
+          product = await Product.findByIdAndUpdate( product.id, { paused : false , rest },{new:true }).populate("category", "name state paused");
       }
+
+
     
       res.json({ 
         success: true,

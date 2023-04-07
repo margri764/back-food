@@ -119,7 +119,7 @@ const signUp = async (req, res=response) => {
     }
 }
 
-const restorePassword = async (req, res=response) => {
+const generateTokenToPassword = async (req, res=response) => {
     
     try {
 
@@ -421,7 +421,7 @@ const logout = (req, res) => {
 module.exports={
     login, 
     signUp,
-    restorePassword,
+    generateTokenToPassword,
     resetPassword,
     confirm,
     phone,
