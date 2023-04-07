@@ -21,7 +21,15 @@ const UserSchema = Schema({
 
     password: {
         type: String,
-        default:''
+        default: ''
+    },
+
+    resetPasswordToken: {
+        type: String,
+      },
+    
+    resetPasswordExpires: {
+        type: Date,
     },
 
     email: {

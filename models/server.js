@@ -65,7 +65,7 @@ class Server{
     }    
 
     routes(){
-        this.app.use('/api/send-email', require('../routes/email.routes'));
+        // this.app.use('/api/send-email', require('../routes/email.routes'));
         this.app.use('/api/auth', require('../routes/auth.routes'));
         this.app.use('/api/auth/renewToken', require('../routes/auth.routes'));
         this.app.use('/api/user', require('../routes/user.routes'));

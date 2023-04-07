@@ -516,7 +516,6 @@ const pausePlayProductByID = async (req, res) => {
         });
       }
 
-console.log(pauseOrPlay);
     // si viene FALSE significa q quiero pausar  
       if(pauseOrPlay == "false" ){
           product = await Product.findByIdAndUpdate( product.id, { paused : true , rest },{ new:true }).populate("category", "name", "state","paused");

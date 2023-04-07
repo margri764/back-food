@@ -7,6 +7,8 @@ const User = require ('../models/user');
 const Staff = require('../models/staff');
 const { generateToken, generateRefreshToken } = require('../helpers/tokenManager');
 const { checkUserEmail } = require('../helpers/check_user_type');
+const { sendEmail } = require('../config/mail.config');
+const crypto = require('crypto');
 
 
 
@@ -116,6 +118,85 @@ const signUp = async (req, res=response) => {
         });
     }
 }
+
+const restorePassword = async (req, res=response) => {
+    
+    try {
+
+        // Obtener la data del usuario: name, email
+        const { email } = req.body;
+
+        let user = await User.findOne({email})
+
+        // Generar un token de restablecimiento de contraseña
+            const resetToken = crypto.randomBytes(20).toString('hex');
+
+            // Guardar el token en la base de datos y establecer una fecha de vencimiento
+            user.resetPasswordToken = resetToken;
+            user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
+
+            sendEmail(email, resetToken)
+
+            await user.save();
+
+       
+       
+    res.status(200).json({
+        success: true,
+        msg: 'Te enviamos un email para validar tu nueva contraseña'
+    });
+    
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            msg: 'Error al restaurar password'
+        });
+    }
+}
+
+const resetPassword = async (req, res) => {
+    try {
+      const { resetToken, password } = req.body;
+  
+      const user = await User.findOne({
+        resetPasswordToken: resetToken,
+        resetPasswordExpires: { $gt: Date.now() } // Comprobar si el token no ha expirado
+      });
+  
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          message: 'El token de restablecimiento de contraseña no es válido o ha expirado'
+        });
+      }
+  
+      // Hash de la nueva contraseña
+     const salt = bcryptjs.genSaltSync();
+     const hashedPassword =  bcryptjs.hashSync(password, salt);
+  
+      // Actualizar la contraseña del usuario y borrar el token de restablecimiento
+      user.password = hashedPassword;
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+  
+      await user.save();
+  
+      // Enviar respuesta exitosa
+      res.status(200).json({
+        success: true,
+        message: 'Se ha restablecido la contraseña correctamente'
+      });
+  
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        message: 'Ocurrió un error al resetear la contraseña'
+      });
+    }
+  };
 
 const confirm = async (req, res) => {
     
@@ -340,6 +421,8 @@ const logout = (req, res) => {
 module.exports={
     login, 
     signUp,
+    restorePassword,
+    resetPassword,
     confirm,
     phone,
     refreshToken,
