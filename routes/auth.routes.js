@@ -1,6 +1,6 @@
 const { Router } = require ('express');
 const {check} = require ('express-validator');
-const { checkFields, requireRefreshToken } = require('../middlewares')
+const { checkFields, requireRefreshToken, requireToken } = require('../middlewares')
 const { confirm, signUp, login, phone, refreshToken, logout, emailToAsyncValidatorLogin, emailToAsyncValidatorRegister, resetPassword, generateTokenToPassword} = require('../controllers/auth.controllers');
 const { checkUserEmail } = require('../helpers/check_user_type');
 const router = Router();
@@ -27,7 +27,8 @@ router.post('/signup',[
 ],signUp);
 
 router.post('/signup/phone',[
-],phone);
+ requireToken
+], phone);
 
 router.post('/login',[
     check('email','el correo no es valido').isEmail(),

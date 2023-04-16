@@ -59,9 +59,6 @@ const createProduct =  async (req, res) => {
          })
     }
     
-
-
-
     const { tempFilePath } = req.files.file;
 
     const {secure_url} = await cloudinary.uploader.upload( tempFilePath, {folder: `FoodApp/${category.toUpperCase()}`});

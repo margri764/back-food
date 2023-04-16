@@ -13,8 +13,11 @@ const requireToken = async ( req, res, next ) => {
 
         // console.log("requireToken token Bearer: ", token);
 
+
         if(!token){
-            throw new Error ('No existe el token en el header')
+            return res.status(400).json({
+                msg:'No existe el token en el header. Vuelva a entrar con sus credenciales'
+            })
         }
 
         token = token.split(" ")[1];
@@ -34,15 +37,13 @@ const requireToken = async ( req, res, next ) => {
               })
         }
 
-
         if( userAuth != null) {
 
             if(userAuth.stateAccount == false){
                 return res.status(500).json({
                 msg:'Token no valido - usuario con state en false'
                 })
-                }
-                
+            }
              req.userAuth= userAuth;    
         } 
         
