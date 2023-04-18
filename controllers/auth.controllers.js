@@ -5,54 +5,45 @@ const createSMS = require ('../config/sms')
 const UserSignUp = require ('../models/userSignUp');
 const User = require ('../models/user');
 const Staff = require('../models/staff');
+const LoginAttempt = require('../models/loginAttempt');
 const { generateToken, generateRefreshToken } = require('../helpers/tokenManager');
 const { checkUserEmail } = require('../helpers/check_user_type');
 const { sendEmail } = require('../config/mail.config');
 const crypto = require('crypto');
 
 
-
-
-
 const phone =  async (req, res=response) => {
 
-  try {
+try {
 
-const { _id, phone }  = req.body;  
+const user =  req.userAuth;
 
-// console.log(_id, phone);
-
-const user = await UserSignUp.findById(_id)||null ;
-
-if(user != null){
+const { phone }  = req.body;  
 
 //envio los datos para q se envie el sms de confirmacion
 createSMS(phone, user.code);
 
 // grabo el telefono en el usuario signUp
 user.phone = phone;
+
 await user.save();
-    
-}else{
-
-    return res.status(400).json({
-        success: false,
-        msg: 'No se encontro Usuario en proceso de verificacion'
-    });
-
-}
 
 res.status(200).json({
     success: true,
     msg: 'Por favor verifica tu telefono, te enviamos un mensaje de texto con un código para validar.',
 });
-   
 
 } catch (error) {
-    console.log(error);
+    console.log("error desde Phone: ",error);
+    let errorMessage = 'Ups algo salió mal, hable con el administrador';
+
+    if(error.message.includes('El número de teléfono ingresado no es válido')){
+      errorMessage = error.message;
+
+    }
     return res.status(500).json({
         success: false,
-        msg: 'Ups algo salió mal, hable con el administrador'
+        msg: errorMessage
     });
 }
 }
@@ -64,10 +55,7 @@ const signUp = async (req, res=response) => {
         // Obtener la data del usuario: name, email
         const { email, password, ...rest} = req.body;
 
-        // console.log('signUp',req.body);
-      
 
-        // Verificar que el usuario no exista
         //dice que busque un email y puede ser que este en null, dice "buscalo o sino devolve null"
         let user = await User.findOne({ email }) || null;
 
@@ -88,10 +76,8 @@ const signUp = async (req, res=response) => {
     }
     
         // Generar el código
-        const code = Math.floor((Math.random()*(999999-123456 + 1))+123456);
+        const code = Math.floor(Math.random() * 900000) + 100000;
        
- 
-
         // Crear un nuevo usuario
         user = new UserSignUp({email, password, code, ...rest});
          
@@ -106,12 +92,10 @@ const signUp = async (req, res=response) => {
         success: true,
         user
     });
-    
-    
 
 
     } catch (error) {
-        console.log(error);
+        console.log("error desde signUp: ",error);
         return res.status(500).json({
             success: false,
             msg: 'Error al registrar usuario'
@@ -196,7 +180,7 @@ const resetPassword = async (req, res) => {
         message: 'Ocurrió un error al resetear la contraseña'
       });
     }
-  };
+};
 
 const confirm = async (req, res) => {
     
@@ -206,22 +190,17 @@ const confirm = async (req, res) => {
        
        const { email, code } = req.body;
 
-       console.log(req.body);
-       
-              
        // Verificar existencia del usuario a confirmar
-       const userToConfirm = await UserSignUp.findOne({ email })||null ;
+       const userToConfirm = await UserSignUp.findOne({ email }) ;
        
        // Verificar la data
 
-       if(userToConfirm === null) {
-            return res.json({
+       if(!userToConfirm) {
+            return res.status(400).json({
                 success: false,
                 msg: 'No existe un usuario con ese email'
             });
        }
-
-              
 
     //    Verificar el código
        if(code !== userToConfirm.code) {
@@ -229,17 +208,15 @@ const confirm = async (req, res) => {
             success: false,
             msg: 'Error en la confirmacion, vuelva a intentar'
         });
-       };
 
-       if(code == userToConfirm.code) {
+       }else if(code == userToConfirm.code) {
 
-        // VOLVER A PONER ESTO!!!!!!!!!!!!!!!!!!
-        // if(userToConfirm.state == 'VERIFIED'){
-        // return res.status(400).json({
-        //     success: false,
-        //     msg: 'Usuario verificado, dirijase al login'
-        // });
-        // }
+        if(userToConfirm.state == 'VERIFIED'){
+        return res.status(400).json({
+            success: false,
+            msg: 'Usuario verificado, dirijase al login'
+        });
+        }
         
    // Actualizo el usario signUp
         userToConfirm.state = 'VERIFIED';
@@ -249,12 +226,12 @@ const confirm = async (req, res) => {
     momento se les piden al usuario desde el FrontlineApi, por ejemplo para delivery) */
     
        const newUser = {
-        firstName : userToConfirm.firstName,
-        lastName : userToConfirm.lastName,
-        email : userToConfirm.email,
-        password : userToConfirm.password,
-        phone: userToConfirm.phone,
-        user_login : userToConfirm._id,
+          firstName : userToConfirm.firstName,
+          lastName : userToConfirm.lastName,
+          email : userToConfirm.email,
+          password : userToConfirm.password,
+          phone: userToConfirm.phone,
+          user_login : userToConfirm._id,
         }
 
         //grabo el nuevo usuario confirmado
@@ -279,22 +256,43 @@ const confirm = async (req, res) => {
 
 const login = async (req, res=response)=>{
 
+  const MAX_LOGIN_ATTEMPTS = 5; // número máximo de intentos de inicio de sesión permitidos
+  const LOCK_TIME = 5 * 60 * 1000; // tiempo de bloqueo en milisegundos después de superar el límite de intentos
 
+   
     const { email, password } = req.body;
 
     try {
-    // depende del valor del email del staff de cada empresa, busca en una u otra coleccion
-        
-         const user = await checkUserEmail(email);
 
-        if(user){
-            const checkPassword = bcryptjs.compareSync(password, user.password)
-            if(!checkPassword) {
-                return res.status(400).json({
-                    success: false,
-                    msg: 'Password incorrecto'
-                })}
-        }
+      const user = await checkUserEmail(email);
+
+      // Verificar si el usuario ha superado el límite de intentos de inicio de sesión
+      const loginAttempts = await LoginAttempt.find({ ipAddress: req.ip, timestamp: { $gte: new Date(Date.now() - LOCK_TIME) } });
+      if (loginAttempts.length >= MAX_LOGIN_ATTEMPTS) {
+        return res.status(429).json({
+          success: false,
+          msg: `Ha superado el límite de ${MAX_LOGIN_ATTEMPTS} intentos de inicio de sesión. Por favor, espere ${LOCK_TIME / 60 / 1000} minutos antes de intentar de nuevo.`
+        });
+      }
+      
+      if (!user) {
+        await LoginAttempt.create({ email, ipAddress: req.ip, timestamp: Date.now() });
+        return res.status(401).json({
+          success: false,
+          msg: 'Credenciales incorrectas'
+        });
+      }
+      
+      const checkPassword = bcryptjs.compareSync(password, user.password)
+      if (!checkPassword) {
+        await LoginAttempt.create({ email, ipAddress: req.ip, timestamp: Date.now() });
+        return res.status(401).json({
+          success: false,
+          msg: 'Credenciales incorrectas'
+        });
+      }
+      
+      await LoginAttempt.deleteMany({ ipAddress: req.ip });
         
         /* si llego hasta aca es xq el usuario login ya esta creado y entonces el usuario tambien ya se creo aunque
         me falten datos, como la app tiene delivery tengo mas instancias para recolectar datos.
@@ -303,7 +301,7 @@ const login = async (req, res=response)=>{
         const token = generateToken(user._id);
         generateRefreshToken(user._id, res);
 
-         res.status(200).json({
+         return res.status(200).json({
             success: true,
             token,
             user
@@ -311,8 +309,15 @@ const login = async (req, res=response)=>{
 
 
    } catch (error) {
+        console.log('error desde Login: ', error);
+
+        let errorMessage = 'hable con el administrador';
+
+        if(error.message.includes("La cuenta del staff") || error.message.includes("La cuenta de usuario") ){
+          errorMessage = error.message;
+        }
         res.status(500).json({
-            msg: 'hable con el administrador',
+            msg: errorMessage,
             success: false
         })       
     }
@@ -322,14 +327,12 @@ const emailToAsyncValidatorLogin = async (req, res) => {
     try {
       const email = req.query.q;
       const emailToCheck = email.split('@');
-      let user = null;
-  
-      if (emailToCheck[1].includes(process.env.EMAILSTAFF)) {
-        user = await Staff.findOne({ email });
-      } else {
-        user = await User.findOne({ email });
-      }
+      const isStaff = emailToCheck[1].includes(process.env.EMAILSTAFF);
 
+      const query = isStaff ? Staff.findOne({ email }) : User.findOne({ email });
+  
+      const user = await query.lean();
+      
       // esto se ve raro xq uso una validacion asyncrona el formularios reactivos
       if (!user) {
         
@@ -357,13 +360,11 @@ const emailToAsyncValidatorRegister = async (req, res) => {
     try {
       const email = req.query.q;
       const emailToCheck = email.split('@');
-      let user = null;
+      const isStaff = emailToCheck[1].includes(process.env.EMAILSTAFF);
+
+      const query = isStaff ? Staff.findOne({ email }) : User.findOne({ email });
   
-      if (emailToCheck[1].includes(process.env.EMAILSTAFF)) {
-        user = await Staff.findOne({ email });
-      } else {
-        user = await User.findOne({ email });
-      }
+      const user = await query.lean();
 
       // esto se ve raro xq uso una validacion asyncrona el formularios reactivos
       if (!user) {
@@ -394,15 +395,15 @@ const refreshToken = async (req, res) => {
     // console.log('_id desde refresh controller', _id);
     try {
         const { token, expiresIn } = generateToken (_id);
-        // console.log(token);
-        const user = await User.findById(_id) || null;
-        // console.log("desde refreshToken: ", user);
+        // // console.log(token);
+        // const user = await User.findById(_id) || null;
+        // // console.log("desde refreshToken: ", user);
 
 
         
         return res.json({
              token,
-             user,
+            //  user,
              expiresIn
              });
 
@@ -413,9 +414,10 @@ const refreshToken = async (req, res) => {
 };
 
 const logout = (req, res) => {
-    
-    res.clearCookie("refreshToken");
-    res.json({ ok: true });
+  if (req.cookies.refreshToken) {
+      res.clearCookie("refreshToken");
+  }
+  res.json({ ok: true });
 };
 
 module.exports={

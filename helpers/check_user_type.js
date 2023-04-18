@@ -5,38 +5,43 @@ const Staff = require('../models/staff');
 const UserSignUp = require('../models/userSignUp');
 
 
-const checkUserEmail = async (email) => {
-    let emailToCheck = email.split("@");
-    let user = null;
-  
-    if (emailToCheck[1].includes(process.env.EMAILSTAFF)) {
-      user = await Staff.findOne({ email }) || null;
-  
-      if (user == null) {
-        throw new Error("Staff no encontrado en BD");
-      } else if (!user.stateAccount) {
-        throw new Error("Staff eliminado o inactivo en BD");
-      }
-     } else {
-      const userLogin = await UserSignUp.findOne({ email }) || null;  
-      if(userLogin  == null) {
-        throw new Error('Usuario sin cuenta')
-      }else if(userLogin.state === "UNVERIFIED") {
-        throw new Error('Usuario en proceso de verificacion, revise su Email')
-      }
-      console.log(email);
-      user = await User.findOne({ email }) || null;
-      console.log(user);
-      if (user == null) {
-        throw new Error("Usuario no encontrado en BD");
-      } else if (!user.stateAccount) {
-        throw new Error("Usuario eliminado o inactivo en BD");
-      }
 
-   
+const checkUserEmail = async (email) => {
+
+    let emailToCheck = email.split("@");
+    const isStaff = emailToCheck[1].includes(process.env.EMAILSTAFF);
+
+    const query = isStaff ? Staff.findOne({ email }) : User.findOne({ email });
+    const user = await query.lean();
+    
+    if (!user) {
+      return null;
     }
+    await verifyAccount(user, isStaff);
+
     return user;
-  };
+}
   
+
+const verifyAccount = async (user, isStaff) => {
+ // se trata de un staff
+  if (isStaff) {
+    if (!user.stateAccount) {
+      throw new Error(`La cuenta del staff ${user.email} ha sido eliminada o desactivada`);
+    } else if (!user.status) {
+      throw new Error(`La cuenta del staff ${user.email} ha sido pausada momentáneamente`);
+    }
+  } else {
+    const userSignUp = await UserSignUp.findOne({ email: user.email });
+
+    if (!userSignUp) {
+      return null;
+    } else if (userSignUp.state === 'UNVERIFIED') {
+      throw new Error('La cuenta de usuario no ha sido verificada.');
+    } else if (!user.stateAccount) {
+      throw new Error(`La cuenta del usuario ${user.email} ha sido eliminada o desactivada`);
+    }
+  }
+};
 
 module.exports=  {checkUserEmail}

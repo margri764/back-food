@@ -73,7 +73,7 @@ const checkIdStaff = async ( id ) =>{
      
       if( !validCategory ){
 
-        throw new Error (`la categoría ${category} no existe en Base de Datos, solo ${categories}`)
+        throw new Error (`La categoría ${category} no existe en Base de Datos, solo ${categories}`)
       }
       return true;
 

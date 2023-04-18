@@ -23,8 +23,6 @@ router.post('/resetPassword',[
     check('email').custom( checkUserEmail),
 ], resetPassword); 
 
-router.post('/signup',[
-],signUp);
 
 router.post('/signup/phone',[
  requireToken
@@ -32,10 +30,10 @@ router.post('/signup/phone',[
 
 router.post('/login',[
     check('email','el correo no es valido').isEmail(),
-    check('email').custom( checkUserEmail),
+    // check('email').custom( checkUserEmail),
     check('password','El password es obligatorio, mas de 6 letras').not().isEmpty(),
     checkFields
-],login);
+], login);
 
 //para valdiacion asyncrona formulario reactivo
 router.get('/emailSyncLogin',[
@@ -46,7 +44,7 @@ router.get('/emailSyncRegister',[
 ], emailToAsyncValidatorRegister);
 
 // Validar y revalidar token
-router.get( '/renewToken',[
+router.get('/renewToken',[
     // aca necesito el refreshToken desde Bearer 
     requireRefreshToken
 ] , refreshToken  );

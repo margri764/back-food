@@ -5,7 +5,6 @@ const checkStatus = (status) => {
 
     const validStatus = ['SIN PROCESAR','EN PROCESO', 'ORDEN LISTA', 'ENTREGA DELIVERY', 'ENTREGA EN LOCAL', 'COMPLETADO','ELIMINADO' ]
 
-     console.log(status);
     if(!validStatus.includes(status)){
 
         throw new Error (`el estado: ${ status } no es valido ERROR en el front?...`)

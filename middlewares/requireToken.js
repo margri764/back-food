@@ -27,27 +27,33 @@ const requireToken = async ( req, res, next ) => {
         let userStaff = null;
 
         // lo tengo separado xq hay dos colecciones de usuarios de la app
-         userAuth = await User.findById( _id ) || null;
-         userStaff = await Staff.findById( _id ) || null;
+         userAuth = await User.findById( _id ) ;
+         userStaff = await Staff.findById( _id );
 
-       
+
         if(userAuth == null && userStaff == null){
               return res.status(500).json({
                   msg:'Token no valido - Usuario no existe en DBdddd'
               })
         }
 
-        if( userAuth != null) {
+        if( userAuth ) {
 
             if(userAuth.stateAccount == false){
                 return res.status(500).json({
                 msg:'Token no valido - usuario con state en false'
                 })
             }
+            if( userAuth.state=='UNVERIFIED'){
+                return res.status(401).json({
+                    success: false,
+                    msg: 'Usuario en proceso de verificacion, consulte su teléfono'
+                });
+            }
              req.userAuth= userAuth;    
         } 
         
-        if( userStaff != null) {
+        if( userStaff ) {
           
             if(userStaff.stateAccount == false){
                 return res.status(500).json({
@@ -57,12 +63,10 @@ const requireToken = async ( req, res, next ) => {
             req.userAuth= userStaff;
         }
 
-
-
         next();
         
     } catch (error) {
-
+        console.log('desde requireToken: ', error);
         return res
         .status(401)
         .send ({error : tokenVerificationErrors[error.message]})

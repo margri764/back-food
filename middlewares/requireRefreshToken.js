@@ -18,7 +18,7 @@ const { tokenVerificationErrors } = require("../helpers/tokenManager.js");
         next();
         
     } catch (error) {
-        console.log(error);
+        console.log("error desde requireRefreshToken: ", error);
         return res.status(401).json({ error: tokenVerificationErrors[error.message] });
     }
 };

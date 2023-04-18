@@ -15,7 +15,6 @@ router.post('/',[
     check('password','El password es obligatorio, mas de 6 letras').isLength({min:6}),
     check('role').custom( isRoleValid),
     checkFields
-
 ],userPost);
 
 

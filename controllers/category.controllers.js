@@ -2,9 +2,6 @@
 const Category = require ('../models/category');
 const Product = require ('../models/product');
 
-
-
-
 const createCategory =  async (req, res) => { 
 
     const name= req.body.name.toUpperCase(); 
@@ -29,8 +26,6 @@ const createCategory =  async (req, res) => {
         category
     })
 }
-
-
 
 const getCategory = async (req,res)=>{
 
@@ -112,14 +107,10 @@ const deleteCategory = async ( req, res )=>{
 
 }
 
- 
-
-
 module.exports={
-    createCategory,
-    getCategory,
-    getCategoryById,
-    updateCategory,
-    deleteCategory
-  
-}
+                createCategory,
+                getCategory,
+                getCategoryById,
+                updateCategory,
+                deleteCategory
+               }

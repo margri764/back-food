@@ -62,12 +62,6 @@ router.patch('/noStock/:id',[
     checkFields  
 ], pausePlayProductByID)
 
-// SEGURO Q SE PUEDE HACER DESDE EL FRONT PARA NO AGREGAR ESTE ENDPOINT envio al front el listado de todos los productos q estan pausados
-router.get('/noStock',[
-    requireToken,
-    multiRole ('ADMIN_ROLE','SUPER_ROLE','STAFF_ROLE'),
-    checkFields  
-], getPausedProduct)
 
 // los STAFF solo deberian poder pausar un producto, oferta, etc
 router.delete('/deleteToMany/:categoryId',[

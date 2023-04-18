@@ -1,10 +1,11 @@
-
 const Product = require('../models/product');
-const Staff = require('../models/staff');
+const mongoSanitize = require('express-mongo-sanitize');
 const Category = require('../models/category');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const { validExtension } = require('../helpers/upload-file');
 const { checkValue } = require('../helpers/value-percent');
+const { checkUserEmail } = require('../helpers/check_user_type');
+
 
 const cloudinary= require ('cloudinary').v2;
 cloudinary.config( process.env.CLOUDINARY_URL);
@@ -15,6 +16,7 @@ const createProduct =  async (req, res) => {
     const { category }  = req.params;
     
     const user = req.userAuth;
+    const staff = checkUserEmail(user.email);
 
     // recibo el string del form-data body y lo parseo
     let { postProduct } = req.body;
@@ -22,12 +24,15 @@ const createProduct =  async (req, res) => {
  
    let { name, ...rest } = postProduct; 
 
+   try {
+    
+   
    
    /* busco el nombre del producto para q no crear dos veces el mismo PERO tiene q estar con status:true o sea q si existe el nombre pero
    se encuentra "eliminado" de BD se puede volver a cargar */ 
    let product =        await Product.findOne({name : name, status: true}) || null; 
    const prodCategory = await Category.findOne({name : category.toUpperCase()},{state : true}) || null;
-   const staff =        await Staff.findById(user._id) || null;
+  //  const staff =        await Staff.findById(user._id) || null;
 
    if( product != null){
     return res.status(400).json({
@@ -43,21 +48,6 @@ const createProduct =  async (req, res) => {
       })
   }
 
-    if( staff == null){
-        return res.status(400).json({
-            success: false,
-            msg: 'No se encuentra Empleado'
-        })
-    }
-
-    //esto tendria q estar en un middleware o helper
-
-    if( staff.stateAccount == false){
-        return res.status(400).json({
-            success: false,
-            msg: 'Empleado eliminado o suspendido, hable con encargado'
-         })
-    }
     
     const { tempFilePath } = req.files.file;
 
@@ -80,61 +70,30 @@ const createProduct =  async (req, res) => {
         product,
     })
 
-}
+  } catch (error) {
 
-const getPausedProduct = async (req, res) => {
-
-const pausedProduct = await Product.find({ stock : false }) ;
-
-res.status(200).json({
-        success: true,
-        pausedProduct
-  });
-}
-
-const getProductByCategory = async (req, res) => {
-
-  const userOrStaff = req.query.whoIs;
-
-
-  if (userOrStaff === undefined || userOrStaff === null) {
-    return res.status(400).json({
-      success: false,
-      msg: 'Se debe especificar si es una petición de un usuario o de un miembro del staff'
-    });
-  }
-  
-  const categoryNames = ["BURGER", "PIZZA", "HEALTHY", "VEGAN", "DRINK", "FRIES", "OFFER"];
-  const categories = {};
-  
-  for (const categoryName of categoryNames) {
-    const category = await Category.findOne({ name: categoryName });
-  
-    if (category && userOrStaff == "user" ) {
-      const products = await Product.find({ status: true, category: category._id }).populate("category", "name state paused");
-      categories[categoryName] = products;
-    } 
-    else {
-      categories[categoryName] = [];
+    console.log('error desde createProduct: ', error);
+    let errorMessage = "Oops algo salio mal al intentar crear un producto"
+    if(error.message.includes("La categoría ")){
+      errorMessage = error.message;
     }
+    return res.status(500).json({
+      success: false,
+      msg: errorMessage
+    })
+    
   }
-  
-  
-  res.status(200).json({
-    burger: categories.BURGER,
-    pizza: categories.PIZZA,
-    healthy: categories.HEALTHY,
-    vegan: categories.VEGAN,
-    drink: categories.DRINK,
-    fries: categories.FRIES,
-    offer: categories.OFFER
-  });
+
 }
 
 const getProduct= async (req, res) => {
 
 const categoryNames = ["BURGER", "PIZZA", "HEALTHY", "VEGAN", "DRINK", "FRIES", "OFFER"];
 const categories = {};
+
+try {
+  
+
 for (const categoryName of categoryNames) {
   const category = await Category.findOne({ name: categoryName });
   if (category ) {
@@ -144,7 +103,10 @@ for (const categoryName of categoryNames) {
   else {
     categories[categoryName] = [];
   }
+
+  
 }
+mongoSanitize.sanitize(req.body);
 
 res.status(200).json({
   burger: categories.BURGER,
@@ -156,6 +118,15 @@ res.status(200).json({
   offer: categories.OFFER
 });
 
+} catch (error) {
+  console.log("error desde getProduct: ", error);
+  let errorMessage = 'Ups algo salió mal añ intentar obtener los productos';
+
+  return res.status(500).json({
+      success: false,
+      msg: errorMessage
+  });
+}
 }
 
 const updateProduct = async ( req, res) => {
@@ -651,8 +622,6 @@ const deleteManyProduct = async (req, res) => {
 
 module.exports = {
               createProduct,
-              getPausedProduct,
-              getProductByCategory,
               updateProduct,
               deleteProduct,
               updateManyPrice,
