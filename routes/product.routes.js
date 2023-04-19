@@ -1,14 +1,34 @@
 
-
 const { Router } = require ('express');
-const { check } = require ('express-validator');
-const { createProduct, updateProduct, deleteProduct, updateManyPrice, deleteManyProduct, getPausedProduct, pausePlayCategory, pausePlayProductByID, getProduct } = require('../controllers/product.controllers');
+const { check, param } = require ('express-validator');
+const { createProduct, updateProduct, deleteProduct, updateManyPrice, deleteManyProduct, pausePlayCategory, pausePlayProductByID, getProduct } = require('../controllers/product.controllers');
 const { checkFields, multiRole, requireToken} = require ('../middlewares');
 const { checkFileUp } = require('../middlewares/check-file');
 const { validCategory, validOperation } = require('../helpers/db-validators.js');
 const { checkCategory } = require('../middlewares/check-category');
+const { sanitizeProductBody, sanitizeProductBodyUpdate } = require('../middlewares/sanitize-body-products');
 
 const router = Router();
+
+router.post('/:category',[ 
+    requireToken,
+    param('category').trim().escape().isAlpha(),
+    sanitizeProductBody(),
+    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
+    checkFileUp,
+    check('category').custom( category => validCategory(category, ['BURGER', 'PIZZA', 'HEALTHY', 'VEGAN', 'DRINK', 'FRIES', 'OFFER'])),
+    checkFields  
+], createProduct );
+
+router.put('/:category/:id',[
+    requireToken,
+    // param('category').trim().escape().isAlpha(),
+    // param('id').trim().escape().isMongoId(),
+    sanitizeProductBodyUpdate,
+    multiRole('ADMIN_ROLE','SUPER_ROLE'),
+    checkFields  
+], updateProduct)
+
 
 // modificar todos los precios por categoria
 router.patch('/updateManyPrice/:category',[
@@ -27,20 +47,8 @@ router.patch('/pauseCategory/:category',[
     checkFields  
 ], pausePlayCategory)
 
-router.put('/:category/:id',[
-    requireToken,
-    multiRole('ADMIN_ROLE','SUPER_ROLE'),
-    checkFields  
-], updateProduct)
 
-// router.post('/',upload.any(),[ 
-router.post('/:category',[ 
-    requireToken,
-    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
-    checkFileUp,
-    check('category').custom( category => validCategory(category, ['BURGER', 'PIZZA', 'HEALTHY', 'VEGAN', 'DRINK', 'FRIES', 'OFFER'])),
-    checkFields  
-], createProduct );
+
 
 
 // OJO REVISAR SI CHEQUEA TODO BIEN NO LLEVAN TOKEN xq es lo q se tiene q cargar si o si en el inicio de la app

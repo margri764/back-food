@@ -18,7 +18,7 @@ const checkUserEmail = async (email) => {
       return null;
     }
     await verifyAccount(user, isStaff);
-
+    
     return user;
 }
   

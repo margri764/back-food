@@ -1,5 +1,4 @@
 const Product = require('../models/product');
-const mongoSanitize = require('express-mongo-sanitize');
 const Category = require('../models/category');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const { validExtension } = require('../helpers/upload-file');
@@ -12,34 +11,30 @@ cloudinary.config( process.env.CLOUDINARY_URL);
 
 
 const createProduct =  async (req, res) => {
-    
-    const { category }  = req.params;
-    
-    const user = req.userAuth;
-    const staff = checkUserEmail(user.email);
+  
+  const { category }  = req.params;
 
-    // recibo el string del form-data body y lo parseo
-    let { postProduct } = req.body;
-    postProduct= JSON.parse(postProduct);
+    const staff = req.userAuth;
+
+    // (recibo el string del form-data body y lo parseo) eso era antes pero estoy parsenado en el sanitize-body-products.js
+    const  postProduct  = req.body;
+
  
-   let { name, ...rest } = postProduct; 
+   const{ name, ...rest } = postProduct; 
 
    try {
-    
-   
    
    /* busco el nombre del producto para q no crear dos veces el mismo PERO tiene q estar con status:true o sea q si existe el nombre pero
    se encuentra "eliminado" de BD se puede volver a cargar */ 
-   let product =        await Product.findOne({name : name, status: true}) || null; 
-   const prodCategory = await Category.findOne({name : category.toUpperCase()},{state : true}) || null;
-  //  const staff =        await Staff.findById(user._id) || null;
+   let product = await Product.findOne({name : name, status: true}) || null; 
+   const prodCategory = await Category.findOne({name : category.toUpperCase()}, {state : true}) || null;
 
    if( product != null){
     return res.status(400).json({
         success: false,
         msg: 'Producto ya cargado'
     })
-}
+   }
    
     if( !prodCategory){
       return res.status(400).json({
@@ -47,7 +42,6 @@ const createProduct =  async (req, res) => {
           msg: `No se encuentra la categoria ${prodCategory}`
       })
   }
-
     
     const { tempFilePath } = req.files.file;
 
@@ -92,21 +86,17 @@ const categoryNames = ["BURGER", "PIZZA", "HEALTHY", "VEGAN", "DRINK", "FRIES", 
 const categories = {};
 
 try {
-  
 
-for (const categoryName of categoryNames) {
-  const category = await Category.findOne({ name: categoryName });
-  if (category ) {
-    const products = await Product.find({ status: true, category: category._id }).populate("category", "name state paused");
-    categories[categoryName] = products;
-  } 
-  else {
-    categories[categoryName] = [];
+  for (const categoryName of categoryNames) {
+    const category = await Category.findOne({ name: categoryName });
+    if (category ) {
+      const products = await Product.find({ status: true, category: category._id }).populate("category", "name state paused");
+      categories[categoryName] = products;
+    } 
+    else {
+      categories[categoryName] = [];
+    }
   }
-
-  
-}
-mongoSanitize.sanitize(req.body);
 
 res.status(200).json({
   burger: categories.BURGER,
@@ -132,11 +122,10 @@ res.status(200).json({
 const updateProduct = async ( req, res) => {
 
 try {
-  
+
 
 const { category, id} = req.params;
-
-
+console.log(req.body);
 
 const  { body, img}  = req.body;
 
