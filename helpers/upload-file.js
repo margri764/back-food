@@ -1,7 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-
 const path = require ('path');
-const { json } = require('express');
 
 const validExtension = ( file , res )=>{
 

@@ -10,7 +10,7 @@ const requireToken = async ( req, res, next ) => {
     try {
 
         let token = req.headers?.authorization;
-
+        console.log(req.body);
         // console.log("requireToken token Bearer: ", token);
 
         if(!token){
@@ -61,7 +61,6 @@ const requireToken = async ( req, res, next ) => {
                 }
             req.userAuth= userStaff;
         }
-
         next();
         
     } catch (error) {

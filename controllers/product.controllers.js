@@ -3,7 +3,7 @@ const Category = require('../models/category');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const { validExtension } = require('../helpers/upload-file');
 const { checkValue } = require('../helpers/value-percent');
-const { checkUserEmail } = require('../helpers/check_user_type');
+const validatePrice = require('../helpers/validate-price');
 
 
 const cloudinary= require ('cloudinary').v2;
@@ -18,7 +18,6 @@ const createProduct =  async (req, res) => {
 
     // (recibo el string del form-data body y lo parseo) eso era antes pero estoy parsenado en el sanitize-body-products.js
     const  postProduct  = req.body;
-
  
    const{ name, ...rest } = postProduct; 
 
@@ -123,69 +122,9 @@ const updateProduct = async ( req, res) => {
 
 try {
 
+  const { category, id } = req.params;
 
-const { category, id} = req.params;
-console.log(req.body);
-
-const  { body, img}  = req.body;
-
-// recibo el string del form-data body y lo parseo. El req.body trae todo el append o sea q la imagen y el body por separado por eso desestructuro, "body" es el nombre de la propiedad en el append
- let editProduct= JSON.parse(body);
-
- let stockQuantityNumber = parseInt(editProduct.stockQuantity);
-
- const isPostiveNumber = Math.sign(editProduct.price); //verifica el signo del numero
- const isPostiveNumberQuantity = Math.sign(stockQuantityNumber); //verifica el signo del numero
-//  
-  if(isNaN(editProduct.price)){
-    return res.status(400).json({
-      success: false,
-      msj : `El precio tiene que ser un numero mayor a 1. ${editProduct.price.toUpperCase()} no es un numero `
-    })
-  }
-
-  if(isNaN(editProduct.stockQuantity)){
-    return res.status(400).json({
-      success: false,
-      msj : `El stock tiene que ser un numero mayor a 1. ${stockQuantityNumber.toUpperCase()} no es un numero `
-    })
-  }
-
-
-  // significa q es negativo
-  if(isPostiveNumber == -1){
-    return res.status(400).json({
-      success: false,
-      msj : `Solo se permite el ingreso de numeros mayores a 1. ${editProduct.price} no es un numero permitido `
-
-    })
-  }
-  
-  // significa q es negativo
-  if(isPostiveNumberQuantity == -1){
-    return res.status(400).json({
-      success: false,
-      msj : `Solo se permite el ingreso de numeros mayores a 1. ${stockQuantityNumber} no es un numero permitido `
-
-    })
-  }
-
-
-//  esto lo hago xq no siempre se edita la img, sino tira error cuando intenta leer el req.file
-let fileInReq;
-if(img == 'no-image' ){
-  fileInReq = false;
-}else{
-  fileInReq = true;
-}
-
-const { name,  ...rest } = editProduct; 
-
-      
-  let productEdit = await Product.findById(  id.trim() ) || null; //busca el id en la BD 
-
-  const categoryUpdate = await Category.findOne({name: category.trim()}) || null;
-
+  let productEdit = await Product.findById( id.trim()); 
 
   if (!productEdit){
     return res.status(400).json ({
@@ -193,60 +132,57 @@ const { name,  ...rest } = editProduct;
     });
   }
 
- // limpiar imagenes y el condicional es para q no ejecute la limpieza xq pued eno venir una img nueva
+  const { stockQuantity, ...rest}  = req.body;
 
-if(fileInReq ) {
-
-  if(productEdit.img){
-    const nameArr = productEdit.img.split('/');
-    const name = nameArr [ nameArr.length - 1 ];
-    const [ public_id] = name.split('.');
-    cloudinary.uploader.destroy( `FoodApp/${category}/${public_id}`);
-  
+  const validationResult = validatePrice(req.body);
+  if (!validationResult.success) {
+    return res.status(400).json({
+      success: false,
+      message: validationResult.message,
+    });
   }
 
-  // si la extension no es válida no se ejecuta mas, el metodo validExtensaion se encarga de contestar
+    let secure_URL = null;
 
-  await validExtension(req.files.img, res);
-//OJO ARREGLAR EL ERROR PARA Q MUESTRE LOS TROW
+    // puede ser q sea un edit pero sin cambiar la img
+    if(req.files !== null){
 
-  const { tempFilePath } = req.files.img;
+    const { tempFilePath } = req.files.img;
+    // // si la extension no es válida no se ejecuta mas, el metodo validExtensaion se encarga de contestar
+    await validExtension(req.files.img, res);
+      
+      //obtengo la img actual desde la BD
+      const nameArr = productEdit.img.split('/');
+      const name = nameArr [ nameArr.length - 1 ];
+      const [ public_id] = name.split('.');
+      console.log(public_id);
+      cloudinary.uploader.destroy( `FoodApp/${category}/${public_id}`);
 
-  const { secure_url } = await cloudinary.uploader.upload( tempFilePath, {folder: `FoodApp/${category}`});
+    const { secure_url } = await cloudinary.uploader.upload( tempFilePath, {folder: `FoodApp/${category}`});
+    secure_URL = secure_url
+  }
+
+  let tempProduct = {};
 
   tempProduct = {
-       ...rest,
-      img :secure_url,
-      category: categoryUpdate._id,
-      name 
-  
+      img : secure_URL ? secure_URL : tempProduct.img ,
+      ...rest
   }
 
-}
-// end no-image
+  if(stockQuantity > 0){
+    tempProduct.stock = true;
+  }else{
+    tempProduct.stock = false;
+  }
 
-tempProduct = {
-  ...rest,
-//  img :secure_url,
- category: categoryUpdate._id,
- name 
-
-}
-
-if(stockQuantityNumber > 0){
-  tempProduct.stock = true;
-}else{
-  tempProduct.stock = false;
-}
-tempProduct.stockQuantity = stockQuantityNumber;
-  
-  const product= await Product.findByIdAndUpdate( productEdit._id, tempProduct,{new:true}).populate("category", "name state");
+    
+    const product= await Product.findByIdAndUpdate( productEdit._id, tempProduct,{new:true}).populate("category", "name state");
 
 
-  res.json( {
-    success: true,  
-    product
-  } );
+    res.json( {
+      success: true,  
+      product
+    } );
 
 } catch (error) {
   console.log('error desde updateProduct: ', error);
@@ -260,106 +196,79 @@ tempProduct.stockQuantity = stockQuantityNumber;
 
 }
 
-const updateManyPrice = async ( req, res) => {
+const updateManyPrice = async (req, res) => {
 
-try {
-
-// la idea de q este metodo sirva para actualizar varios productos a la vez por campos y categoria/s 
-const { categoryId, name } = req.validCat 
-
-// recibo el body con el nombre del campo que quiero actualizar VALIDAR NUMEROS PRICE!!!!
-  const  { value, operation }  = req.body;
-  
-  const isPostiveNumber = Math.sign(value); //verifica el signo del numero
-  
-
-// suma  
-  if(isNaN(value)){
-    return res.status(400).json({
-      success: false,
-      msj : `Solo se permite el ingreso de numeros. ${value} no es un numero `
-    })
-  }
-
-  if(isPostiveNumber != 1){
-    return res.status(400).json({
-      success: false,
-      msj : `Solo se permite el ingreso de numeros mayores a 1. ${value} no es un numero permitido `
-
-    })
-  }
-
-  let numberDocUpdated;
-  
-  //SUMA
-  if(operation.toUpperCase() == "SUMAR") {
-    console.log("entro a sumar");
-     numberDocUpdated= await Product.updateMany(
-        { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
-        { $inc : { price :  value  } },   // le paso el valor de reemplazo
-        { "multi": true }
-        )
-   }
-  
-   // RESTA
-   if(operation.toUpperCase() == "RESTAR") {
-     numberDocUpdated= await Product.updateMany(
-        { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
-        { $inc : { price : - value  } },   // le paso el valor de reemplazo
-        { "multi": true }
-     )
- }
-
- // INCREMENTAR %
- if(operation.toUpperCase() == "INCREMENTAR %") {
-
-    const pricePercent = checkValue(value);
-    numberDocUpdated= await Product.updateMany(
-      { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
-      {  $mul: { price : pricePercent } },   // le paso el valor de reemplazo
-      { "multi": true }
-  )
-}
-
-// DECREMENTAR %
-if(operation.toUpperCase() == "DECREMENTAR %") {
-
-  let priceDec;
-  let valueDec;
-  if( value > 0 && value < 100 ) {
-          valueDec = 100 - value;
-          valueDec = valueDec / 100 ;
-  }else{
-    return res.status(400).json({
-      success: false,
-      msg:`${ value } no es un porcentage valido solo de 1 a 99%...`
-
-    })
-  }
-
-  numberDocUpdated= await Product.updateMany(
-    { "category" : categoryId }, //condición q debe cumplir el doc para ser editado
-    { $mul: { price : priceDec } },   // le paso el valor de reemplazo
-    { "multi": true }
-)
-}
+  try {
+    const { categoryId, name } = req.validCat;
     
-  res.json( {
-   success: true,
-   msj : `Se modificaron ${numberDocUpdated.modifiedCount} producto(s) de la categoria ${name}`  
- } );  
-  
+    // Verificar si la categoría existe en la base de datos
+    const category = await Category.findById(categoryId);
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        msg: `No se encontró la categoría con id ${categoryId}`
+      });
+    }
 
-} catch (error) {
-  console.log('error desde updateToMany: ', error);
+    const { value, operation } = req.body;
 
-  return res.status(500).json({
-    success: false,
-    msg: "Oops algo salió mal al intentar editar un producto"
-  })
+    if (isNaN(value)) {
+      return res.status(400).json({
+        success: false,
+        msg: `${value} no es un número válido`
+      });
+    }
 
-}
-}
+    if (value <= 0) {
+      return res.status(400).json({
+        success: false,
+        msg: `El valor debe ser mayor a cero`
+      });
+    }
+
+    let priceUpdate;
+
+    if (operation.toUpperCase() === "SUMAR") {
+      priceUpdate = { $inc: { price: value } };
+    } else if (operation.toUpperCase() === "RESTAR") {
+      priceUpdate = { $inc: { price: -value } };
+    } else if (operation.toUpperCase() === "INCREMENTAR %") {
+      const pricePercent = checkValue(value);
+      priceUpdate = { $mul: { price: pricePercent } };
+    } else if (operation.toUpperCase() === "DECREMENTAR %") {
+      if (value < 1 || value >= 100) {
+        return res.status(400).json({
+          success: false,
+          msg: `El valor debe ser un porcentaje válido entre 1 y 99`
+        });
+      }
+      const pricePercent = 1 - value / 100;
+      priceUpdate = { $mul: { price: pricePercent } };
+    } else {
+      return res.status(400).json({
+        success: false,
+        msg: `Operación inválida: ${operation}`
+      });
+    }
+
+    const result = await Product.updateMany(
+      { category: categoryId },
+      priceUpdate,
+      { multi: true }
+    );
+
+    res.json({
+      success: true,
+      msg: `Se modificaron ${result.modifiedCount} producto(s) de la categoría ${name}`
+    });
+  } catch (error) {
+    console.log('Error desde updateToMany:', error);
+    res.status(500).json({
+      success: false,
+      msg: "Oops, algo salió mal al intentar editar un producto"
+    });
+  }
+};
 
 const deleteProduct = async (req, res) => {
  

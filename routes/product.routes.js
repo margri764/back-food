@@ -6,7 +6,7 @@ const { checkFields, multiRole, requireToken} = require ('../middlewares');
 const { checkFileUp } = require('../middlewares/check-file');
 const { validCategory, validOperation } = require('../helpers/db-validators.js');
 const { checkCategory } = require('../middlewares/check-category');
-const { sanitizeProductBody, sanitizeProductBodyUpdate } = require('../middlewares/sanitize-body-products');
+const { sanitizeProductBody, sanitizeProductBodyUpdate, sanitizeOperation } = require('../middlewares/sanitize-body-products');
 
 const router = Router();
 
@@ -22,9 +22,10 @@ router.post('/:category',[
 
 router.put('/:category/:id',[
     requireToken,
-    // param('category').trim().escape().isAlpha(),
-    // param('id').trim().escape().isMongoId(),
-    sanitizeProductBodyUpdate,
+    param('category').trim().escape().isAlpha(),
+    param('id').trim().escape().isMongoId(),
+    sanitizeProductBodyUpdate(),
+    check('category').custom( category => validCategory(category, ['BURGER', 'PIZZA', 'HEALTHY', 'VEGAN', 'DRINK', 'FRIES', 'OFFER'])),
     multiRole('ADMIN_ROLE','SUPER_ROLE'),
     checkFields  
 ], updateProduct)
@@ -33,9 +34,11 @@ router.put('/:category/:id',[
 // modificar todos los precios por categoria
 router.patch('/updateManyPrice/:category',[
     requireToken,
+    param('category').trim().escape().isAlpha(),
+    sanitizeOperation(),
     multiRole ('ADMIN_ROLE','SUPER_ROLE'),
-    checkCategory,
     check('operation').custom( operation => validOperation(operation, ['SUMAR', 'RESTAR', 'INCREMENTAR %', 'DECREMENTAR %'])),
+    checkCategory,
     checkFields  
 ], updateManyPrice)
 

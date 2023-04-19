@@ -1,5 +1,5 @@
-const Joi = require('joi');
-const { productSchema, productUpdateSchema } = require('../schemas/product.schema');
+
+const {productSchema, productUpdateSchema, operationSchema } = require('../schemas/product.schema') 
 
 
 
@@ -18,8 +18,6 @@ function sanitizeProductBody( ) {
 
   function sanitizeProductBodyUpdate( ) {
     return (req, res, next) => {
-
-        console.log(req.body);
         const { editProduct } = req.body;
         const  parseProduct= JSON.parse(editProduct);
         const { error, value } = productUpdateSchema.validate(parseProduct, { stripUnknown: true });
@@ -30,5 +28,17 @@ function sanitizeProductBody( ) {
       next();
     };
   }
+
+  function sanitizeOperation( ) {
+    return (req, res, next) => {
+      const { error, value } = operationSchema.validate(req.body, { stripUnknown: true });
+      if (error) {
+        return res.status(400).json({ message: error.message });
+      }
+      req.body = value;
+      console.log(req.body);
+      next();
+    };
+  }
   
-module.exports = { sanitizeProductBody, sanitizeProductBodyUpdate };
+module.exports = { sanitizeProductBody, sanitizeProductBodyUpdate, sanitizeOperation };
