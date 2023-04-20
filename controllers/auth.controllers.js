@@ -50,7 +50,7 @@ res.status(200).json({
 }
 
 const signUp = async (req, res=response) => {
-    
+
     try {
 
         // Obtener la data del usuario: name, email
@@ -81,7 +81,6 @@ const signUp = async (req, res=response) => {
        
         // Crear un nuevo usuario
         user = new UserSignUp({email, password, code, ...rest});
-         
         
         // encriptar contraseña
         const salt = bcryptjs.genSaltSync();
@@ -93,7 +92,6 @@ const signUp = async (req, res=response) => {
         success: true,
         user
     });
-
 
     } catch (error) {
         console.log("error desde signUp: ",error);

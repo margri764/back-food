@@ -1,11 +1,9 @@
  
  const { Router } = require ('express');
-
  const { check } = require ('express-validator');
- const { createCategory,  getCategory, getCategoryById, updateCategory, deleteCategory } = require('../controllers/category.controllers');
- const { checkCategory} = require ('../helpers/db-validators');
- 
  const router = Router();
+ const { checkCategory} = require ('../helpers/db-validators');
+ const { createCategory,  getCategory, getCategoryById, updateCategory, deleteCategory } = require('../controllers/category.controllers');
  
  
 //  const { checkToken } = require ('../middlewares/check-jwt');
@@ -18,32 +16,28 @@
  
  //obtener una categoria por id - publico
  router.get('/:id',[
- 
      check('id', 'no es un id de Mongo valido').isMongoId(),
      check('id').custom( checkCategory),
      checkFields,
- ],getCategoryById);
- 
- 
+ ], getCategoryById);
  
  //crear una categoria  
-
  router.post('/',[ 
      requireToken,
      multiRole('ADMIN_ROLE','SUPER_ROLE'),
      check('name','el nombre es obligatorio').not().isEmpty(),
      checkFields  
- 
- ],createCategory );
+ ], createCategory );
  
  
  //actualizar una categoria - privado cualquier persona con token valido
  router.put('/:id',[
      requireToken,
+     multiRole('ADMIN_ROLE','SUPER_ROLE'),
      check('name','el nombre es obligatorio').not().isEmpty(),
      check('id').custom( checkCategory),
      checkFields
- ],updateCategory);
+ ], updateCategory);
  
  //Borrar una categoria - privado solos si tiene role "ADMIN"
  router.put('/deleteCategory/:id',[
@@ -52,7 +46,7 @@
      check('id', 'no es un id de Mongo valido').isMongoId(),
      check('id').custom( checkCategory),
      checkFields,
- ],deleteCategory);
+ ], deleteCategory);
  
  
  

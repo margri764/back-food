@@ -1,4 +1,3 @@
-
 const { Router } = require ('express');
 const { check, param } = require ('express-validator');
 const { createProduct, updateProduct, deleteProduct, updateManyPrice, deleteManyProduct, pausePlayCategory, pausePlayProductByID, getProduct } = require('../controllers/product.controllers');
@@ -12,9 +11,9 @@ const router = Router();
 
 router.post('/:category',[ 
     requireToken,
+    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
     param('category').trim().escape().isAlpha(),
     sanitizeProductBody(),
-    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
     checkFileUp,
     check('category').custom( category => validCategory(category, ['BURGER', 'PIZZA', 'HEALTHY', 'VEGAN', 'DRINK', 'FRIES', 'OFFER'])),
     checkFields  
@@ -22,6 +21,7 @@ router.post('/:category',[
 
 router.put('/:category/:id',[
     requireToken,
+    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
     param('category').trim().escape().isAlpha(),
     param('id').trim().escape().isMongoId(),
     sanitizeProductBodyUpdate(),
@@ -30,22 +30,23 @@ router.put('/:category/:id',[
     checkFields  
 ], updateProduct)
 
-
 // modificar todos los precios por categoria
 router.patch('/updateManyPrice/:category',[
     requireToken,
+    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
     param('category').trim().escape().isAlpha(),
     sanitizeOperation(),
-    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
     check('operation').custom( operation => validOperation(operation, ['SUMAR', 'RESTAR', 'INCREMENTAR %', 'DECREMENTAR %'])),
     checkCategory,
     checkFields  
 ], updateManyPrice)
 
-
 router.patch('/pauseCategory/:category',[
     requireToken,
     multiRole ('ADMIN_ROLE','SUPER_ROLE'),
+    check('id').trim().escape().isMongoId(),
+    param('category').trim().escape().isAlpha(),
+    check('category').custom( category => validCategory(category, ['BURGER', 'PIZZA', 'HEALTHY', 'VEGAN', 'DRINK', 'FRIES', 'OFFER'])),
     checkCategory,
     checkFields  
 ], pausePlayCategory)

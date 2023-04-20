@@ -23,7 +23,6 @@ const createOrder= async ( req , res ) => {
 
         // obtengo de la orden todos los objetos productos y los guardo en un array
         order.forEach((item) => { arrIDs.push(item._id) });
-        // console.log(productsToUpdate, arrIDs);
         
         // obtengo el total
         tempTotal = order.filter( item =>  item.total);
@@ -40,7 +39,7 @@ const createOrder= async ( req , res ) => {
                 pero no al momento de comprarla */
               orderIds.forEach((order) => {
                 const orderId = order._id; // Acceder al _id del objeto order
-                // console.log('order:   ', order);
+
                 order.product.forEach((product) => {
                   productIDs.push({_id: product._id, quantity: product.quantity, orderId: orderId});
                 });
@@ -194,7 +193,6 @@ const getUserOrder= async ( req , res ) => {
 const getUserHistoryPurchaseOrders= async ( req , res ) => {
 
     const {id} = req.params;
-    console.log(id);
 
     try {
         const purchaseOrder = await PurchaseOrder.find({ user: id, finished: true }) 

@@ -14,7 +14,7 @@ const PurchaseOrderSchema = Schema({
         required: true
      },
 
-     order: [{
+    order: [{
             type: Schema.Types.ObjectId,
             ref: "TempPurchaseOrder",
             required: true
@@ -28,17 +28,7 @@ const PurchaseOrderSchema = Schema({
      statusOrder: {
         type: Array,
         default: [],
-        // emun: [ 'PROCESSING','DELIVERY','PICK_UP_ORDER','COMPLETE','DELETE']
     },
-    
-     
-    //  statusOrder:{
-    //     type : String,
-    //     required: true,
-    //     default: "INGRESADO"
-
-    //  },
-     
 
     addressDelivery :{
         type: String,
@@ -50,24 +40,13 @@ const PurchaseOrderSchema = Schema({
         default: 0
     },
 
-    // createdAt :{
-    //     type: Date,
-    // },
-
-    // updateddAt :{
-    //     type: Date,
-    // }
-
     }, 
     { timestamps : true}
     );
 
 PurchaseOrderSchema.methods.toJSON = function(){
     const {__v,password, ...order} = this.toObject();
-    // const {__v,password,_id,...usuario} = this.toObject();
-    // usuario.uid= _id;
     return order; 
 }
-
 
 module.exports= model('PurchaseOrder', PurchaseOrderSchema);

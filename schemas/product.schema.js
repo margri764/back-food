@@ -42,7 +42,6 @@ const productUpdateSchema = Joi.object({
     ingredients: Joi.string().default('')
 });
 
-
 const operationSchema = Joi.object({
 
   value: Joi.number().required().messages({
@@ -62,9 +61,9 @@ const operationSchema = Joi.object({
 
 });
 
-  
+
 module.exports = {
                   productSchema,
                   productUpdateSchema,
-                  operationSchema
+                  operationSchema,
                 };

@@ -431,7 +431,7 @@ const pausePlayProductByID = async (req, res) => {
 
 const pausePlayCategory = async (req, res) => {
 
-  const {playOrPause, _id } = req.body;
+  const { playOrPause, _id } = req.body;
 
    try {
    

@@ -4,27 +4,35 @@ const Product = require ('../models/product');
 
 const createCategory =  async (req, res) => { 
 
-    const name= req.body.name.toUpperCase(); 
-    const user = req.userAuth
-    const categoryDB = await Category.findOne({name});
+    try {
+        
+        const name= req.body.name.toUpperCase(); 
+        const user = req.userAuth
+  
+        const data = {
+            name,
+            user: user._id
+        }
 
-    if(categoryDB){
-        return res.status(400).json({
-            msg:` La categoria ${categoryDB.name} ya existe `
-        });
+        const category = new Category ( data );
+        await category.save();
+
+        res.status(201).json({
+            success : true,
+            category
+        })
+
+} catch (error) {
+    console.log('error desde createCategory: ', error);
+    let errorMessage = "Oops algo salio mal al intentar crear una categoría"
+    if(error.message.includes("Intenta eliminar una categoria que no existe ")){
+      errorMessage = error.message;
     }
-    const data = {
-        name,
-        user: user._id
-    }
-
-    const category = new Category ( data );
-    await category.save();
-
-    res.status(201).json({
-        success : true,
-        category
+    return res.status(500).json({
+      success: false,
+      msg: errorMessage
     })
+}
 }
 
 const getCategory = async (req,res)=>{

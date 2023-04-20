@@ -14,9 +14,9 @@ function sanitizeProductBody( ) {
       req.body = value;
       next();
     };
-  }
+}
 
-  function sanitizeProductBodyUpdate( ) {
+function sanitizeProductBodyUpdate( ) {
     return (req, res, next) => {
         const { editProduct } = req.body;
         const  parseProduct= JSON.parse(editProduct);
@@ -27,9 +27,9 @@ function sanitizeProductBody( ) {
       req.body = value;
       next();
     };
-  }
+}
 
-  function sanitizeOperation( ) {
+function sanitizeOperation( ) {
     return (req, res, next) => {
       const { error, value } = operationSchema.validate(req.body, { stripUnknown: true });
       if (error) {
@@ -39,6 +39,7 @@ function sanitizeProductBody( ) {
       console.log(req.body);
       next();
     };
-  }
-  
+}
+
+
 module.exports = { sanitizeProductBody, sanitizeProductBodyUpdate, sanitizeOperation };

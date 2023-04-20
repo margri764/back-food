@@ -49,7 +49,7 @@ const userSignUpSchema = Schema({
   
 
 userSignUpSchema.methods.toJSON = function(){
-    const {__v,...rest} = this.toObject();
+    const {__v, password, ...rest} = this.toObject();
     // const {__v,password,_id,...usuario} = this.toObject();
     // usuario.uid= _id;
     return rest; 

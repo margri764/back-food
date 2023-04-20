@@ -1,12 +1,8 @@
 
 
-
-const cron = require('node-cron');
-const User = require ('../models/user');
-const PurchaseOrder = require('../models/purchaseOrder');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
-const Product = require('../models/product');
-const {updateStock, checkIfExistTempOrder, updateStockFromTempOrder} = require('../helpers/stock-managment');
+const {checkIfExistTempOrder, updateStockFromTempOrder} = require('../helpers/stock-managment');
+const _ = require('lodash');
 
 
 const createTempOrder = async ( req , res ) => {
@@ -39,9 +35,12 @@ const createTempOrder = async ( req , res ) => {
              await updateStockFromTempOrder(item);
 
           }
+
+   
       
       const tempOrder = {
-          user    : user,
+          // user: _.pick(user, ['_id', 'firstName','lastName', 'email', 'addressDelivery','addressFavorite', 'createdAt', 'google','phone', 'role', 'stateAccount','updatedAt','user_login']),
+          user: user._id,
           product : productID,
           drink   : drink,
           fries   : fries,
@@ -115,7 +114,6 @@ try {
                     }
               ])
         
-
   return res.status(200).json({
     success: true,
     tempOrder

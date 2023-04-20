@@ -3,15 +3,24 @@ const {check} = require ('express-validator');
 const { checkFields, requireRefreshToken, requireToken } = require('../middlewares')
 const { confirm, signUp, login, phone, refreshToken, logout, emailToAsyncValidatorLogin, emailToAsyncValidatorRegister, resetPassword, generateTokenToPassword} = require('../controllers/auth.controllers');
 const { checkUserEmail } = require('../helpers/check_user_type');
+const { sanitizeSignUp } = require('../middlewares/sanitize-auth');
 const router = Router();
 
-// ver si necesito mas checks
+router.post('/login',[
+    check('email','el correo no es valido').isEmail(),
+    check('password','El password es obligatorio, mas de 6 letras').not().isEmpty(),
+    checkFields
+], login);
 
 router.post('/validate-code',[
-],confirm); 
+    check('email','el correo no es valido').isEmail(),
+    check('code').matches(/^[0-9]{6}$/),
+    checkFields
+], confirm); 
 
 router.post('/signup',[
-],signUp);
+    sanitizeSignUp(),
+], signUp);
 
 router.post('/restorePassword',[
     check('email','el correo no es valido').isEmail(),
@@ -23,17 +32,9 @@ router.post('/resetPassword',[
     check('email').custom( checkUserEmail),
 ], resetPassword); 
 
-
 router.post('/signup/phone',[
  requireToken
 ], phone);
-
-router.post('/login',[
-    check('email','el correo no es valido').isEmail(),
-    // check('email').custom( checkUserEmail),
-    check('password','El password es obligatorio, mas de 6 letras').not().isEmpty(),
-    checkFields
-], login);
 
 //para valdiacion asyncrona formulario reactivo
 router.get('/emailSyncLogin',[

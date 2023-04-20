@@ -41,7 +41,4 @@ const orderValidator = async ( order )=>{
 
 
 
-module.exports={
-                orderValidator,
-              
-               }
+module.exports = { orderValidator }

@@ -12,6 +12,7 @@ const userGet = async (req,res=response)=>{
     const [ total, usuarios] = await Promise.all([
         User.countDocuments( {state:true}),
         User.find( {state:true} )
+            .select('-password') // Excluye el campo 'password'
             .skip( Number (from))
             .limit( Number (limit))
     ])  
