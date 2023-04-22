@@ -7,7 +7,7 @@ const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 // en el front deberia eliminar los arreglos del SS y volver a cambiar todo OJO con esto
 
 const orderValidator = async ( order )=>{
-
+//    console.log('pasa por aca?: ', order);
     let arrIDs = [];
     let tempArrIds = []; 
     
