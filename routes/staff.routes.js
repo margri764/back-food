@@ -1,26 +1,29 @@
-
-
 const { Router } = require ('express');
 const {check} = require ('express-validator');
 const router = Router();
-
-const { createRole, pausePlayApp, getAppState, createHourlyRate, updateHourlyRateById, deleteHourlyRateById, getStaff, createStaff, staffUpdate, deleteStaff, pausePlayStaffById, updateCustomMsg } = require('../controllers/staff.controllers');
+const { createRole, pausePlayApp, getAppState, createHourlyRate, updateHourlyRateById, deleteHourlyRateById, getStaff, createStaff, staffUpdate, deleteStaff, pausePlayStaffById, updateCustomMsg, createApp } = require('../controllers/staff.controllers');
 const { superRole, checkFields, multiRole, requireToken } = require('../middlewares')
 const { isStaffRoleValid, checkIdStaff } = require('../helpers/db-validators');
 const { getStaffOrders, editOrderStatus, getStaffOrdersByQuery } = require('../controllers/staffOrders.controllers');
-const { getStaffProducts } = require('../controllers/product.controllers');
+const { sanitizeStaff, sanitizeUpdateStaff } = require('../middlewares/sanitize-staff');
+const { sanitizeHourlyApp } = require('../middlewares/sanitize-app');
 
 
-// para crear un empleado tiene q ser un usuario SUPER_ROLE 
-//para crear productos, categorias, editar todo eso con ADMIN_ROLE
-//estas son las rutas de lo q puede o no hacer un empleado
+
+
+router.post('/createApp',[
+    requireToken,
+    multiRole("SUPER_ROLE"),
+    check('role').custom( role => isStaffRoleValid(role)),
+    checkFields
+], createApp); 
 
 router.post('/createStaff',[
     requireToken,
+    sanitizeStaff(),
     multiRole("SUPER_ROLE","ADMIN_ROLE"),
     check('role').custom( role => isStaffRoleValid(role)),
     checkFields
-    
 ], createStaff); 
 
 router.patch('/updateCustomMsg', [
@@ -36,7 +39,7 @@ router.get('/getStaff',[
 
 router.put('/editStaff/:id',[
     requireToken,
-    check('id','No es un id valido de mongoDB').isMongoId(),
+    sanitizeUpdateStaff(), 
     check('id').custom( checkIdStaff ),
     check('role').custom( isStaffRoleValid ),
     checkFields
@@ -53,16 +56,18 @@ router.patch('/deleteStaff/:id',[
 router.patch('/pausePlayStaff/:id',[
     requireToken,
     check('id','No es un id valido de mongoDB').isMongoId(),
-    multiRole ('ADMIN_ROLE','SUPER_ROLE', 'STAFF_ROLE'),
+    check('pauseOrPlay')
+    .exists().withMessage('El query pauseOrPlay es obligatorio')
+    .isIn(['pause', 'play']).withMessage('El valor debe ser "pause" o "play"'),
+    multiRole ('ADMIN_ROLE','SUPER_ROLE'),
     checkFields  
 ], pausePlayStaffById)
-
 
 router.post('/createRole',[
     requireToken,
     superRole,
     checkFields
-],createRole); 
+], createRole); 
 
 // obtengo todas las ordenes
 router.get('/orders',[
@@ -82,7 +87,6 @@ router.get('/orders/byQuery',[
 router.get('/appState',[
 ], getAppState); 
 
-
 router.put('/orderStatus',[
     requireToken,
     multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
@@ -91,13 +95,15 @@ router.put('/orderStatus',[
 
 router.post('/pausePlayApp',[
     requireToken,
-    multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
+    multiRole("SUPER_ROLE","ADMIN_ROLE"),
+    sanitizeHourlyApp(),
     checkFields
-],pausePlayApp)
+], pausePlayApp)
 
 router.patch('/hourlyRate',[
     requireToken,
     multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
+    sanitizeHourlyApp(),
     checkFields
 ], createHourlyRate)
 
@@ -105,6 +111,7 @@ router.patch('/hourlyRate/:id',[
     requireToken,
     multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
     check('id','No es un id valido de mongoDB').isMongoId(),
+    sanitizeHourlyApp(),
     checkFields
 ], updateHourlyRateById)
 

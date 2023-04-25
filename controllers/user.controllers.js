@@ -1,10 +1,9 @@
 const {response} = require ('express');
-
 const User = require ('../models/user');
 const UserSignUp = require ('../models/userSignUp');
 const Staff = require ('../models/staff');
 const Setting = require ('../models/setting');
-const PurchaseOrder = require ('../models/purchaseOrder');
+
 
 const userGet = async (req,res=response)=>{
 
@@ -26,7 +25,6 @@ const userGet = async (req,res=response)=>{
 
 const getUserByToken = async (req,res=response)=> {
 
-    // const { id }  = req.params;
     const userToken = req.userAuth
 
     let emailToCheck = userToken.email.split("@");
@@ -44,7 +42,6 @@ const getUserByToken = async (req,res=response)=> {
             user = await User.findById(userToken._id);
             
         }    
-       
     
         if( !user){
             return res.status(400).json({
@@ -52,7 +49,6 @@ const getUserByToken = async (req,res=response)=> {
                 msg: 'Usuario no encontrado'
             });
         }
-    
 
         res.status(200).json({ 
             success : true,
@@ -61,7 +57,7 @@ const getUserByToken = async (req,res=response)=> {
         });
 
         } catch (error) {
-            console.log(error);
+            console.log("error desde getUserByToken: ",error);
             return res.status(500).json({
                 success: false,
                 msg: 'Error al buscar usuario por id'
@@ -96,60 +92,6 @@ const getAllUsers = async (req, res=response)=> {
         }
 }
 
-
-const userPost= async (req, res = response) => {
-    
-let userVerified;
-
-const user_loginDB = await UserSignUp.findOne({email: req.body.email});
-const user = await User.findOne({email: req.body.email} || null);
-
-if( user !== null){
-    return res.status(400).json({
-        success:false,
-        msg:"El Usuario ya existe en Base de Datos"
-    })
-}
-
-if( user_loginDB==null){
-    return res.status(400).json({
-        success:false,
-        msg:"No existe un usuario logeado"
-    })
-}
-
-if(user_loginDB.stateAccount == false || user_loginDB == "UNVERIFIED") {
-    return res.status(400).json({
-        success:false,
-        msg:"Usuario eliminado o sin verificar email, Hable con el admninistrador"
-    })
-}
-
-//si llego hasta axa xq es un usuario autenticado y verificado poer eso mando emailVerified
-    userVerified={
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    password:req.body.password,
-    email: req.body.email,
-    emailVerified: true,
-    phone: req.body.phone,
-    user_login: user_loginDB._id,
-}
-
-
-const userToSave = new User (userVerified);
-
- 
-    await userToSave.save();
-    res.json({
-        success: true,
-        msg:'Usuario creado correctamente',
-        userToSave
-    })
-
-
-}
-
 const userPut= async (req, res) => {
     
 try {
@@ -157,6 +99,7 @@ try {
     // const { id } = req.params;
     const { ...rest } = req.body;
     const userToken = req.userAuth
+
     
     //busco al usuario de la req por id
     const user = await User.findByIdAndUpdate( {_id : userToken._id}, rest,{new:true})
@@ -192,7 +135,7 @@ const userDelete= async (req, res) => {
     try {
         const user = await User.findByIdAndUpdate(id, {stateAccount:false}, {new:true})
 
-        if(user == null){
+        if(!user){
             return res.status(400).json({
                 success: false,
                 masg: 'Usuario no encontrado'
@@ -232,7 +175,6 @@ const activeUserAccount= async (req, res) => {
             });
         } 
     
-    
     } catch (error) {
         console.log('desde activeUserAccount: ', error);
         return res.status(500).json({
@@ -248,10 +190,8 @@ const getSettingUser = async (req, res) => {
 
      const userToken = req.userAuth
 
-     
      try {
      // depende del valor del email del staff de cada empresa, busca en una u otra coleccion
-         
  
         const result = await Setting.findOne( {user: userToken._id} );
         if(result === null){
@@ -280,15 +220,7 @@ const settingUser = async (req, res) => {
     
     const { bata, shop, farmacia, email, typeRequest } = req.body;
 
-
     const userToken = req.userAuth
-
-    if( typeRequest === undefined || typeRequest === ''){
-        return res.status(400).json({
-            success: false,
-            msg: "No se incluyo ningun valor al campo TypeRequest"
-        })
-    }
 
     try {
 
@@ -338,48 +270,10 @@ const settingUser = async (req, res) => {
     
 };
 
-// const getUserHistoryPurchases = async (req, res) => {
-    
-//     const {_id, firstName, lastName} = req.body
-
-//     try {
-//         const orders = PurchaseOrder.find( {user: _id, finished:true} ) || null;
-    
-//         if(orders ==null){
-//             return res.status(400).json({
-//                 success: false,
-//                 msg: `Ordenes no encontradas para el usuario ${firstName} ${lastName}`
-//             })
-//         }else{
-//             return res.status(200).json ({
-//                 success: true,
-//                 orders
-//             })
-//         }
-        
-//     } catch (error) {
-//         console.log('error desde settigetUserHistoryPurchasesngUser: ', error);
-//         res.status(500).json({
-//             msg: 'Error al intentar obtener ordenes de Usuario',
-//             success: false
-//         })   
-//     }
-  
-    
-   
-
-//     res.json({ 
-//       usuarios
-
-//     });
-// };
-
-
-
 
 module.exports={
     userGet,
-    userPost,
+    // userPost,
     userPut,
     userDelete,
     getUserByToken,
@@ -387,5 +281,4 @@ module.exports={
     getSettingUser,
     getAllUsers,
     activeUserAccount,
-    // getUserHistoryPurchases
 }

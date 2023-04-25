@@ -1,15 +1,15 @@
 
 const twilio = require ('twilio');
 
-
 //estabezco mi conexion con twilio
-const client = new twilio (process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
+client = new twilio (process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 
 //en esta funcion disparo el sms
 const createSMS = (phone , code)=>{
 
-      // Expresión regular que valida números de celulares en Argentina
-  const phoneRegex = /^11\d{8}$|^2\d{9}$|^[2-9]\d{8}$/;
+  // Expresión regular que valida números de celulares en Argentina
+  const phoneRegex = /^(\+54|54)?\s*([1-9]\d{0,3})?\s*([1-9]\d{5,7})$/;
+  
     const tempPhone = "+54" + phone;
 
     if (!phoneRegex.test(phone)) {
@@ -25,4 +25,4 @@ const createSMS = (phone , code)=>{
     .catch((error) => console.log('Error al enviar el mensaje desde sms.js', error));
 }
 
-module.exports= createSMS;
+module.exports = createSMS;

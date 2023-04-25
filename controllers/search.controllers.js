@@ -4,40 +4,39 @@ const PurchaseOrder = require('../models/purchaseOrder');
 const User = require ('../models/user')
 
 
-const getProductSearch = async ( req, res) =>{
+// const getProductSearch = async ( req, res) =>{
     
-    const querySearch = req.query.nameItem;
-
+//     const querySearch = req.query.nameItem;
  
-    try {
+//     try {
    
-        regex = querySearch;
-        const [ product ] = await Promise.all([    
+//         regex = querySearch;
+//         const [ product ] = await Promise.all([    
          
-            Product.find ({
-                name:{ 
-                "$regex": regex,
-                "$options": "is"
-            }})
+//             Product.find ({
+//                 name:{ 
+//                 "$regex": regex,
+//                 "$options": "is"
+//             }})
          
-           ]);
+//            ]);
 
 
-console.log(product);
+// console.log(product);
        
-        res.status(200).json({ 
-            product
+//         res.status(200).json({ 
+//             product
 
-        });
-    } catch (error) {
-        return res.status(501).json({
-            msg: 'base de datos no operativa'
-        })  
+//         });
+//     } catch (error) {
+//         return res.status(501).json({
+//             msg: 'base de datos no operativa'
+//         })  
           
-    }
+//     }
 
 
-}
+// }
 
 const getUserSearch = async (req, res) => {
 
@@ -54,7 +53,6 @@ const getUserSearch = async (req, res) => {
         ]
       });
   
-      console.log(users);
   
       res.status(200).json({
         success: true,
@@ -70,4 +68,4 @@ const getUserSearch = async (req, res) => {
 
 
   
-module.exports = {getProductSearch, getUserSearch }
+module.exports = { getUserSearch }

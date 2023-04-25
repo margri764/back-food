@@ -28,5 +28,27 @@ const signUpSchema = Joi.object({
 
 });
 
+const userUpdateSchema = Joi.object({
+    
+  firstName: Joi.string().required().messages({
+    'any.required': 'El nombre del usuario es obligatorio y tiene que ser un string',
+    'string.empty': 'El nombre del usuario no puede estar vacío',
+    'string.base': 'El nombre del usuario debe ser un string'
+  }),
 
-module.exports = { signUpSchema };
+  lastName: Joi.string().required().messages({
+    'any.required': 'El apellido del usuario es obligatorio y tiene que ser un string',
+    'string.empty': 'El apellido del usuario no puede estar vacío',
+    'number.base': 'El apellido del usuario debe ser un string'
+  }),
+
+  phone: Joi.string().default(''),
+  
+  email: Joi.string().email().required(),
+
+  addressFavorite: Joi.string(),
+});
+
+
+
+module.exports = { signUpSchema, userUpdateSchema };

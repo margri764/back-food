@@ -192,7 +192,7 @@ const getUserOrder= async ( req , res ) => {
 
 const getUserHistoryPurchaseOrders= async ( req , res ) => {
 
-    const {id} = req.params;
+    const { id } = req.params;
 
     try {
         const purchaseOrder = await PurchaseOrder.find({ user: id, finished: true }) 
@@ -225,9 +225,6 @@ const getUserHistoryPurchaseOrders= async ( req , res ) => {
                         },
                       ],
            })
-    
-   
-    
        
         res.json({ 
             success : true,
@@ -236,6 +233,7 @@ const getUserHistoryPurchaseOrders= async ( req , res ) => {
         });
         
     } catch (error) {
+      console.log('error desde getUserHistoryPurchaseOrders: ', error);
         return res.status(500).json ({
             success : false,
             msg : `Ooops algo salió mal al intentar obtener las ordenes de compra `
@@ -247,68 +245,69 @@ const getUserHistoryPurchaseOrders= async ( req , res ) => {
 }
 
 // son las ordenes que recibe el dashboard para editar y demas
-const getStaffOrder= async ( req , res ) => {
+// const getStaffOrder = async ( req , res ) => {
 
-    const user = req.userAuth
+//     const user = req.userAuth
+
+
     
-    try {
-        const purchaseOrder = await PurchaseOrder.find({ user: user._id }) 
-        .populate( {
-            path: 'order', 
-            populate: [ 
-                        {
-                          path: 'product',
-                          model: "Product",
-                        },
-                        {
-                          path: 'product._id',
-                          model: "Product",
-                        },
-                        {
-                          path: 'fries._id',
-                          model: "Product",
-                        },
-                        {
-                          path: 'drink',
-                          model: "Product",
-                        },
-                        {
-                          path: 'drink._id',
-                          model: "Product",
-                        },
-                        {
-                          path: 'user',
-                          model: "User",
-                        },
-                      ],
-           })
+//     try {
+//         const purchaseOrder = await PurchaseOrder.find({ user: user._id }) 
+//         .populate( {
+//             path: 'order', 
+//             populate: [ 
+//                         {
+//                           path: 'product',
+//                           model: "Product",
+//                         },
+//                         {
+//                           path: 'product._id',
+//                           model: "Product",
+//                         },
+//                         {
+//                           path: 'fries._id',
+//                           model: "Product",
+//                         },
+//                         {
+//                           path: 'drink',
+//                           model: "Product",
+//                         },
+//                         {
+//                           path: 'drink._id',
+//                           model: "Product",
+//                         },
+//                         {
+//                           path: 'user',
+//                           model: "User",
+//                         },
+//                       ],
+//            })
     
-        if(!purchaseOrder){
+//         if(!purchaseOrder){
     
-            return res.status(400).json ({
-                success : false,
-                msg : `No se encontraron ordenes para el usuario ${user.firstName} ${user.lastName} `
-            })
-        }
-    
-    
+//             return res.status(400).json ({
+//                 success : false,
+//                 msg : `No se encontraron ordenes para el usuario ${user.firstName} ${user.lastName} `
+//             })
+//         }
        
-        res.json({ 
-            success : true,
-            purchaseOrder
+//         res.json({ 
+//             success : true,
+//             purchaseOrder
     
-        });
+//         });
         
-    } catch (error) {
-        return res.status(500).json ({
-            success : false,
-            msg : `Ooops algo salió mal al intentar obtener las ordenes de compra `
-        })
+//     } catch (error) {
+//         console.log('error desde getStaffOrder: ', error);
+//         return res.status(500).json ({
+//             success : false,
+//             msg : `Ooops algo salió mal al intentar obtener las ordenes de compra `
+//         })
 
-    }
+//     }
 
  
-}
+// }
 
 // creo q no va xq tengo la "editOrderStatus en StaffOrder.controller"
 const editOrder= async ( req , res ) => {
@@ -349,7 +348,7 @@ module.exports={
     createOrder,
     editOrder,
     getUserOrder,
-    getStaffOrder,
+    // getStaffOrder,
     getUserHistoryPurchaseOrders
 
 }

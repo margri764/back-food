@@ -74,13 +74,17 @@ const editOrderStatus = async ( req , res ) => {
 
 const getStaffOrders= async ( req , res ) => {
 
+    const now = Date.now();
+    const last24Hours = now - 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000; // ajuste de la diferencia horaria de +3 horas
   
-
     try {
-        const [  total, staffOrders] = await Promise.all([
-
-        PurchaseOrder.countDocuments( ),
-        PurchaseOrder.find( {finished : !"COMPLETADO"} )
+      const [total, staffOrders] = await Promise.all([
+        PurchaseOrder.countDocuments(),
+        PurchaseOrder.find({
+          finished: !"COMPLETADO",
+          createdAt: { $gte: new Date(last24Hours) }
+        })
+  
         .populate([
             {
               path: 'user',
@@ -137,7 +141,7 @@ const getStaffOrders= async ( req , res ) => {
 
 }
 
-const getStaffOrdersByQuery= async ( req , res ) => {
+const getStaffOrdersByQuery = async ( req , res ) => {
 
     const date = req.query;
 
@@ -151,14 +155,13 @@ const getStaffOrdersByQuery= async ( req , res ) => {
     const {start, end} =  customDate(date);
 
      try {
-         const [  total, staffOrders] = await Promise.all([
+         const [ total, staffOrders ] = await Promise.all([
  
          PurchaseOrder.countDocuments( ),
          PurchaseOrder.find( {
                               "createdAt": { $gte: start, $lte: end }
                              } 
                            )
-         //    .count()
          .populate([
              {
                path: 'user',
@@ -213,27 +216,9 @@ const getStaffOrdersByQuery= async ( req , res ) => {
  
  }
 
-// const getStaffOrdersNoProcess = async ( req, res ) =>{
-
-//     // const statusNoProcess = await PurchaseOrder.find({statusOrder})
-
-//     const [ total, unFinishedPurchaseOrder ] = await Promise.all([
-//         PurchaseOrder.countDocuments( {finished : false}),
-//         PurchaseOrder.find( {finished : false} ).populate('user')
-         
-//     ])  
-   
-//     res.status(200).json({
-//         total,
-//         unFinishedPurchaseOrder
-//     })
-
-
-// }
 
 module.exports = { 
                     getStaffOrders,
                     editOrderStatus,
-                    // getStaffOrdersNoProcess,
                     getStaffOrdersByQuery
                  }

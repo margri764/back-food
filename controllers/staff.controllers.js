@@ -8,20 +8,12 @@ const Role  = require ('../models/role');
 const App  = require ('../models/appState');
 const { checkHour } = require('../helpers/check-hourly');
 
-
-
 const createStaff= async (req, res = response) => {
+    
+ try {
     
  const { password, email, role, ...rest} = req.body;
 
-//  const roleValid = await Role.findOne({rol: role}) || null;
-
-//  if( roleValid == null){
-//     return res.status(401).json({
-//         success:false,
-//         msg: `No existe el rol: ${role}  en Base de Datos`
-//     })
-// }
 let emailDotCom = email;
 emailDotCom = emailDotCom +"@shell.com"
     
@@ -48,11 +40,28 @@ return res.status(200).json({
         success: true,
         staff
     })
+    
+} catch (error) {
+    console.log('error desde createStaff: ', error);
+    let errorMessage = "Opps also salió mal al intentar crear el Staff";
+    if(error.message.includes("role")){
+        errorMessage = error.message;
+    }else{
+        return res.status(500).json({
+            success: false,
+            msg: errorMessage
+
+        })
+    }
+}       
 
 }
 
 const createRole= async (req, res = response) => {
     
+    try {
+        
+  
     const { role } = req.body;
    
     const roleValid = await Role.findOne({role: role}) || null;
@@ -66,39 +75,22 @@ const createRole= async (req, res = response) => {
    
     const roleSave = new Role({ role : role });
    
-   
-   
    await roleSave.save();
    
    return res.status(200).json({
            success: true,
        })
+
+    } catch (error) {
+        console.log('error desde createRole: ', error);
+        let errorMessage = "Opps also salió mal al intentar crear el Role";
    
-}
-
-const getUserById = async (req,res=response)=>{
-
-    const { id }  = req.params;
-
-    
-    console.log(id);
-
-    //busco al usuario de la req por id
-    let user = await User.findById(id);
-   
-    if( !user){
-        return res.status(400).json({
-            success: false,
-            msg: 'Usuario no encontrado'
-        });
+            return res.status(500).json({
+                success: false,
+                msg: errorMessage
+            })
     }
    
-
-    res.status(200).json({ 
-        success : true,
-        user
-
-    });
 }
 
 const getStaff = async (req,res=response)=>{
@@ -125,38 +117,30 @@ const staffUpdate= async (req, res) => {
 try {
 
     const { id } = req.params;
-    const {email, ...rest } = req.body;
-    //busco al usuario de la req por id
-    let searchStaff = await Staff.findOne({_id : id} ) || null;
-    
-    if(searchStaff !== null){
-      let emailDotCom = email;
-       emailDotCom = emailDotCom +"@shell.com"
-    
+    const { role, phone, address, password } = req.body;
+    const salt = bcryptjs.genSaltSync();
+    const passwordEncripted = bcryptjs.hashSync(password,salt);
+
     const tempStaff = {
-        ...rest,
-        email : emailDotCom
+        role: role,
+        phone: phone,
+        address: address,
+        password : passwordEncripted
     }   
       
-    const staff = await Staff.findByIdAndUpdate( searchStaff._id, tempStaff ,{new:true})
+    const staff = await Staff.findByIdAndUpdate( id, tempStaff ,{new:true})
 
-    res.status(200).json({
+    return res.status(200).json({
         success : true,
         staff
     })
  
-    }else{
-        return res.status(400).json({
-            success:false,
-            msg: "Usuario no encontrado"
-        })
-    }
 
 } catch (error) {
-    console.log('desde updateStaff: ',error);
+    console.log('error desde staffUpdate: ',error);
     return res.status(500).json({
         success: false,
-        msg: 'Error al editar usuario'
+        msg: 'Error al editar staff'
     });
 }
 
@@ -186,6 +170,8 @@ const deleteStaff = async (req, res) => {
 
     const { id } = req.params;
 
+    try {
+        
     const result = await Staff.findByIdAndUpdate( id, {stateAccount : false}, {new:true} );
 
     if (result === null) {
@@ -199,66 +185,79 @@ const deleteStaff = async (req, res) => {
         });
     }  
 
+    } catch (error) {
+       console.log('error desde delete staff: ', error);
+       let errorMessage = 'Ups algo salió mal al intentar eliminar un Staff';
+
+       if(error.message.includes('role')){
+         errorMessage = error.message;
+   
+       }
+       return res.status(500).json({
+           success: false,
+           msg: errorMessage
+       });     
+    }
+
+
 }
 
-const pausePlayApp= async (req, res) => {
+const createApp= async (req, res) => {
+
+    try {
+
+    const staff = req.userAuth; 
+    
+    /*solo se usa la primera vez y lo hago yo. Me creo una cuenta como Staff SUPER_ROLE ********
+    *********************** staff/pausePlayApp (desde aca en POSTMAN) *******************/
+       
+    const staffEditor = {
+            date : new Date(),
+            staff :  staff._id,
+            status : true    
+        };
+    
+    
+        const app = new App ( {state: true, staff: staff._id, statusApp : staffEditor} )
+    
+        await app.save();
+    
+        res.json({       
+            success : true
+        });
+    
+    } catch (error) {
+        console.log("desde Create App: ",error);
+        return res.status(500).json({
+            success: false,
+            msg: 'Error al editar el estado de la app'
+        });
+    }
+}
+
+const pausePlayApp = async (req, res) => {
 
 const { playOrPause, msg } = req.body;
-const staff = req.userAuth; // siempre son user, puede ser staff o cliente
 
+const staff = req.userAuth; 
 
-// ***** OJO NO BORRAR!!!  solo se usa la primera vez y lo hago yo. Me creo una cuenta como Staff SUPER_ROLE ********
-// *********************** staff/pausePlayApp (desde aca en POSTMAN) *****************************************************
-   
-// const staffEditor = {
-//         date : new Date(),
-//         staff :  staff._id,
-//         status : playOrPause    
-//     };
-
-
-//     const app = new App ( {state: true, staff: staff._id, statusApp : staffEditor} )
-
-//     await app.save();
-
-//     res.json({       
-//         success : true
-//     });
-//************************* HASTA ACA ********************/
-
-//************************* lo de abajo se comenta la primera vez, hasta el catch *******************
-
-//              RECORDAR !!! poner el id de la app en duro
 try {
 
+let app = await App.findOne( {_id : process.env.APP_ID}) ;
 
-/* son 3 id q tengo q pone en duro aca,
-  uno en el GET APP!!!, 
-  dos en createHourly */
-
-let app = await App.findOne( {_id : "642873b34d575a66a74a1e5a"}) || null;
-
-if(app == null){
+if(!app){
     return res.status(400).json({
         success: false,
         msg : 'Estado de App no encontrado en BD'
     })
 }
 
-if(app.status == playOrPause ){
-    return res.status(400).json({
-        success: false,
-        msg : `La app ya se encuentra en estado ${playOrPause}`
-    })
-}
-
 //borro las primeras posiciones para q no graben tantos estados
-if( app.statusApp.length >5){
+if( app.statusApp.length > 5){
     let tempStates = [];
     tempStates = app.statusApp.splice(0,2)
 
-    // son 3!!!!!! id q tengo q pone en duro
-    await App.findByIdAndUpdate( "642873b34d575a66a74a1e5a", {status : playOrPause, staff : staff._id, statusApp : tempStates },{new:true})
+    await App.findByIdAndUpdate( process.env.APP_ID, {status : playOrPause, staff : staff._id, statusApp : tempStates },{new:true})
 }
 
 const staffEditor = {
@@ -269,11 +268,11 @@ const staffEditor = {
 
 //obtengo el array de la base de datos y le agrego el nuevo estado
 let arrState = [];
-app.statusApp.map((item)=>{ arrState.push(item)})
+app.statusApp.map((item) => { arrState.push(item)})
 arrState.push(staffEditor);
  
 
-app = await App.findByIdAndUpdate( "642873b34d575a66a74a1e5a", {status : playOrPause, staff : staff._id, statusApp : arrState, msg:msg},{new:true})
+app = await App.findByIdAndUpdate( process.env.APP_ID, {status : playOrPause, staff : staff._id, statusApp : arrState, msg:msg},{new:true})
 
 res.json({       
     success : true,
@@ -294,8 +293,8 @@ const getAppState= async (req, res) => {
 
 try {
 
-    // son 3!!!!!! id q tengo q pone en duro
-let app = await App.findOne( {_id : "642873b34d575a66a74a1e5a"}) || null;
+  
+let app = await App.findOne( {_id : process.env.APP_ID}) || null;
 
 if(app == null){
     return res.status(400).json({
@@ -328,7 +327,6 @@ if(arrCheck.includes(true)){
     check = false;
 }
 
-
     res.json({       
         success : true,
         app,
@@ -348,21 +346,11 @@ const createHourlyRate = async (req, res) => {
 
     const { hour, status, day } = req.body;
 
-    console.log(hour, status, day);
-
-    if(hour == '' || typeof status != "boolean" ){
-        return res.status(400).json({
-            success: false,
-            msg : 'Los datos ingresados no son correctos, solo "10:00 - 12:00" + true o false ' 
-        })
-    }
-
     try {
     
-    // son 3!!!!!! id q tengo q pone en duro aca y uno en el GET APP!!!
-    const app = await App.findOne( {_id : "642873b34d575a66a74a1e5a"}) || null;
+    const app = await App.findOne( {_id : process.env.APP_ID});
     
-    if(app == null){
+    if(!app){
         return res.status(400).json({
             success: false,
             msg : 'App no encontrada en BD'
@@ -374,12 +362,10 @@ const createHourlyRate = async (req, res) => {
         status: status,
         days : day
       };
-    
 
-    // son 3!!!!!! id q tengo q pone en duro
-    await App.findByIdAndUpdate( "642873b34d575a66a74a1e5a", { $push: { hourRate: newHourRate } } ,{new:true} )
-   
-    const updatedApp = await App.findOne(app._id); // Busca el documento actualizado
+      app.hourRate.push(newHourRate);
+
+      const updatedApp = await app.save();
 
     res.json({       
         success : true,
@@ -401,19 +387,11 @@ const updateHourlyRateById = async (req, res) => {
     const { hour, status, days } = req.body;
     const { id } = req.params;
 
-
-    if(hour == '' || typeof status != "boolean" ){
-        return res.status(400).json({
-            success: false,
-            msg : 'Los datos ingresados no son correctos, solo "10:00 - 12:00" + true o false ' 
-        })
-    }
-
     try {
     
-    const app = await App.findOne( {_id : "642873b34d575a66a74a1e5a"}) || null;
+    const app = await App.findOne( {_id : process.env.APP_ID});
     
-    if(app == null){
+    if(!app){
         return res.status(400).json({
             success: false,
             msg : 'App no encontrada en BD'
@@ -432,7 +410,6 @@ const updateHourlyRateById = async (req, res) => {
 
    const updatedApp = await App.findOne(filter); // Busca el documento actualizado
 
-    
     res.json({       
         success : true,
         updatedApp
@@ -451,13 +428,11 @@ const updateCustomMsg = async (req, res) => {
 
     const { msg } = req.body;
 
-    console.log(msg);
-
     try {
     
-    let app = await App.findOne( {_id : "642873b34d575a66a74a1e5a"}) || null;
+    let app = await App.findOne( {_id : process.env.APP_ID});
     
-    if(app == null){
+    if(!app){
         return res.status(400).json({
             success: false,
             msg : 'App no encontrada en BD'
@@ -472,7 +447,7 @@ const updateCustomMsg = async (req, res) => {
     });
     
     } catch (error) {
-        console.log("desde: ",error);
+        console.log("desde updateCustomMsg: ",error);
         return res.status(500).json({
             success: false,
             msg: 'Error al editar el msg personalizado'
@@ -485,9 +460,9 @@ const deleteHourlyRateById = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const app = await App.findOne( {_id : "642873b34d575a66a74a1e5a"}) || null;
+        const app = await App.findOne( {_id : process.env.APP_ID});
     
-        if(app == null){
+        if(!app){
             return res.status(400).json({
                 success: false,
                 msg : 'App no encontrada en BD'
@@ -524,13 +499,6 @@ const pausePlayStaffById = async (req, res) => {
 
     const pauseOrPlay = req.query.pauseOrPlay;
    
-      if(pauseOrPlay == undefined){
-       return res.status(400).json ({
-         success: false,
-         msg: "Se debe incluir un query en true o false"
-       })
-      }
-      
        try {
        
          const { id } = req.params;
@@ -538,13 +506,6 @@ const pausePlayStaffById = async (req, res) => {
      
          let staff = await Staff.findOne({ _id : id });
      
-        //  if(!staff) {
-        //    return res.status(400).json({ 
-        //      success: false,
-        //      msg: "Staff no encontrado",      
-        //    });
-        //  }
-   
          let result;
    
        // si viene FALSE significa q quiero pausar  
@@ -593,7 +554,6 @@ module.exports={
     createStaff,
     staffUpdate,
     deleteStaff,
-    getUserById,
     createRole,
     pausePlayApp,
     getAppState,
@@ -602,5 +562,6 @@ module.exports={
     deleteHourlyRateById,
     updateCustomMsg,
     getStaff,
-    pausePlayStaffById    
+    pausePlayStaffById,
+    createApp    
 }

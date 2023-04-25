@@ -18,11 +18,11 @@ const isRoleValid = async (role='USER_ROLE') => {
 const isStaffRoleValid = async (role='STAFF_ROLE') => {
 
   if(role == '' || role == undefined || role == null ){
-    throw new Error (`${role} no es un Rol válido`)
+    throw new Error (`${role} no es un role válido`)
   }
   const checkRol = await Role.findOne({rol : role.toUpperCase()});
   if(!checkRol){
-      throw new Error (`el rol ${role} no esta regitrado en DB`)
+      throw new Error (`el role ${role} no esta regitrado en DB`)
   }
 }
 

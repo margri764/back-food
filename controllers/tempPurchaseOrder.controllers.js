@@ -12,7 +12,7 @@ const createTempOrder = async ( req , res ) => {
      try {
 
       const {productID, drink, fries, otherExpenses, customMenu,  ...rest}= req.body;
-  
+
       let productIDs = [];
  
           productID.forEach((product) => {
@@ -36,10 +36,8 @@ const createTempOrder = async ( req , res ) => {
 
           }
 
-   
       
       const tempOrder = {
-          // user: _.pick(user, ['_id', 'firstName','lastName', 'email', 'addressDelivery','addressFavorite', 'createdAt', 'google','phone', 'role', 'stateAccount','updatedAt','user_login']),
           user: user._id,
           product : productID,
           drink   : drink,
@@ -83,7 +81,7 @@ const getTempOrder = async ( req , res ) =>{
   const user = req.userAuth
 
 try {
-  // ,{statusOrder : "INCOMPLETE"}
+  
   const tempOrder = await TempPurchaseOrder.find({
     $and:[
           { user: user._id },
@@ -206,29 +204,6 @@ const delTempOrderIfNoStock= async (req, res) => {
   
 }
 
-
-const tempOrderEdit= async (req, res) => {
- 
-
-  const {id, ...rest} = req.body
-
-  const tempPurchaseOrder = await TempPurchaseOrder.findByIdAndUpdate( id, rest, {new:true} );
-
-  if(tempPurchaseOrder) {
-        res.json({ 
-          success: true,
-          msg: "Orden editada correctamente",      
-          tempPurchaseOrder
-
-        });
-  }else{
-    return res.status(400).json({
-      success: false,
-      msg: "Orden no encontrada"
-    })
-  }
-}
-
 const deleteManyTempOrder= async (req, res) => {
  
   try {
@@ -259,7 +234,6 @@ module.exports={
         createTempOrder,
         getTempOrder,
         deleteTempOrder,
-        tempOrderEdit,
         deleteManyTempOrder,
         delTempOrderIfNoStock,
 }

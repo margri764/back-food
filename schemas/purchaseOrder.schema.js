@@ -10,21 +10,6 @@ const purchaseOrderSchema = Joi.array().items({
   }).required(),
 
   user: Joi.string().required(),
-  // user: Joi.object({
-  //   _id: Joi.string().required(),
-  //   user_login: Joi.string().required(),
-  //   firstName: Joi.string().required(),
-  //   lastName: Joi.string().required(),
-  //   email: Joi.string().email().required(),
-  //   phone: Joi.string(),
-  //   role: Joi.string().required(),
-  //   addressDelivery: Joi.string(),
-  //   addressFavorite: Joi.string(),
-  //   createdAt: Joi.date().required(),
-  //   updatedAt: Joi.date().required(),
-  //   google: Joi.boolean().required(),
-  //   stateAccount: Joi.boolean().required(),
-  // }).required(),
 
   product: Joi.array().items(
     Joi.object({
