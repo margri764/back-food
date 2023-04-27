@@ -102,6 +102,53 @@ const signUp = async (req, res=response) => {
     }
 }
 
+const resendCode = async (req, res=response) => {
+
+  try {
+
+      // Obtener la data del usuario: name, email
+      const { email, password } = req.body;
+
+
+      //dice que busque un email y puede ser que este en null, dice "buscalo o sino devolve null"
+      let user = await User.findOne({ email }) || null;
+
+     if(user != null){
+      if(user.state =='VERIFIED'  ) {
+
+          return res.status(202).json({
+              success: true,
+              msg: 'Usuario verificado, dirijase al Login'
+          });
+      }
+     }
+  
+      // Generar el código
+      const code = Math.floor(Math.random() * 900000) + 100000;
+     
+      // Crear un nuevo usuario
+      user = new UserSignUp({email, password, code, ...rest});
+      
+      // encriptar contraseña
+      const salt = bcryptjs.genSaltSync();
+      user.password = bcryptjs.hashSync(password,salt);
+
+  await user.save();
+     
+  res.status(200).json({
+      success: true,
+      user
+  });
+
+  } catch (error) {
+      console.log("error desde resendCode: ",error);
+      return res.status(500).json({
+          success: false,
+          msg: 'Error al registrar usuario'
+      });
+  }
+}
+
 const generateTokenToPassword = async (req, res=response) => {
     
     try {
@@ -308,17 +355,18 @@ const login = async (req, res=response)=>{
 
 
    } catch (error) {
+     
+     let errorMessage = 'hable con el administrador';
+     console.log(error.message);
+     if(error.message.includes("La cuenta del staff ") || error.message.includes("La cuenta del usuario ") || error.message.includes("La cuenta de usuario no ha sido verificada") ){
+        errorMessage = error.message;
+      }else{
         console.log('error desde Login: ', error);
-
-        let errorMessage = 'hable con el administrador';
-
-        if(error.message.includes("La cuenta del staff") || error.message.includes("La cuenta de usuario") ){
-          errorMessage = error.message;
-        }
-        res.status(500).json({
-            msg: errorMessage,
-            success: false
-        })       
+      }
+      res.status(500).json({
+          msg: errorMessage,
+          success: false
+      })       
     }
 }
 
@@ -347,6 +395,7 @@ const emailToAsyncValidatorLogin = async (req, res) => {
         });
       }
     } catch (error) {
+      console.log('Error desde emailToAsyncValidatorLogin: ', error);
       res.status(500).json({
         success: false,
         msg: 'Ups! algo salió mal, reintentá más tarde'
@@ -422,6 +471,7 @@ const logout = (req, res) => {
 module.exports={
     login, 
     signUp,
+    resendCode,
     generateTokenToPassword,
     resetPassword,
     confirm,
