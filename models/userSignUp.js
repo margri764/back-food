@@ -33,6 +33,11 @@ const userSignUpSchema = Schema({
        required: true
    },
 
+   attempts: {
+    type: Number,
+    default: 0
+   },
+
     stateAccount :{
         type: Boolean,
         default: true

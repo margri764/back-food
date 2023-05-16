@@ -1,7 +1,7 @@
 const { Router } = require ('express');
 const {check} = require ('express-validator');
 const { checkFields, requireRefreshToken, requireToken } = require('../middlewares')
-const { confirm, signUp, login, phone, refreshToken, logout, emailToAsyncValidatorLogin, emailToAsyncValidatorRegister, resetPassword, generateTokenToPassword} = require('../controllers/auth.controllers');
+const { confirm, signUp, login, phone, refreshToken, logout, emailToAsyncValidatorLogin, emailToAsyncValidatorRegister, resetPassword, generateTokenToPassword, resendCode} = require('../controllers/auth.controllers');
 const { checkUserEmail } = require('../helpers/check_user_type');
 const { sanitizeSignUp } = require('../middlewares/sanitize-auth');
 const router = Router();
@@ -21,6 +21,9 @@ router.post('/validate-code',[
 router.post('/signup',[
     sanitizeSignUp(),
 ], signUp);
+
+router.post('/resendCode',[
+], resendCode);
 
 router.post('/restorePassword',[
     check('email','el correo no es valido').isEmail(),

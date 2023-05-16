@@ -23,9 +23,10 @@ const createCategory =  async (req, res) => {
         })
 
 } catch (error) {
-    console.log('error desde createCategory: ', error);
-    let errorMessage = "Oops algo salio mal al intentar crear una categoría"
-    if(error.message.includes("Intenta eliminar una categoria que no existe ")){
+    console.log('Error desde createCategory: ', error);
+    let errorMessage = "Ups algo salió mal, hable con el administrador"
+
+    if(error.message.includes("Intenta eliminar una categoria que no existe")){
       errorMessage = error.message;
     }
     return res.status(500).json({
@@ -33,26 +34,6 @@ const createCategory =  async (req, res) => {
       msg: errorMessage
     })
 }
-}
-
-const getCategory = async (req,res)=>{
-
-    const { limite=5 , desde =0 }=req.query;
-
-    const [ total, category] = await Promise.all([
-
-        Category.countDocuments( {state:true}),
-        Category.find( {state:true} )
-            .populate('usuario','name')
-            .skip( Number (desde))
-            .limit( Number (limite))
-    ])
-   
-    res.json({ 
-        total,     
-        category
-
-    });
 }
 
 const getCategoryById = async ( req, res ) =>{
@@ -99,8 +80,8 @@ const deleteCategory = async ( req, res )=>{
         );
 
     } catch (error) {
-        console.log('Desde deleteCategory: ', error);
-        let errorMessage = 'Ooops algo salio mal al intentar eliminar la categoria';
+        console.log('Error desde deleteCategory: ', error);
+        let errorMessage = 'Ups algo salió mal, hable con el administrador';
       
         if (error.message.includes('Intenta eliminar una categoria que no existe')) {
           errorMessage = error.message;
@@ -117,7 +98,6 @@ const deleteCategory = async ( req, res )=>{
 
 module.exports={
                 createCategory,
-                getCategory,
                 getCategoryById,
                 updateCategory,
                 deleteCategory

@@ -25,8 +25,7 @@ router.put('/:category/:id',[
     param('category').trim().escape().isAlpha(),
     param('id').trim().escape().isMongoId(),
     sanitizeProductBodyUpdate(),
-    check('category').custom( category => validCategory(category, ['BURGER', 'PIZZA', 'HEALTHY', 'VEGAN', 'DRINK', 'FRIES', 'OFFER'])),
-    multiRole('ADMIN_ROLE','SUPER_ROLE'),
+    check('category').custom( category => validCategory(category, ['BURGER','PIZZA', 'HEALTHY', 'VEGAN', 'DRINK', 'FRIES', 'OFFER'])),
     checkFields  
 ], updateProduct)
 

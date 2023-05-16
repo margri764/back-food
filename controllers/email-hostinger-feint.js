@@ -1,23 +1,20 @@
 const nodemailer = require('nodemailer');
 
 const mail = {
-
-  user: process.env.USER_REVIMACK,
-  pass: process.env.PASSWORD_REVIMACK
           
-   
+    user: process.env.USER,
+    pass: process.env.PASSWORD
 }
 
 
-const emailRevimack  = async( req, res, next) => {  
+const emailFeint  = async( req, res, next) => {  
    
     const { name, email, phone, message } = req.body;
-console.log(req.body)
   
 
     const contentHtml=`
     
-    <h1> Consulta Revimack Agro </h1>
+    <h1> Consulta Feint dEvs </h1>
     <ul>
         <li>name: ${name} </li>
         <li>email: ${email} </li>
@@ -46,16 +43,13 @@ async function sendMail(){
     
 
           const mailOptions = {
-            from: "Revimack Agro <contacto@revimackagro.com>",
+            from: "Feint dEvs <development@feintdevs.com>",
             to: mail.user,
             subject: "Consulta-Contacto",
             text:"Formulario de contacto FentdEvs",
             html: contentHtml,
         };
       
-
-     
-        
         const result = await transporter.sendMail(mailOptions);     
         res.status(200).json("true")
       
@@ -78,6 +72,5 @@ sendMail()
 
   
   module.exports = {
-    emailRevimack
+    emailFeint
   }
-

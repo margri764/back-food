@@ -79,6 +79,7 @@ const checkIdStaff = async ( id ) =>{
 
    } 
 
+
    const validOperation =  ( operation='', arrOperation = [] ) => {
 
       operation = operation.toUpperCase();
@@ -101,7 +102,5 @@ module.exports={
     checkProduct,
     validCategory,
     validOperation,
-    isStaffRoleValid
-
-
+    isStaffRoleValid,
 }

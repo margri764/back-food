@@ -31,7 +31,7 @@ const createProduct =  async (req, res) => {
    if( product != null){
     return res.status(400).json({
         success: false,
-        msg: 'Producto ya cargado'
+        msg: 'Producto ya existe en Base de Datos'
     })
    }
    
@@ -65,8 +65,8 @@ const createProduct =  async (req, res) => {
 
   } catch (error) {
 
-    console.log('error desde createProduct: ', error);
-    let errorMessage = "Oops algo salio mal al intentar crear un producto"
+    console.log('Error desde createProduct: ', error);
+    let errorMessage = "Ups algo salió mal, hable con el administrador"
     if(error.message.includes("La categoría ")){
       errorMessage = error.message;
     }
@@ -109,7 +109,7 @@ res.status(200).json({
 
 } catch (error) {
   console.log("error desde getProduct: ", error);
-  let errorMessage = 'Ups algo salió mal añ intentar obtener los productos';
+  let errorMessage = 'Ups algo salió mal, hable con el administrador';
 
   return res.status(500).json({
       success: false,
@@ -128,7 +128,7 @@ try {
 
   if (!productEdit){
     return res.status(400).json ({
-      msg: `no existe un producto con el id ${ _id }`
+      msg: `No existe un producto con el id ${ _id }`
     });
   }
 
@@ -155,7 +155,6 @@ try {
       const nameArr = productEdit.img.split('/');
       const name = nameArr [ nameArr.length - 1 ];
       const [ public_id] = name.split('.');
-      console.log(public_id);
       cloudinary.uploader.destroy( `FoodApp/${category}/${public_id}`);
 
     const { secure_url } = await cloudinary.uploader.upload( tempFilePath, {folder: `FoodApp/${category}`});
@@ -174,10 +173,8 @@ try {
   }else{
     tempProduct.stock = false;
   }
-
     
-    const product= await Product.findByIdAndUpdate( productEdit._id, tempProduct,{new:true}).populate("category", "name state");
-
+  const product= await Product.findByIdAndUpdate( productEdit._id, tempProduct,{new:true}).populate("category", "name state");
 
     res.json( {
       success: true,  
@@ -185,11 +182,16 @@ try {
     } );
 
 } catch (error) {
-  console.log('error desde updateProduct: ', error);
+  console.log('Error desde updateProduct: ', error);
 
+let errorMessage = "Ups algo salió mal, hable con el administrador";
+
+if(error.message.includes("no existe en Base de Datos")){
+  errorMessage = error.message;
+}
   return res.status(500).json({
     success: false,
-    msg: "Oops algo salió mal al intentar editar un producto"
+    msg: errorMessage
   })
 }
 
@@ -262,10 +264,17 @@ const updateManyPrice = async (req, res) => {
       msg: `Se modificaron ${result.modifiedCount} producto(s) de la categoría ${name}`
     });
   } catch (error) {
+    
     console.log('Error desde updateToMany:', error);
+    let errorMessage = "Ups algo salió mal, hable con el administrador";
+
+    if(error.message.includes("La categoria ingresada")){
+      errorMessage = error.msg
+    }
+
     res.status(500).json({
       success: false,
-      msg: "Oops, algo salió mal al intentar editar un producto"
+      msg: errorMessage
     });
   }
 };
@@ -343,7 +352,7 @@ console.log(product);
     console.log('desde deleteProduct: ', error);
     return res.status(500).json({
       success: false,
-      msg: "Opps algo salió mal al intentar eliminar un producto"
+      msg: "Ups algo salió mal, hable con el administrador"
     })
   }
 
@@ -424,7 +433,7 @@ const pausePlayProductByID = async (req, res) => {
       console.log('desde pauseProductByID: ', error);
       return res.status(500).json({
         success: false,
-        msg: "Opps algo salió mal al intentar PAUSAR un producto"
+        msg: "Ups algo salió mal, hable con el administrador"
       })
     }
 }
@@ -469,10 +478,10 @@ const pausePlayCategory = async (req, res) => {
 
    } catch (error) {
  
-     console.log('desde pausePlayCategory: ', error);
+     console.log('Error desde pausePlayCategory: ', error);
      return res.status(500).json({
        success: false,
-       msg: "Opps algo salió mal al intentar PAUSAR una categoría"
+       msg: "Ups algo salió mal, hable con el administrador"
      })
    }
 }
@@ -505,11 +514,11 @@ const deleteManyProduct = async (req, res) => {
       
     
     } catch (error) {
-      console.log('error desde deleteManyProduct: ', error);
+      console.log('Error desde deleteManyProduct: ', error);
     
       return res.status(500).json({
         success: false,
-        msg: "Oops algo salió mal al intentar editar un producto"
+        msg: "Ups algo salió mal, hable con el administrador"
       })
     
     }

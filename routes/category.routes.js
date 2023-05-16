@@ -9,11 +9,7 @@
 //  const { checkToken } = require ('../middlewares/check-jwt');
  const { adminRole, checkFields, checkTokenStaff, multiRole, requireToken, } = require('../middlewares');
 
- 
- 
- //obtener todas las categorias - publico
- router.get('/', getCategory);
- 
+
  //obtener una categoria por id - publico
  router.get('/:id',[
      check('id', 'no es un id de Mongo valido').isMongoId(),

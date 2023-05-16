@@ -10,7 +10,6 @@ const { generateToken, generateRefreshToken } = require('../helpers/tokenManager
 const { checkUserEmail } = require('../helpers/check_user_type');
 const { sendEmail } = require('../config/mail.config');
 const crypto = require('crypto');
-const mongoSanitize = require('express-mongo-sanitize');
 
 
 const phone =  async (req, res=response) => {
@@ -97,7 +96,7 @@ const signUp = async (req, res=response) => {
         console.log("error desde signUp: ",error);
         return res.status(500).json({
             success: false,
-            msg: 'Error al registrar usuario'
+            msg: 'Ups algo salió mal, hable con el administrador'
         });
     }
 }
@@ -107,13 +106,13 @@ const resendCode = async (req, res=response) => {
   try {
 
       // Obtener la data del usuario: name, email
-      const { email, password } = req.body;
+      const { email, phone } = req.body;
 
 
       //dice que busque un email y puede ser que este en null, dice "buscalo o sino devolve null"
-      let user = await User.findOne({ email }) || null;
+      let user = await UserSignUp.findOne({ email });
 
-     if(user != null){
+     if(user){
       if(user.state =='VERIFIED'  ) {
 
           return res.status(202).json({
@@ -122,30 +121,43 @@ const resendCode = async (req, res=response) => {
           });
       }
      }
-  
       // Generar el código
       const code = Math.floor(Math.random() * 900000) + 100000;
-     
-      // Crear un nuevo usuario
-      user = new UserSignUp({email, password, code, ...rest});
       
-      // encriptar contraseña
-      const salt = bcryptjs.genSaltSync();
-      user.password = bcryptjs.hashSync(password,salt);
+      //envio los datos para q se envie el sms de confirmacion
+      await new Promise((resolve, reject) => {
+        createSMS(phone, code)
+          .then(() => resolve())
+          .catch((error) => reject(error));
+      });
+  
 
-  await user.save();
-     
-  res.status(200).json({
-      success: true,
-      user
-  });
+      // grabo el telefono en el usuario signUp
+      user.code = code;
+
+      await user.save();
+        
+      res.status(200).json({
+          success: true,
+          user
+      });
 
   } catch (error) {
-      console.log("error desde resendCode: ",error);
-      return res.status(500).json({
-          success: false,
-          msg: 'Error al registrar usuario'
-      });
+
+    let errorMessage = 'Ups algo salió mal, hable con el administrador';
+
+    if(error.message.includes('El número de teléfono ingresado no es válido') || error.message.includes('Error al enviar el mensaje') ){
+      errorMessage = error.message;
+    }else{
+      console.log("error desde resendCode: ", error);
+
+    }
+
+    return res.status(500).json({
+        success: false,
+        msg: errorMessage
+    });
+    
   }
 }
 
@@ -161,13 +173,13 @@ const generateTokenToPassword = async (req, res=response) => {
         // Generar un token de restablecimiento de contraseña
             const resetToken = crypto.randomBytes(20).toString('hex');
 
-            // Guardar el token en la base de datos y establecer una fecha de vencimiento
-            user.resetPasswordToken = resetToken;
-            user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
+        // Guardar el token en la base de datos y establecer una fecha de vencimiento
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
 
-            sendEmail(email, resetToken)
+        sendEmail(email, resetToken)
 
-            await user.save();
+        await user.save();
 
        
        
@@ -178,10 +190,10 @@ const generateTokenToPassword = async (req, res=response) => {
     
 
     } catch (error) {
-        console.log(error);
+        console.log("Error desde generateTokenToPassword: ", error);
         return res.status(500).json({
             success: false,
-            msg: 'Error al restaurar password'
+            msg: 'Ups algo salió mal, hable con el administrador'
         });
     }
 }
@@ -220,10 +232,10 @@ const resetPassword = async (req, res) => {
       });
   
     } catch (error) {
-      console.error(error);
+      console.error("Error desde resetPassword: ",error);
       res.status(500).json({
         success: false,
-        message: 'Ocurrió un error al resetear la contraseña'
+        message: 'Ups algo salió mal, hable con el administrador'
       });
     }
 };
@@ -250,9 +262,20 @@ const confirm = async (req, res) => {
 
     //    Verificar el código
        if(code !== userToConfirm.code) {
+
+        // Incrementar el contador de intentos fallidos
+        userToConfirm.attempts = userToConfirm.attempts ? userToConfirm.attempts + 1 : 1;
+        await userToConfirm.save();
+
+        if (userToConfirm.attempts >= 3) {
+            return res.status(400).json({
+                success: false,
+                msg: 'Ha excedido el número máximo de intentos.'
+            });
+        }
         return res.status(400).json({
             success: false,
-            msg: 'Error en la confirmacion, vuelva a intentar'
+            msg: 'Código ingresado incorrecto, vuelva a intentar.'
         });
 
        }else if(code == userToConfirm.code) {
@@ -292,10 +315,10 @@ const confirm = async (req, res) => {
     
        }
     } catch (error) {
-        console.log(error);
+        console.log("Error desde Confirm ", error);
         return res.status(500).json({
             success: false,
-            msg: 'Error al confirmar usuario'
+            msg: 'Ups algo salió mal, hable con el administrador'
         });
     }
 }
@@ -356,8 +379,7 @@ const login = async (req, res=response)=>{
 
    } catch (error) {
      
-     let errorMessage = 'hable con el administrador';
-     console.log(error.message);
+     let errorMessage = 'Ups algo salió mal, hable con el administrador';
      if(error.message.includes("La cuenta del staff ") || error.message.includes("La cuenta del usuario ") || error.message.includes("La cuenta de usuario no ha sido verificada") ){
         errorMessage = error.message;
       }else{
@@ -398,7 +420,7 @@ const emailToAsyncValidatorLogin = async (req, res) => {
       console.log('Error desde emailToAsyncValidatorLogin: ', error);
       res.status(500).json({
         success: false,
-        msg: 'Ups! algo salió mal, reintentá más tarde'
+        msg: 'Ups algo salió mal, hable con el administrador'
       });
     }
 };
@@ -432,7 +454,7 @@ const emailToAsyncValidatorRegister = async (req, res) => {
     } catch (error) {
       res.status(500).json({
         success: false,
-        msg: 'Ups! algo salió mal, reintentá más tarde'
+        msg: 'Ups algo salió mal, hable con el administrador'
       });
     }
 };
@@ -440,24 +462,20 @@ const emailToAsyncValidatorRegister = async (req, res) => {
 const refreshToken = async (req, res) => {
 
     const _id = req._id
-    // console.log('_id desde refresh controller', _id);
     try {
         const { token, expiresIn } = generateToken (_id);
-        // // console.log(token);
-        // const user = await User.findById(_id) || null;
-        // // console.log("desde refreshToken: ", user);
-
-
         
         return res.json({
              token,
-            //  user,
              expiresIn
              });
 
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: "error de server" });
+        console.log("Error desde refreshToken", error);
+        return res.status(500).json({ 
+          success: false,
+          msg: 'Ups algo salió mal, hable con el administrador'
+        });
     }
 };
 
