@@ -4,7 +4,7 @@
 const PurchaseOrder = require('../models/purchaseOrder');
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const Product = require('../models/product');
-const {updateStock}  = require('../helpers/stock-managment');
+const {updateStock, checkStatusAndPaused}  = require('../helpers/stock-managment');
 const { ObjectId } = require('mongodb');
 
 
@@ -55,6 +55,7 @@ const createOrder= async ( req , res ) => {
              // controlo si hay stock de esos productos
              for (let i = 0; i < productIDs.length; i++) {
                let item = productIDs[i];
+               await checkStatusAndPaused(item)
                productToUpdate= await updateStock(item);
                productsToUpdate.push(productToUpdate)
                
@@ -107,13 +108,12 @@ const createOrder= async ( req , res ) => {
                 purchaseOrder,
         })
 
-
     } catch (error) {
       console.log('Error desde CreateOrder: ', error);
-      let errorMessage = 'Ooops algo salio mal al crear la orden';
+      let errorMessage = 'Ups algo salió mal, hable con el administrador';
     
       // Verificamos si el error es específico generado en la condición "if"
-      if (error.message.includes('No hay suficiente stock disponible para el producto')) {
+      if (error.message.includes('No hay suficiente stock disponible para el producto')|| error.message.includes("esta pausado o eliminado. Disculpe las molestias")) {
         errorMessage = error.message;
       }
         return res.status(500).json({

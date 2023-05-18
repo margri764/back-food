@@ -214,19 +214,6 @@ const updateManyPrice = async (req, res) => {
 
     const { value, operation } = req.body;
 
-    if (isNaN(value)) {
-      return res.status(400).json({
-        success: false,
-        msg: `${value} no es un número válido`
-      });
-    }
-
-    if (value <= 0) {
-      return res.status(400).json({
-        success: false,
-        msg: `El valor debe ser mayor a cero`
-      });
-    }
 
     let priceUpdate;
 
@@ -304,46 +291,25 @@ const deleteProduct = async (req, res) => {
       });
     }
 
+    // CREO Q NO ES NECESARIO XQ CUANDO HACE LA COMPRA SI ESTA ELIMINADO EL PRODUCTO ELIMINA LA ORDEN- TEMPORAL 
+    // VER QUE NO GENERE ERRORES DE INCONSITENCIAS EN L ABD
     // busca si el producto q quiere eliminar esta en una orden temporal, puede estar en cualquiera de las colecciones de productos PERO ademas tiene q cumplir con la condicion de q este "INCOMPLETE"
-    const existInTempOrder = await TempPurchaseOrder.find({
-      $or:[
-               { "fries._id"   :  product._id }, 
-               { "drink._id"   :  product._id }, 
-               { "product._id" :  product._id }, 
-          ],
-      $and : [ 
-              { statusOrder : "INCOMPLETE"}
-            ]    
-    })
+    // const existInTempOrder = await TempPurchaseOrder.find({
+    //   $or:[
+    //            { "fries._id"   :  product._id }, 
+    //            { "drink._id"   :  product._id }, 
+    //            { "product._id" :  product._id }, 
+    //       ],
+    //   $and : [ 
+    //           { statusOrder : "INCOMPLETE"}
+    //         ]    
+    // })
 
+    product = await Product.findByIdAndUpdate( product.id,  { status : false , rest },{ new:true }).populate("category", "name");
 
-    if(existInTempOrder.length != 0 ) {
-      return res.status(400).json({ 
-        success: false,
-        msg: "No se puede eliminar el producto, existen ordenes temporales de clientes que contienen estos productos, los mismos se eliminan automaticamente cada 12 o 24 hs dependiendo de las reglas de negocio",
-      });
-    }
-
-    // console.log('si no esta el producto o si se cumple la doble condicion de arriba no tiene q llegar aca ');
-    // busco el nombre de la categoria para enviarlo como nombre de carpeta a Cloudinary
-  
-    // const category = await Category.findOne({ _id : product.category  });
-
-    // elimino img de cloudinary
-    // if(product.img){
-    //   const nameArr = product.img.split('/');
-    //   const name = nameArr [ nameArr.length - 1 ];
-    //   const [ public_id] = name.split('.');
-    //   cloudinary.uploader.destroy( `FoodApp/${category.name}/${public_id}`);
-    
-    // }
-    
-      product = await Product.findByIdAndUpdate( product.id,  { status : false , rest },{ new:true }).populate("category", "name");
-
-console.log(product);
-  res.json({ 
-      success: true,
-      product      
+    res.json({ 
+     success: true,
+     product      
   });
 
 
@@ -361,21 +327,16 @@ console.log(product);
 
 const pausePlayProductByID = async (req, res) => {
 
- const pauseOrPlay = req.query.pauseOrPlay;
 
-   if(pauseOrPlay == undefined){
-    return res.status(400).json ({
-      success: false,
-      msg: "Se debe incluir un query string en true o false"
-    })
-   }
-   
+  const pauseOrPlay = req.query.pauseOrPlay;
+
     try {
     
       const { id } = req.params;
       const { ...rest } = req.body;
 
   
+
       let product = await Product.findOne({ _id : id });
   
       if(!product) {
@@ -392,35 +353,12 @@ const pausePlayProductByID = async (req, res) => {
         });
       }
 
-      // NO SE SI ESTO LO VOY A USAR TENGO NOTAS ACERCA DE ESTO
-      // busca si el producto q quiere PAUSAR esta en una orden temporal, puede estar en cualquiera de las colecciones de productos PERO ademas tiene q cumplir con la condicion de q este "INCOMPLETE"
-      const existInTempOrder = await TempPurchaseOrder.find({
-        $or:[
-                 { "fries._id"   :  product._id }, 
-                 { "drink._id"   :  product._id }, 
-                 { "product._id" :  product._id }, 
-            ],
-        $and : [ 
-                { statusOrder : "INCOMPLETE"}
-              ]    
-      })
-  
-      if(existInTempOrder.length != 0 ) {
-        return res.status(400).json({ 
-          success: false,
-          msg: "No se puede pausar el producto, existen ordenes temporales de clientes que contienen estos productos, los mismos se eliminan automaticamente cada 12 o 24 hs dependiendo de las reglas de negocio",
-        });
-      }
-
-      console.log(pauseOrPlay, false);
     // si viene FALSE significa q quiero pausar  
       if(pauseOrPlay == "false" ){
           product = await Product.findByIdAndUpdate( product.id, { paused : true , rest },{ new:true }).populate("category", "name state paused");
       }else{
           product = await Product.findByIdAndUpdate( product.id, { paused : false , rest },{new:true }).populate("category", "name state paused");
       }
-
-
     
       res.json({ 
         success: true,
@@ -430,7 +368,7 @@ const pausePlayProductByID = async (req, res) => {
 
     } catch (error) {
   
-      console.log('desde pauseProductByID: ', error);
+      console.log('Desde pauseProductByID: ', error);
       return res.status(500).json({
         success: false,
         msg: "Ups algo salió mal, hable con el administrador"
@@ -441,7 +379,7 @@ const pausePlayProductByID = async (req, res) => {
 const pausePlayCategory = async (req, res) => {
 
   const { playOrPause, _id } = req.body;
-
+console.log('e');
    try {
    
     const category = await Category.findOne( {id:_id} ) ;
