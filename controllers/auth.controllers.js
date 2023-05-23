@@ -167,6 +167,7 @@ const generateTokenToPassword = async (req, res=response) => {
 
         // Obtener la data del usuario: name, email
         const { email } = req.body;
+        console.log(req.body);
 
         let user = await User.findOne({email})
 
@@ -177,11 +178,10 @@ const generateTokenToPassword = async (req, res=response) => {
         user.resetPasswordToken = resetToken;
         user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
 
-        sendEmail(email, resetToken)
+       await sendEmail(email, resetToken)
 
         await user.save();
 
-       
        
     res.status(200).json({
         success: true,
@@ -191,9 +191,14 @@ const generateTokenToPassword = async (req, res=response) => {
 
     } catch (error) {
         console.log("Error desde generateTokenToPassword: ", error);
+       let errorMessage = 'Ups algo salió mal, hable con el administrador';
+        
+        // if(error.message === "Algo salió mal el enviar email de confirmación. Hable con el administrador"){
+        //     errorMessage = error.message
+        // }
         return res.status(500).json({
             success: false,
-            msg: 'Ups algo salió mal, hable con el administrador'
+            msg: errorMessage
         });
     }
 }

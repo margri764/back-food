@@ -21,8 +21,6 @@ const editOrderStatus = async ( req , res ) => {
                 msg: "Orden de compra no encontrada"
             })
         }
-
-
         // recibo el status en el body y lo evaluo
          checkStatus(status);
         
@@ -62,10 +60,12 @@ const editOrderStatus = async ( req , res ) => {
 
      
     } catch (error) {
-        console.log(error);
+        console.log("Error desde editOrderStatus: ", error);
+        let errorMessage = 'Ups algo salió mal, hable con el administrador';
+
         return res.status(500).json({
             success: false,
-            msg: 'Error al editar orden de compra'
+            msg: errorMessage
         });
     }
     
@@ -131,10 +131,12 @@ const getStaffOrders= async ( req , res ) => {
         })
         
     } catch (error) {
-        console.log('desde GetStaff Orders: ', error);
+        console.log('desde getStaff Orders: ', error);
+        let errorMessage = 'Ups algo salió mal, hable con el administrador';
+
         return res.status(500).json ({
             success : false,
-            msg : `Ooops algo salió mal al intentar obtener las ordenes de compra `
+            msg : errorMessage
         })
 
     }
@@ -207,9 +209,12 @@ const getStaffOrdersByQuery = async ( req , res ) => {
          })
          
      } catch (error) {
+
+        console.log('Error desde getStaffOrdersByQuery: ', error);
+        let errorMessage = 'Ups algo salió mal, hable con el administrador';
          return res.status(500).json ({
              success : false,
-             msg : `Ooops algo salió mal al intentar obtener las ordenes de compra `
+             msg : errorMessage
          })
  
      }

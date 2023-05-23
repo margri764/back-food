@@ -42,8 +42,8 @@ return res.status(200).json({
     })
     
 } catch (error) {
-    console.log('error desde createStaff: ', error);
-    let errorMessage = "Opps also salió mal al intentar crear el Staff";
+    console.log('Error desde createStaff: ', error);
+    let errorMessage = 'Ups algo salió mal, hable con el administrador';
     if(error.message.includes("role")){
         errorMessage = error.message;
     }else{
@@ -60,7 +60,6 @@ return res.status(200).json({
 const createRole= async (req, res = response) => {
     
     try {
-        
   
     const { role } = req.body;
    
@@ -83,8 +82,11 @@ const createRole= async (req, res = response) => {
 
     } catch (error) {
         console.log('error desde createRole: ', error);
-        let errorMessage = "Opps also salió mal al intentar crear el Role";
+        let errorMessage = 'Ups algo salió mal, hable con el administrador';
    
+        if(error.message.includes("no es un usuario SUPER_ROLE, no puede realizar esta acción") ){
+            errorMessage = error.message
+        }
             return res.status(500).json({
                 success: false,
                 msg: errorMessage
@@ -137,10 +139,15 @@ try {
  
 
 } catch (error) {
-    console.log('error desde staffUpdate: ',error);
+    console.log('Error desde staffUpdate: ',error);
+    let errorMessage = 'Ups algo salió mal, hable con el administrador';
+    
+    if(error.message.includes("role")){
+      errorMessage = error.message;
+    }
     return res.status(500).json({
         success: false,
-        msg: 'Error al editar staff'
+        msg: errorMessage
     });
 }
 
@@ -177,7 +184,7 @@ const deleteStaff = async (req, res) => {
     if (result === null) {
         res.status(404).json({ success: false, msg: 'No se encontró el miembro del Staff' });
     } else if (result.nModified === 0) {
-        res.status(404).json({ success: false, msg: 'No se actualizó el miembro del Staff' });
+        res.status(404).json({ success: false, msg: 'No se actualizó el estado del Staff' });
     } else {
         res.status(200).json({ 
             success : true,
@@ -186,13 +193,9 @@ const deleteStaff = async (req, res) => {
     }  
 
     } catch (error) {
-       console.log('error desde delete staff: ', error);
-       let errorMessage = 'Ups algo salió mal al intentar eliminar un Staff';
+       console.log('error desde deleteStaff: ', error);
+       let errorMessage = 'Ups algo salió mal, hable con el administrador';
 
-       if(error.message.includes('role')){
-         errorMessage = error.message;
-   
-       }
        return res.status(500).json({
            success: false,
            msg: errorMessage
@@ -280,61 +283,63 @@ res.json({
 });
 
 } catch (error) {
-    console.log("desde pausePlayApp: ",error);
+    console.log("desde pausePlayApp: ", error);
+    let errorMessage = 'Ups algo salió mal, hable con el administrador';
+
     return res.status(500).json({
         success: false,
-        msg: 'Error al editar el estado de la app'
+        msg: errorMessage
     });
 }
 }
 
 const getAppState= async (req, res) => {
 
-
 try {
-
   
-let app = await App.findOne( {_id : process.env.APP_ID}) || null;
+    let app = await App.findOne( {_id : process.env.APP_ID}) || null;
 
-if(app == null){
-    return res.status(400).json({
-        success: false,
-        msg : 'Estado de App no encontrado en BD'
-    })
-}
+    if(app == null){
+        return res.status(400).json({
+            success: false,
+            msg : 'Estado de App no encontrado en BD'
+        })
+    }
 
-let rate= null;
-let dayArr = [];
-let arrCheck = [];
-let check = [];
+    let rate= null;
+    let dayArr = [];
+    let arrCheck = [];
+    let check = [];
 
-let tempRate = app.hourRate.filter(element => element.status == true);
+    let tempRate = app.hourRate.filter(element => element.status == true);
 
-tempRate.map((element) => {
-  rate = element.hour; // agregar la hora al arreglo rate
+    tempRate.map((element) => {
+    rate = element.hour; // agregar la hora al arreglo rate
 
-  element.days.map((day) => {
-    dayArr.push(day); // agregar cada día al arreglo dayArr
-  });
-  arrCheck.push(checkHour(rate, dayArr));
-dayArr=[];
-}
-);
-
-if(arrCheck.includes(true)){
-    check = true;
-}else{
-    check = false;
-}
-
-    res.json({       
-        success : true,
-        app,
-        check 
+    element.days.map((day) => {
+        dayArr.push(day); // agregar cada día al arreglo dayArr
     });
+    arrCheck.push(checkHour(rate, dayArr));
+    dayArr=[];
+    }
+    );
+
+    if(arrCheck.includes(true)){
+        check = true;
+    }else{
+        check = false;
+    }
+
+        res.json({       
+            success : true,
+            app,
+            check 
+        });
 
 } catch (error) {
     console.log("desde getAppState: ",error);
+    let errorMessage = 'Ups algo salió mal, hable con el administrador';
+
     return res.status(500).json({
         success: false,
         msg: 'Error al obtener el estado de la app'
@@ -375,9 +380,11 @@ const createHourlyRate = async (req, res) => {
 
     } catch (error) {
         console.log("desde createHourlyRate: ",error);
+        let errorMessage = 'Ups algo salió mal, hable con el administrador';
+
         return res.status(500).json({
             success: false,
-            msg: 'Error al crear el horario de atencion'
+            msg: errorMessage
         });
     }
 }
@@ -416,7 +423,9 @@ const updateHourlyRateById = async (req, res) => {
     });
     
     } catch (error) {
-        console.log("desde updateHourlyRateById: ",error);
+        console.log("desde updateHourlyRateById: ", error);
+        let errorMessage = 'Ups algo salió mal, hable con el administrador';
+
         return res.status(500).json({
             success: false,
             msg: 'Error al editar el horario de atencion'
@@ -448,9 +457,11 @@ const updateCustomMsg = async (req, res) => {
     
     } catch (error) {
         console.log("desde updateCustomMsg: ",error);
+        let errorMessage = 'Ups algo salió mal, hable con el administrador';
+
         return res.status(500).json({
             success: false,
-            msg: 'Error al editar el msg personalizado'
+            msg: errorMessage
         });
     }
 }
@@ -487,7 +498,9 @@ const deleteHourlyRateById = async (req, res) => {
           }  
     
     } catch (error) {
-        console.log("desde deleteHourlyRateById: ",error);
+        console.log("desde deleteHourlyRateById: ", error);
+        let errorMessage = 'Ups algo salió mal, hable con el administrador';
+
         return res.status(500).json({
             success: false,
             msg: 'Error al eliminar el horario de atencion'
@@ -542,9 +555,11 @@ const pausePlayStaffById = async (req, res) => {
        } catch (error) {
      
          console.log('desde pausePlayStaffByID: ', error);
+        let errorMessage = 'Ups algo salió mal, hable con el administrador';
+
          return res.status(500).json({
            success: false,
-           msg: "Opps algo salió mal al intentar PAUSAR/ACTIVAR un STAFF"
+           msg: errorMessage
          })
        }
 }

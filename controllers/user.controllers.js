@@ -17,7 +17,7 @@ const userGet = async (req,res=response)=>{
     ])  
    
 
-    res.json({ 
+    res.status(200).json({ 
       usuarios
 
     });
@@ -273,7 +273,6 @@ const settingUser = async (req, res) => {
 
 module.exports={
     userGet,
-    // userPost,
     userPut,
     userDelete,
     getUserByToken,

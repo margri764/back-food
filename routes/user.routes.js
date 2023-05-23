@@ -16,7 +16,6 @@ router.patch('/address',[
 router.patch('/activeUserAccount',[
     requireToken,
     userRole ('SUPER_ROLE', 'ADMIN_ROLE'),
-   
     checkFields  
 ], activeUserAccount)
 

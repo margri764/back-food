@@ -43,7 +43,9 @@ let transporter = nodemailer.createTransport({
         });
 
     } catch (error) {
-        console.log('Algo no va bien con el email', error);
+        console.log('Error desde sendEmail password recovery', error);
+        throw new Error("Algo salió mal el enviar email de confirmación. Hable con el administrador");
+
     }
   }
 

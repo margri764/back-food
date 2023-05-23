@@ -379,8 +379,8 @@ const pausePlayProductByID = async (req, res) => {
 const pausePlayCategory = async (req, res) => {
 
   const { playOrPause, _id } = req.body;
-console.log('e');
-   try {
+
+  try {
    
     const category = await Category.findOne( {id:_id} ) ;
 
@@ -395,7 +395,6 @@ console.log('e');
          await Category.findByIdAndUpdate( _id, { paused : false  },{ new:true });
          const products = await Product.find({ category: _id });
          await Product.updateMany({ category: _id }, { paused: false });
-
      } 
  // esta activo, quiero pausar
      
@@ -406,7 +405,6 @@ console.log('e');
        await Product.updateMany({ category: _id }, { paused: true });
 
      }
-  
    
      res.json({ 
        success: true,

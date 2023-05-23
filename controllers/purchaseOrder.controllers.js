@@ -113,7 +113,7 @@ const createOrder= async ( req , res ) => {
       let errorMessage = 'Ups algo salió mal, hable con el administrador';
     
       // Verificamos si el error es específico generado en la condición "if"
-      if (error.message.includes('No hay suficiente stock disponible para el producto')|| error.message.includes("esta pausado o eliminado. Disculpe las molestias")) {
+      if (error.message.includes('No hay suficiente stock disponible para el producto') || error.message.includes("esta pausado o eliminado. Disculpe las molestias") || error.message === 'No existe en BD unas de las ordenes, invalidar pedido') {
         errorMessage = error.message;
       }
         return res.status(500).json({
@@ -180,9 +180,10 @@ const getUserOrder= async ( req , res ) => {
         });
         
     } catch (error) {
+      console.log('Error desde getUserOrder: ', error);
         return res.status(500).json ({
             success : false,
-            msg : `Ooops algo salió mal al intentar obtener las ordenes de compra `
+            msg : "Ups algo salió mal, hable con el administrador"
         })
 
     }
@@ -236,7 +237,7 @@ const getUserHistoryPurchaseOrders= async ( req , res ) => {
       console.log('error desde getUserHistoryPurchaseOrders: ', error);
         return res.status(500).json ({
             success : false,
-            msg : `Ooops algo salió mal al intentar obtener las ordenes de compra `
+            msg : "Ups algo salió mal, hable con el administrador"
         })
 
     }

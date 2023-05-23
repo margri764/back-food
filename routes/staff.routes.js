@@ -91,7 +91,7 @@ router.put('/orderStatus',[
     requireToken,
     multiRole("SUPER_ROLE","ADMIN_ROLE", "STAFF_ROLE"),
     checkFields
-],editOrderStatus)
+], editOrderStatus)
 
 router.post('/pausePlayApp',[
     requireToken,

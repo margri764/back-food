@@ -68,12 +68,7 @@ router.patch('/:id',[
 router.patch('/noStock/:id',[
     requireToken,
     check('id').trim().escape().isMongoId(),
-    // query('pauseOrPlay').trim().escape().isString().withMessage('El query string "pauseOrPlay" debe ser un valor de tipo string'),
-    query('pauseOrPlay')
-    .trim()
-    .escape()
-    .isString()
-    .custom((value, { req }) => {
+    query('pauseOrPlay').trim().escape().isString().custom((value, { req }) => {
       if (req.query.pauseOrPlay !== undefined && req.query.pauseOrPlay !== null && Object.keys(req.query).length === 1 && req.query.hasOwnProperty('pauseOrPlay')) {
         return true;
       }

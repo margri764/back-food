@@ -42,8 +42,6 @@ const getUserSearch = async (req, res) => {
 
     const querySearch = req.query.userSearch;
   
-    console.log(querySearch);
-    
     try {
       const regex = new RegExp(querySearch.split(/\s+/).join('.*'), 'i'); // insensible a mayusculas y minusculas
       const users = await User.find({
@@ -53,7 +51,6 @@ const getUserSearch = async (req, res) => {
         ]
       });
   
-  
       res.status(200).json({
         success: true,
         users
@@ -61,7 +58,9 @@ const getUserSearch = async (req, res) => {
 
     } catch (error) {
       console.log('Error en getUserSearch:', error);
-      return res.status(501).json({ msg: 'La base de datos no está disponible' });
+      return res.status(500).json({
+        success: false,
+        msg: 'Ups algo salió mal, hable con el administrador' });
     }
 };
 

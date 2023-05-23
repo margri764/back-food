@@ -1,5 +1,3 @@
-
-
 const TempPurchaseOrder = require('../models/tempPurchaseOrder');
 const {checkIfExistTempOrder, updateStockFromTempOrder} = require('../helpers/stock-managment');
 const _ = require('lodash');
@@ -33,7 +31,6 @@ const createTempOrder = async ( req , res ) => {
           for (let i = 0; i < productIDs.length; i++) {
             const item = productIDs[i];
              await updateStockFromTempOrder(item);
-
           }
 
       
@@ -61,12 +58,8 @@ const createTempOrder = async ( req , res ) => {
      } catch (error) {
 
       console.log('Error desde CreateTempOrder: ', error);
-      let errorMessage = 'Ooops algo salio mal al crear la orden';
-    
-      // Verificamos si el error es específico generado en la condición "if"
-      if (error.message.includes('Producto ')) {
-        errorMessage = error.message;
-      }
+      let errorMessage = 'Ups algo salió mal, hable con el administrador';
+ 
         return res.status(500).json({
             success: false,
             msg: errorMessage
@@ -121,9 +114,12 @@ try {
 
 
   } catch (error) {
+    
+    console.log('Error desde getTempOrder ', error);
+    let errorMessage = 'Ups algo salió mal, hable con el administrador';
     return res.status(500).json({
       success: false,
-      msg: 'Oooops no se pudo obtener las ordenes de compra desde la BD'
+      msg: errorMessage
     })
   }
 }
@@ -143,7 +139,7 @@ const deleteTempOrder= async (req, res) => {
          })
      }
    
-     res.json({ 
+     res.status(200).json({ 
        success: true,
        msg: "Orden eliminada correctamente",      
        tempPurchaseOrder
@@ -154,10 +150,11 @@ const deleteTempOrder= async (req, res) => {
   } catch (error) {
 
     console.log('desde: deleteTempOrder: ', error);
+    let errorMessage = 'Ups algo salió mal, hable con el administrador';
     
     return res.status(500).json({
       success: false,
-      msg: "OOps algo salio mal al intentar eliminar una orden temporal"
+      msg: errorMessage
     })
     
   }
@@ -191,9 +188,9 @@ const delTempOrderIfNoStock= async (req, res) => {
   } catch (error) {
 
     console.log('Error desde delTempOrderIfNoStock: ', error);
-    let errorMessage = 'Ooops algo salio mal al intentar eliminar ordenes temporales';
+    let errorMessage = 'Ups algo salió mal, hable con el administrador';
   
-    if (error.message.includes('No se encuentra la order Temporal para ser eliminada')) {
+    if (error.message === 'No se encuentra la order Temporal para ser eliminada') {
       errorMessage = error.message;
     }
       return res.status(500).json({
@@ -212,7 +209,7 @@ const deleteManyTempOrder= async (req, res) => {
 
          await TempPurchaseOrder.deleteMany()
       
-        res.json( {
+        res.status(200).json( {
           success: true, 
           msg: `Se elimiaron correctamente todas las ordenes temporales` 
         } );  
@@ -220,10 +217,11 @@ const deleteManyTempOrder= async (req, res) => {
     
     } catch (error) {
       console.log('error desde deleteManyTempOrder: ', error);
+      let errorMessage = 'Ups algo salió mal, hable con el administrador';
     
       return res.status(500).json({
         success: false,
-        msg: "Oops algo salió mal al intentar eliminar tosas las ordenes temporales"
+        msg: errorMessage
       })
     }
   
