@@ -1,7 +1,6 @@
 
 
 const jwt = require ("jsonwebtoken");
-const { tokenVerificationErrors } = require("../helpers/tokenManager.js");
 
  const requireRefreshToken = (req, res, next) => {
 
@@ -19,7 +18,10 @@ const { tokenVerificationErrors } = require("../helpers/tokenManager.js");
         
     } catch (error) {
         console.log("error desde requireRefreshToken: ", error);
-        return res.status(401).json({ error: tokenVerificationErrors[error.message] });
+        return res.status(401).json({ 
+            success: false,
+            msg : "Sin token",
+        });
     }
 };
 

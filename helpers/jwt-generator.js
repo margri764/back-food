@@ -1,32 +1,32 @@
 
-const jwt = require ('jsonwebtoken');
+// const jwt = require ('jsonwebtoken');
 
-const JWTGenerator = ( _id ) =>{ 
+// const JWTGenerator = ( _id ) =>{ 
 
     
-    return new Promise( (resolve, reject) =>{
+//     return new Promise( (resolve, reject) =>{
 
-        const payload =  {_id } ; 
+//         const payload =  {_id } ; 
         
        
 
-        jwt.sign(payload , process.env.SECRETORPRIVATEKEY,{ 
+//         jwt.sign(payload , process.env.SECRETORPRIVATEKEY,{ 
 
-            expiresIn: "20s"
+//             expiresIn: "10s"
 
-        }
-        , (err , token)=>{ 
-            if(err){
-                console.log(err);
-                reject( 'no se pudo generar el JWT')
-            }else{
-                resolve ( token );
-         }
-        })
+//         }
+//         , (err , token)=>{ 
+//             if(err){
+//                 console.log(err);
+//                 reject( 'no se pudo generar el JWT')
+//             }else{
+//                 resolve ( token );
+//          }
+//         })
 
-    })
+//     })
 
 
-}
+// }
 
-module.exports= { JWTGenerator };
+// module.exports= { JWTGenerator };

@@ -16,12 +16,28 @@ const phone =  async (req, res=response) => {
 
 try {
 
-const user =  req.userAuth;
 
-const { phone }  = req.body;  
+const { phone, email }  = req.body;  
+     
+
+      const user = await UserSignUp.findOne({ email }) ;
+      
+      if(!user) {
+          return res.status(400).json({
+              success: false,
+              msg: 'No existe un usuario con ese email'
+          });
+      }
 
 //envio los datos para q se envie el sms de confirmacion
-createSMS(phone, user.code);
+// await createSMS(phone, user.code);
+
+      //envio los datos para q se envie el sms de confirmacion
+      await new Promise((resolve, reject) => {
+        createSMS(phone, user.code)
+          .then(() => resolve())
+          .catch((error) => reject(error));
+      });
 
 // grabo el telefono en el usuario signUp
 user.phone = phone;
@@ -36,8 +52,8 @@ res.status(200).json({
 } catch (error) {
     console.log("error desde Phone: ",error);
     let errorMessage = 'Ups algo salió mal, hable con el administrador';
-
-    if(error.message.includes('El número de teléfono ingresado no es válido')){
+    
+    if(error.message.includes('El número de teléfono ingresado no es válido')|| error.message === "Error al enviar el mensaje"){
       errorMessage = error.message;
 
     }
@@ -70,7 +86,8 @@ const signUp = async (req, res=response) => {
         if( user.state=='UNVERIFIED'){
             return res.status(401).json({
                 success: false,
-                msg: 'Usuario en proceso de verificacion, consulte su email'
+                msg: 'Usuario en proceso de verificación',
+                phone: user.phone
             });
         }
     }
@@ -121,19 +138,24 @@ const resendCode = async (req, res=response) => {
           });
       }
      }
+
+     user.attempts = 0;
       // Generar el código
       const code = Math.floor(Math.random() * 900000) + 100000;
       
       //envio los datos para q se envie el sms de confirmacion
-      await new Promise((resolve, reject) => {
-        createSMS(phone, code)
-          .then(() => resolve())
-          .catch((error) => reject(error));
-      });
+      // await new Promise((resolve, reject) => {
+      //   createSMS(phone, code)
+      //     .then(() => resolve())
+      //     .catch((error) => reject(error));
+      // });
   
 
-      // grabo el telefono en el usuario signUp
       user.code = code;
+
+      if(phone !== undefined || phone !== null){
+         user.phone = phone;
+      }
 
       await user.save();
         
@@ -275,7 +297,7 @@ const confirm = async (req, res) => {
         if (userToConfirm.attempts >= 3) {
             return res.status(400).json({
                 success: false,
-                msg: 'Ha excedido el número máximo de intentos.'
+                msg: 'Te enviaremos un nuevo código'
             });
         }
         return res.status(400).json({
@@ -341,7 +363,9 @@ const login = async (req, res=response)=>{
       const user = await checkUserEmail(email);
 
       // Verificar si el usuario ha superado el límite de intentos de inicio de sesión
-      const loginAttempts = await LoginAttempt.find({ ipAddress: req.ip, timestamp: { $gte: new Date(Date.now() - LOCK_TIME) } });
+      const loginAttempts = await LoginAttempt.find({ email, timestamp: { $gte: new Date(Date.now() - LOCK_TIME) } });
+      const remainingAttempts = MAX_LOGIN_ATTEMPTS - loginAttempts.length;
+
       if (loginAttempts.length >= MAX_LOGIN_ATTEMPTS) {
         return res.status(429).json({
           success: false,
@@ -350,7 +374,7 @@ const login = async (req, res=response)=>{
       }
       
       if (!user) {
-        await LoginAttempt.create({ email, ipAddress: req.ip, timestamp: Date.now() });
+        await LoginAttempt.create({ email,  timestamp: Date.now() });
         return res.status(401).json({
           success: false,
           msg: 'Credenciales incorrectas'
@@ -359,14 +383,15 @@ const login = async (req, res=response)=>{
       
       const checkPassword = bcryptjs.compareSync(password, user.password)
       if (!checkPassword) {
-        await LoginAttempt.create({ email, ipAddress: req.ip, timestamp: Date.now() });
+        await LoginAttempt.create({ email, timestamp: Date.now() });
         return res.status(401).json({
           success: false,
-          msg: 'Credenciales incorrectas'
+          msg: 'Credenciales incorrectas',
+          remainingAttempts
         });
       }
       
-      await LoginAttempt.deleteMany({ ipAddress: req.ip });
+      await LoginAttempt.deleteMany({ email });
         
         /* si llego hasta aca es xq el usuario login ya esta creado y entonces el usuario tambien ya se creo aunque
         me falten datos, como la app tiene delivery tengo mas instancias para recolectar datos.
@@ -384,50 +409,69 @@ const login = async (req, res=response)=>{
 
    } catch (error) {
      
-     let errorMessage = 'Ups algo salió mal, hable con el administrador';
-     if(error.message.includes("La cuenta del staff ") || error.message.includes("La cuenta del usuario ") || error.message.includes("La cuenta de usuario no ha sido verificada") ){
-        errorMessage = error.message;
-      }else{
-        console.log('error desde Login: ', error);
-      }
+    console.log('Error desde Login:', error);
+    let errorMessage = 'Ups, algo salió mal. Por favor, contacta al administrador.';
+    if (
+      error.message.includes('La cuenta del staff') ||
+      error.message.includes('La cuenta del usuario') ||
+      error.message.includes('La cuenta de usuario no ha sido verificada') ||
+      error.message.includes('El email')
+    ) {
+      errorMessage = error.message;
+    }
+
+
       res.status(500).json({
-          msg: errorMessage,
-          success: false
+          success: false,
+          msg: errorMessage
       })       
     }
 }
 
 const emailToAsyncValidatorLogin = async (req, res) => {
-    try {
-      const email = req.query.q;
-      const emailToCheck = email.split('@');
-      const isStaff = emailToCheck[1].includes(process.env.EMAILSTAFF);
+  try {
+    const email = req.query.q;
+    const emailToCheck = email.split('@');
+    const isStaff = emailToCheck[1].includes(process.env.EMAILSTAFF);
 
-      const query = isStaff ? Staff.findOne({ email }) : User.findOne({ email });
-  
+    const query = isStaff ? Staff.findOne({ email }) : User.findOne({ email });
+    const userSignUp = await UserSignUp.findOne({ email });
+
+    let response = null;
+
+    if (userSignUp) {
+      if (userSignUp.state === 'UNVERIFIED') {
+        response = {
+          success: false,
+          msg: `El usuario con el email ${email} necesita verificar su cuenta`
+        };
+      }
+    }
+
+    if (!response) {
       const user = await query.lean();
-      
-      // esto se ve raro xq uso una validacion asyncrona el formularios reactivos
-      if (!user) {
-        
-         res.status(200).json({
-            success: false,
-            msg: `No existe usuario con el email ${email} en nuestra base de Datos`
-        })
 
-      }else{      
-        res.status(200).json({
+      if (!user || !userSignUp) {
+        response = {
+          success: false,
+          msg: `No existe usuario con el email ${email} en nuestra base de Datos`
+        };
+      } else {
+        response = {
           success: true,
           msg: 'Usuario OK'
-        });
+        };
       }
-    } catch (error) {
-      console.log('Error desde emailToAsyncValidatorLogin: ', error);
-      res.status(500).json({
-        success: false,
-        msg: 'Ups algo salió mal, hable con el administrador'
-      });
     }
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.log('Error desde emailToAsyncValidatorLogin: ', error);
+    res.status(500).json({
+      success: false,
+      msg: 'Ups algo salió mal, hable con el administrador'
+    });
+  }
 };
 
 const emailToAsyncValidatorRegister = async (req, res) => {

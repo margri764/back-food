@@ -3,17 +3,15 @@ const jwt = require ('jsonwebtoken');
 const generateToken =  ( _id ) =>{ 
 
         const payload =  {_id } ; 
-        const expiresIn = 60 * 60 * 60;
-        // console.log("desde generateToken: ",payload);
+        // const expiresIn = 60 * 60 * 60;
+        const expiresIn = 10;
 
         try {
             const token = jwt.sign(payload , process.env.SECRETORPRIVATEKEY,{ expiresIn })
-            // console.log(token);
 
             return { token, expiresIn };
         } catch (error) {
             console.log("error desde generateToken", error);
-
             
         }
     }
@@ -23,6 +21,7 @@ const generateRefreshToken = async ( _id, res ) => {
 
     // le estoy diciendo q dure un Mes
     const expiresIn = 60 * 60 * 24  * 30;
+    // const expiresIn = 40;
 
     const payload = { _id };
 
@@ -54,21 +53,12 @@ try {
 }
         
 
-
 }
 
-const tokenVerificationErrors = {
-    "invalid signature": "La firma del JWT no es válida",
-    "jwt expired": "JWT expirado",
-    "invalid token": "Token no válido",
-    "No Bearer": "Utiliza formato Bearer",
-    "jwt malformed": "JWT formato no válido",
-};
 
 
 
 module.exports= {
-              tokenVerificationErrors,
               generateToken,
               generateRefreshToken
 

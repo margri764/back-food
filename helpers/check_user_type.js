@@ -13,9 +13,9 @@ const checkUserEmail = async (email) => {
 
     const query = isStaff ? Staff.findOne({ email }) : User.findOne({ email });
     const user = await query.lean();
-    
+
     if (!user) {
-      return null;
+      throw new Error(`El email ${email} no existe`);
     }
     await verifyAccount(user, isStaff);
     
@@ -35,9 +35,10 @@ const verifyAccount = async (user, isStaff) => {
     const userSignUp = await UserSignUp.findOne({ email: user.email });
 
     if (!userSignUp) {
+   
       return null;
     } else if (userSignUp.state === 'UNVERIFIED') {
-      throw new Error('La cuenta de usuario no ha sido verificada.');
+      throw new Error(`El usuario con el email ${userSignUp.email} necesita verificar su cuenta`);
     } else if (!user.stateAccount) {
       throw new Error(`La cuenta del usuario ${user.email} ha sido eliminada o desactivada`);
     }

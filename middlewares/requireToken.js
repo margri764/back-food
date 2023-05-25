@@ -2,7 +2,6 @@
 const jwt = require ('jsonwebtoken');
 const User =  require('../models/user');
 const Staff =  require('../models/staff');
-const tokenVerificationErrors   = require ("../helpers/tokenManager");
 
 
 const requireToken = async ( req, res, next ) => {
@@ -64,9 +63,12 @@ const requireToken = async ( req, res, next ) => {
         
     } catch (error) {
         console.log('desde requireToken: ', error);
-        return res
-        .status(401)
-        .send ({error : tokenVerificationErrors[error.message]})
+        return res.status(401).json({
+            success: false,
+            msg : "Token expirado",
+        })
+
+        // .send ({error : tokenVerificationErrors[error.message]})
     }
 
 }

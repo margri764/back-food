@@ -36,7 +36,7 @@ router.post('/resetPassword',[
 ], resetPassword); 
 
 router.post('/signup/phone',[
- requireToken
+//  requireToken
 ], phone);
 
 //para valdiacion asyncrona formulario reactivo

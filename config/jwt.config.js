@@ -1,27 +1,27 @@
 
-const jwt = require('jsonwebtoken');
+// const jwt = require('jsonwebtoken');
 
-const getToken = (payload) => {
-    return jwt.sign({
-        data: payload
-    }, 'SECRET', { expiresIn: '1h' });
-}
+// const getToken = (payload) => {
+//     return jwt.sign({
+//         data: payload
+//     }, 'SECRET', { expiresIn: '10s' });
+// }
 
-const getTokenData = (token) => {
+// const getTokenData = (token) => {
 
     
-    let data = null;
-    jwt.verify(token, 'SECRET', (err, decoded) => {
-        if(err) {
-            console.log('Error al obtener data del token');
-        } else {
-            data = decoded;
-        }
-    });
-    return data;
-}
+//     let data = null;
+//     jwt.verify(token, 'SECRET', (err, decoded) => {
+//         if(err) {
+//             console.log('Error al obtener data del token');
+//         } else {
+//             data = decoded;
+//         }
+//     });
+//     return data;
+// }
 
-module.exports = {
-    getToken,
-    getTokenData
-}
+// module.exports = {
+//     getToken,
+//     getTokenData
+// }

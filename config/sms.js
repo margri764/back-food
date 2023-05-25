@@ -22,6 +22,7 @@ client = new twilio (process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 
  
   } catch (error) {
+    console.log("Error desde createSMS Twilio ", error);
     throw new Error('Error al enviar el mensaje');
   }
 };

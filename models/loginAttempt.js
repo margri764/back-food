@@ -6,10 +6,6 @@ const LoginAttemptSchema = new Schema(
       type: String,
       required: true,
     },
-    ipAddress: {
-      type: String,
-      required: true,
-    },
     timestamp: {
       type: Date,
       required: true,
