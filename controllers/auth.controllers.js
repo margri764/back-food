@@ -16,9 +16,7 @@ const phone =  async (req, res=response) => {
 
 try {
 
-
 const { phone, email }  = req.body;  
-     
 
       const user = await UserSignUp.findOne({ email }) ;
       
@@ -415,7 +413,9 @@ const login = async (req, res=response)=>{
       error.message.includes('La cuenta del staff') ||
       error.message.includes('La cuenta del usuario') ||
       error.message.includes('La cuenta de usuario no ha sido verificada') ||
-      error.message.includes('El email')
+      error.message.includes('El email') ||
+      error.message.includes('necesita verificar su cuenta')
+
     ) {
       errorMessage = error.message;
     }
@@ -451,10 +451,15 @@ const emailToAsyncValidatorLogin = async (req, res) => {
     if (!response) {
       const user = await query.lean();
 
-      if (!user || !userSignUp) {
+      if (!user) {
         response = {
           success: false,
-          msg: `No existe usuario con el email ${email} en nuestra base de Datos`
+          msg: `No existe usuario con el email ${email} en nuestra base de datos`
+        };
+      } else if (userSignUp && userSignUp.state === 'UNVERIFIED') {
+        response = {
+          success: false,
+          msg: `El usuario con el email ${email} necesita verificar su cuenta`
         };
       } else {
         response = {
@@ -462,9 +467,11 @@ const emailToAsyncValidatorLogin = async (req, res) => {
           msg: 'Usuario OK'
         };
       }
+      
     }
 
     res.status(200).json(response);
+
   } catch (error) {
     console.log('Error desde emailToAsyncValidatorLogin: ', error);
     res.status(500).json({
