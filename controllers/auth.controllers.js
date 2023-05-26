@@ -332,10 +332,14 @@ const confirm = async (req, res) => {
         const user = new User (newUser);
         await user.save();
 
+        const token = generateToken(user._id);
+        generateRefreshToken(user._id, res);
+
         return res.status(200).json({
             success: true,
             msg: 'Usuario autenticado correctamente',
-            user
+            user, 
+            token
         });
     
        }
@@ -394,7 +398,6 @@ const login = async (req, res=response)=>{
         /* si llego hasta aca es xq el usuario login ya esta creado y entonces el usuario tambien ya se creo aunque
         me falten datos, como la app tiene delivery tengo mas instancias para recolectar datos.
         Aca abajo lo mismo, tiene q ver con el TIPO de email  */ 
-        
         const token = generateToken(user._id);
         generateRefreshToken(user._id, res);
 

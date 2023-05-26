@@ -12,7 +12,7 @@ const requireToken = async ( req, res, next ) => {
         // console.log("requireToken token Bearer: ", token);
 
         if(!token){
-            return res.status(400).json({
+            return res.status(401).json({
                 msg:'No existe el token en el header. Vuelva a entrar con sus credenciales'
             })
         }

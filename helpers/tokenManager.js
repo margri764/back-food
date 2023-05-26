@@ -3,8 +3,8 @@ const jwt = require ('jsonwebtoken');
 const generateToken =  ( _id ) =>{ 
 
         const payload =  {_id } ; 
-        // const expiresIn = 60 * 60 * 60;
-        const expiresIn = 10;
+        const expiresIn = 60 * 60 * 60;
+        // const expiresIn = 10;
 
         try {
             const token = jwt.sign(payload , process.env.SECRETORPRIVATEKEY,{ expiresIn })
@@ -34,6 +34,7 @@ try {
     // la cookie tiene un tiempo de expiracion distina le digo q dure el mes a partir de hoy y se multiplica por mil
     // xq el date() esta en milisegundos
     await new Promise((resolve, reject) => {
+        console.log('se envia la cookie?');
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: !(process.env.MODO === "developer"),
