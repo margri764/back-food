@@ -51,14 +51,12 @@ const createOrder= async ( req , res ) => {
                 });
               });
                 
-             
              // controlo si hay stock de esos productos
              for (let i = 0; i < productIDs.length; i++) {
                let item = productIDs[i];
                await checkStatusAndPaused(item)
                productToUpdate= await updateStock(item);
                productsToUpdate.push(productToUpdate)
-               
               }
 
               // preparo todos los productos de la orden para hacer el update
@@ -113,7 +111,10 @@ const createOrder= async ( req , res ) => {
       let errorMessage = 'Ups algo salió mal, hable con el administrador';
     
       // Verificamos si el error es específico generado en la condición "if"
-      if (error.message.includes('No hay suficiente stock disponible para el producto') || error.message.includes("esta pausado o eliminado. Disculpe las molestias") || error.message === 'No existe en BD unas de las ordenes, invalidar pedido') {
+      if (
+          error.message.includes('No hay suficiente stock disponible para el producto') || 
+          error.message.includes("esta pausado o eliminado. Disculpe las molestias") || 
+          error.message === 'No existe en BD unas de las ordenes, invalidar pedido') {
         errorMessage = error.message;
       }
         return res.status(500).json({

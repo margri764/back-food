@@ -49,14 +49,12 @@ const checkIfExistTempOrder  = async (tempOrderId) => {
       return existingOrder._id
 }
 
-const checkStatusAndPaused  = async (productId,) => {
-
+const checkStatusAndPaused  = async (productId) => {
   /* recibe cada producto q esta en la TempPurchaseOrder y la cantidad q compro. Ahora busca en la coleccion de PRODUCT por id, para conocer el stock real */
-   const existingProduct = await Product.findOne({_id: productId});
+   const existingProduct = await Product.findOne({_id: productId._id});
  
-   console.log("entro aqui");
    if (existingProduct.status === false || existingProduct.paused === true) {
-     throw new Error(`El producto ${existingProduct.name} esta pausado o eliminado. Disculpe las molestias`);
+     throw new Error(`El producto ${existingProduct.name} esta pausado o eliminado. Disculpe las molestias.${productId.orderId}`);
    }
 
    /* si sale todo ok le resta a la cantidad del producto, la cantidad comprada y hace el update del producto */

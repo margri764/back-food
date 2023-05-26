@@ -12,15 +12,14 @@ const mainProdValidator = async ( product )=>{
     const arrIDs = [];
 
       product.forEach( item => { arrIDs.push(item._id) });
-
     
-    const productVal = await Product.find({_id : { $in: arrIDs }});
-    // con esto valido si alguna bebida esta NO EXISTE en BD
-    if(productVal){
-        if(arrIDs.length !== productVal.length){
-            throw new Error (`No existe el producto principal, invalidar pedido y forzar reload de productos en el front`)
+        const productVal = await Product.find({_id : { $in: arrIDs }});
+        // con esto valido si alguna bebida esta NO EXISTE en BD
+        if(productVal){
+            if(arrIDs.length !== productVal.length){
+                throw new Error (`No existe el producto principal, invalidar pedido y forzar reload de productos en el front`)
+            }
         }
-    }
 
     // con esto valido si alguna bebida estan sin stock o eliminada de la bD 
 
@@ -28,13 +27,11 @@ const mainProdValidator = async ( product )=>{
 
      if(status){
 
-        const identify = productVal.filter(item => item.stock == false || item.status == false)
-
-        throw new Error (`Uno de los productos esta eliminado, sin stock o PAUSA, invalidar pedido y forzar reload de productos en el front ${identify}`)
+        const identifyNoStock = productVal.filter(item => item.stock == false || item.status == false);
+        let product;
+        identifyNoStock.forEach( (element) => {product = element.name })
+        throw new Error (`El producto ${product} se encuentra sin stock. Disculpe las molestias.`)
      }
-
-
-
 }
 
 const drinkValidator = async ( drink )=>{
@@ -58,10 +55,13 @@ const drinkValidator = async ( drink )=>{
      const status= product.some (item => item.stock == false || item.status == false)
 
      if(status){
+        if(status){
 
-        const identify = product.filter(item => item.stock == false || item.status == false)
-
-        throw new Error (`Uno de los productos esta eliminado, sin stock o PAUSA, invalidar pedido y forzar reload de productos en el front ${identify}`)
+            const identifyNoStock = product.filter(item => item.stock == false || item.status == false);
+            let product;
+            identifyNoStock.forEach( (element) => {product = element.name })
+            throw new Error (`El producto ${product} se encuentra sin stock. Disculpe las molestias.`)
+         }
      }
 
 
@@ -80,24 +80,22 @@ const friesValidator = async ( fries ) => {
     const product = await Product.find({_id : {$in: arrIDs}})
 
 
-    // con esto valido si alguna bebida esta NO EXISTE en BD
     if(product){
 
         if(arrIDs.length !== product.length){
             throw new Error (`No existe en BD uno de los productos, invalidar pedido y forzar reload de productos en el front`)
-
         }
     }
-
-    // con esto valido si alguna bebida estan sin stock o eliminada de la bD 
 
      const status= product.some (item => item.stock == false || item.status == false)
 
      if(status){
-
-        const identify = product.filter(item => item.stock == false || item.status == false)
-
-        throw new Error (`Uno de los productos esta eliminado, sin stock o PAUSA, invalidar pedido y forzar reload de productos en el front ${identify}`)
+        if(status){
+            const identifyNoStock = productVal.filter(item => item.stock == false || item.status == false);
+            let product;
+            identifyNoStock.forEach( (element) => {product = element.name })
+            throw new Error (`El producto ${product} se encuentra sin stock. Disculpe las molestias.`)
+         }
      }
 
 
