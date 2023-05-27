@@ -43,16 +43,20 @@ return res.status(200).json({
     
 } catch (error) {
     console.log('Error desde createStaff: ', error);
+    
     let errorMessage = 'Ups algo salió mal, hable con el administrador';
-    if(error.message.includes("role")){
+
+    if (error.code === 11000) {
+        errorMessage = "El número de teléfono ya está en uso."
+    } else if (error.message.includes("role")){
         errorMessage = error.message;
-    }else{
+    }
         return res.status(500).json({
             success: false,
             msg: errorMessage
 
         })
-    }
+    
 }       
 
 }

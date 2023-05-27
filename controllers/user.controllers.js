@@ -119,9 +119,14 @@ try {
 
 } catch (error) {
     console.log("Desde userPut: ", error);
+    let errorMessage = 'Ups algo salió mal, hable con el administrador';
+
+    if (error.code === 11000) {
+        errorMessage = "El número de teléfono ya está en uso."
+      } 
     return res.status(500).json({
         success: false,
-        msg: 'Error al editar la dirección del usuario'
+        msg: errorMessage
     });
 }
 
