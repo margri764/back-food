@@ -3,10 +3,11 @@ const {check} = require ('express-validator');
 const router = Router();
 const { createRole, pausePlayApp, getAppState, createHourlyRate, updateHourlyRateById, deleteHourlyRateById, getStaff, createStaff, staffUpdate, deleteStaff, pausePlayStaffById, updateCustomMsg, createApp } = require('../controllers/staff.controllers');
 const { superRole, checkFields, multiRole, requireToken } = require('../middlewares')
-const { isStaffRoleValid, checkIdStaff } = require('../helpers/db-validators');
+const { isStaffRoleValid, checkIdStaff, checkId } = require('../helpers/db-validators');
 const { getStaffOrders, editOrderStatus, getStaffOrdersByQuery } = require('../controllers/staffOrders.controllers');
 const { sanitizeStaff, sanitizeUpdateStaff } = require('../middlewares/sanitize-staff');
 const { sanitizeHourlyApp } = require('../middlewares/sanitize-app');
+const { userDelete } = require('../controllers/user.controllers');
 
 
 
@@ -123,6 +124,13 @@ router.delete('/hourlyRate/:id',[
 ], deleteHourlyRateById)
 
 
+router.delete('/:id',[
+    requireToken,
+    multiRole ('SUPER_ROLE',' ADMIN_ROLE'),
+    check('id','No es un id valido de mongoDB').isMongoId(),
+    check('id').custom( checkId ),
+    checkFields
+], userDelete);
 
 
 module.exports= router;

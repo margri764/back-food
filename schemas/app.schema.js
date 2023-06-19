@@ -6,7 +6,7 @@ const hourlySchema = Joi.object({
     'string.empty': 'El horario no puede estar vacío',
     'string.pattern.base': 'El horario tiene que ser un string con el formato 10:00 - 14:00'
   }),
-    day: Joi.array().items(Joi.number().strict()).required(),
+    days: Joi.array().items(Joi.number().strict()).required(),
     status: Joi.boolean().strict().required(),
   });
 

@@ -60,6 +60,11 @@ const createTempOrder = async ( req , res ) => {
       console.log('Error desde CreateTempOrder: ', error);
       let errorMessage = 'Ups algo salió mal, hable con el administrador';
  
+      if(error.message.includes(" sin stock, por favor elegí otra opción") || 
+         error.message.includes(" esta sin stock o en pausa por favor elegí otra opción")){
+
+        errorMessage = error.message
+      }
         return res.status(500).json({
             success: false,
             msg: errorMessage

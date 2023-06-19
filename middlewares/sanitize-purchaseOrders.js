@@ -7,7 +7,7 @@ function sanitizePurchaseOrder() {
         const { error, value } = purchaseOrderSchema.validate(order, { stripUnknown: true });
       if (error) {
         console.log('error desde el sanitizador de purchaseSchema: ', error);
-        return res.status(400).json({ message: error.message });
+        return res.status(400).json({ msg: error.message });
       }
       req.body.order = value;
       next();

@@ -187,13 +187,20 @@ const generateTokenToPassword = async (req, res=response) => {
 
         // Obtener la data del usuario: name, email
         const { email } = req.body;
-        console.log(req.body);
+       
+        let emailToCheck = email.split("@");
+        const isStaff = emailToCheck[1].includes(process.env.EMAILSTAFF);
 
+        if(isStaff){
+          return res.status(400).json({
+            success: false,
+            msg: "Miembros del staff comunicarse con el administrador"
+          })
+        }
         let user = await User.findOne({email})
 
         // Generar un token de restablecimiento de contraseña
-            const resetToken = crypto.randomBytes(20).toString('hex');
-
+        const resetToken = crypto.randomBytes(20).toString('hex');
         // Guardar el token en la base de datos y establecer una fecha de vencimiento
         user.resetPasswordToken = resetToken;
         user.resetPasswordExpires = Date.now() + 3600000; // 1 hora

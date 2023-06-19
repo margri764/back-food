@@ -43,7 +43,6 @@ router.patch('/updateManyPrice/:category',[
 router.patch('/pauseCategory/:category',[
     requireToken,
     multiRole ('ADMIN_ROLE','SUPER_ROLE'),
-    check('id').trim().escape().isMongoId(),
     check('category').notEmpty().withMessage('El parámetro "category" es obligatorio'),
     param('category').trim().escape().isAlpha(),
     check('category').custom( category => validCategory(category, ['BURGER', 'PIZZA', 'HEALTHY', 'VEGAN', 'DRINK', 'FRIES', 'OFFER'])),

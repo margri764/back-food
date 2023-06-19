@@ -8,7 +8,7 @@ function validateStringParams(paramName) {
   return (req, res, next) => {
     const { error, value } = stringSchema.validate(req.params[paramName], { stripUnknown: true });
     if (error) {
-      return res.status(400).json({ message: error.message });
+      return res.status(400).json({ msg: error.message });
     }
     req.params[paramName] = value;
     next();

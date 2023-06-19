@@ -4,7 +4,7 @@ function sanitizeHourlyApp( ) {
     return (req, res, next) => {
       const { error, value } = hourlySchema.validate(req.body, { stripUnknown: true });
       if (error) {
-        return res.status(400).json({ message: error.message });
+        return res.status(400).json({ msg: error.message });
       }
       req.body = value;
       next();

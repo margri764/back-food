@@ -17,36 +17,34 @@ let valid = [];
 //     }
 // }
 
-const checkHour =  (rate, days)=>{
+const checkHour = (rate, days) => {
+     const now = moment();
+     now.subtract(3, "hours")
 
-    let now = moment().locale('es-AR').format('HH:mm');
-    now = moment(`${now}`, 'HH:mm')
-    let beginning;
-    let end;
-    let beginningTime;
-    let endTime;
-    let tempRate;
-
-    tempRate = rate.split('-')
-    beginning = tempRate[0];
-    end = tempRate[1];
-    
-    
-    
-    beginningTime = moment( `${beginning}`, 'HH:mm');
-    endTime= moment( `${end}`, 'HH:mm')
-    
-    const currentDay = moment().day();
-    const isValidDay = days.includes(currentDay);
- 
-    
-    if(isValidDay && now.isBefore(endTime) && now.isAfter(beginningTime)){ // 
-         return true;
-    }else{
-         return false;
-        
-    }
+     let beginning;
+     let end;
+     let beginningTime;
+     let endTime;
+     let tempRate;
+   
+     tempRate = rate.split('-');
+     beginning = tempRate[0];
+     end = tempRate[1];
+   
+     beginningTime = moment(`${beginning}`, 'HH:mm'); 
+     endTime = moment(`${end}`, 'HH:mm'); 
+   
+     const currentDay = moment().day(); // Obtener el día actual (0 para domingo, 1 para lunes, etc.)
+     const isValidDay = days.includes(currentDay);
+   
+     if (isValidDay && now.isBefore(endTime) && now.isAfter(beginningTime)) {
+       return true;
+     } else {
+       return false;
+     }
+   }
+   
 
 
-}
+
 module.exports = { checkHour }

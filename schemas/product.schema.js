@@ -30,7 +30,7 @@ const productUpdateSchema = Joi.object({
 
     price: Joi.number().optional().messages({
       'any.required': 'El precio del producto es obligatorio',
-      'number.base': 'El precio del producto debe ser un número'
+      'number.base': 'El precio del producto debe ser un número mayor a 0 y sin "-" ',
     }),
 
     stockQuantity: Joi.number().optional().messages({

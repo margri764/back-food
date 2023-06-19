@@ -12,7 +12,7 @@ class Server{
 
     constructor(){
         this.app = express();
-        // this.port = 8000;
+        // this.port = 8100;
         this.port = process.env.PORT;
         this.conectarDB();
         this.middlewares();
@@ -30,11 +30,10 @@ class Server{
         const whiteList = [process.env.ORIGIN1, 
             "http://192.168.1.103:8081",
             "http://192.168.1.103:8080",
+            "http://localhost:8080",
             "http://127.0.0.1:8080",
             "http://127.0.0.1:8081",
-            "https://www.revimackagro.com", 
-            "https://www.feintdevs.com",
-            "https://www.barrozoautomotores.com"
+            "https://fooodapp.shop"
         ];
         this.app.use(express.json());
         this.app.use(cookieParser());  

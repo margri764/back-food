@@ -1,8 +1,5 @@
-
-
 const {response} = require ('express');
 const bcryptjs = require ('bcryptjs');
-const User = require ('../models/user');
 const Staff  = require ('../models/staff');
 const Role  = require ('../models/role');
 const App  = require ('../models/appState');
@@ -323,6 +320,7 @@ try {
     element.days.map((day) => {
         dayArr.push(day); // agregar cada día al arreglo dayArr
     });
+    
     arrCheck.push(checkHour(rate, dayArr));
     dayArr=[];
     }
