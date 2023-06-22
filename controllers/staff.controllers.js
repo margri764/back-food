@@ -265,9 +265,9 @@ if( app.statusApp.length > 5){
 }
 
 const staffEditor = {
-    date : new Date(),
-    staff :  staff._id,
-    status : playOrPause    
+                    date : new Date(),
+                    staff :  staff._id,
+                    status : playOrPause    
 };
 
 //obtengo el array de la base de datos y le agrego el nuevo estado
@@ -294,18 +294,10 @@ res.json({
 }
 }
 
-const getAppState= async (req, res) => {
+const getAppState = async (req, res) => {
 
 try {
-  
     let app = await App.findOne( {_id : process.env.APP_ID}) || null;
-
-    if(app == null){
-        return res.status(400).json({
-            success: false,
-            msg : 'Estado de App no encontrado en BD'
-        })
-    }
 
     let rate= null;
     let dayArr = [];
@@ -314,24 +306,21 @@ try {
 
     let tempRate = app.hourRate.filter(element => element.status == true);
 
-    tempRate.map((element) => {
-    rate = element.hour; // agregar la hora al arreglo rate
-
-    element.days.map((day) => {
-        dayArr.push(day); // agregar cada día al arreglo dayArr
+    tempRate.map( (element) => {
+        rate = element.hour; // agregar la hora al arreglo rate
+        element.days.map((day) => {
+            dayArr.push(day); // agregar cada día al arreglo dayArr
+        });
+            
+        const isValid =  checkHour(rate, dayArr);
+        arrCheck.push(isValid);
     });
-    
-    arrCheck.push(checkHour(rate, dayArr));
-    dayArr=[];
-    }
-    );
 
-    if(arrCheck.includes(true)){
-        check = true;
-    }else{
-        check = false;
-    }
-
+      if(arrCheck.includes(true)){
+        check = true
+      }else{
+        check = false
+      }
         res.json({       
             success : true,
             app,
@@ -344,14 +333,14 @@ try {
 
     return res.status(500).json({
         success: false,
-        msg: 'Error al obtener el estado de la app'
+        msg: errorMessage
     });
 }
 }
 
 const createHourlyRate = async (req, res) => {
 
-    const { hour, status, day } = req.body;
+    const { hour, status, days } = req.body;
 
     try {
     
@@ -367,7 +356,7 @@ const createHourlyRate = async (req, res) => {
     const newHourRate = {
         hour: hour,
         status: status,
-        days : day
+        days : days
       };
 
       app.hourRate.push(newHourRate);

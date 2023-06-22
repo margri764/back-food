@@ -59,7 +59,7 @@ router.patch('/pausePlayStaff/:id',[
     check('id','No es un id valido de mongoDB').isMongoId(),
     check('pauseOrPlay')
     .exists().withMessage('El query pauseOrPlay es obligatorio')
-    .isIn(['pause', 'play']).withMessage('El valor debe ser "pause" o "play"'),
+    .isIn(['false', 'true']).withMessage('El valor debe ser "false" o "true"'),
     multiRole ('ADMIN_ROLE','SUPER_ROLE'),
     checkFields  
 ], pausePlayStaffById)
@@ -96,8 +96,8 @@ router.put('/orderStatus',[
 
 router.post('/pausePlayApp',[
     requireToken,
+    check('pauseOrPlay'),
     multiRole("SUPER_ROLE","ADMIN_ROLE"),
-    sanitizeHourlyApp(),
     checkFields
 ], pausePlayApp)
 
