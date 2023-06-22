@@ -99,7 +99,7 @@ const createRole= async (req, res = response) => {
 const getStaff = async (req,res=response)=>{
 
 
-    let staff = await Staff.find({ fullName: { $ne: 'no-staff' }, stateAccount: true });
+    let staff = await Staff.find({ fullName: { $ne: 'ingreso-orden' }, stateAccount: true });
    
     if( !staff){
         return res.status(400).json({

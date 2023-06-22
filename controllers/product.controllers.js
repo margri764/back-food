@@ -164,7 +164,8 @@ try {
   let tempProduct = {};
 
   tempProduct = {
-      img : secure_URL ? secure_URL : tempProduct.img ,
+      img : secure_URL ? secure_URL : tempProduct.img,
+      stockQuantity : stockQuantity,
       ...rest
   }
 
@@ -173,7 +174,6 @@ try {
   }else{
     tempProduct.stock = false;
   }
-    
   const product= await Product.findByIdAndUpdate( productEdit._id, tempProduct,{new:true}).populate("category", "name state");
 
     res.json( {
