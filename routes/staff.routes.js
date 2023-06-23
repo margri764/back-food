@@ -9,9 +9,6 @@ const { sanitizeStaff, sanitizeUpdateStaff } = require('../middlewares/sanitize-
 const { sanitizeHourlyApp } = require('../middlewares/sanitize-app');
 const { userDelete } = require('../controllers/user.controllers');
 
-
-
-
 router.post('/createApp',[
     requireToken,
     multiRole("SUPER_ROLE"),

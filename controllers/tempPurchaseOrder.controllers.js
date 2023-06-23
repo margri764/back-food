@@ -75,7 +75,7 @@ const createTempOrder = async ( req , res ) => {
 }
 
 const getTempOrder = async ( req , res ) =>{
-  
+
   const user = req.userAuth
 
 try {
@@ -83,7 +83,8 @@ try {
   const tempOrder = await TempPurchaseOrder.find({
     $and:[
           { user: user._id },
-          { statusOrder : "INCOMPLETE"}
+          { statusOrder : "INCOMPLETE"},
+  
         ]})
         .populate([ 
              "user",

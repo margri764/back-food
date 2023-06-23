@@ -137,10 +137,18 @@ const createOrder= async ( req , res ) => {
 // son las ordenes q ve el cliente en "ordenes en proceso", la orden de compra NO tiene su finished = true 
 const getUserOrder= async ( req , res ) => {
 
+    const now = Date.now();
+    const last24Hours = now - 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000; // ajuste de la diferencia horaria de +3 horas
     const user = req.userAuth
-    
+
     try {
-        const purchaseOrder = await PurchaseOrder.find({ user: user._id }) 
+        const purchaseOrder = await PurchaseOrder.find({ 
+          $and:[
+            { user: user._id },
+            { finished : false },
+            { createdAt: { $gte: new Date(last24Hours) }}
+          ]})
+
         .populate( {
             path: 'order', 
             populate: [ 
