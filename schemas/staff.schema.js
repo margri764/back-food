@@ -56,22 +56,19 @@ const staffUpdateSchema = Joi.object({
         'string.empty': 'El email no puede estar vacío',
         'string.pattern.base': 'El email no puede contener "@"'
     }),
-
-    phone: Joi.string().min(10).regex(/^[1-9][0-9]{9}$/).messages({
+    phone: Joi.string().min(10).regex(/^[1-9][0-9]{9}$/).allow('').messages({
         'any.required': 'El telefono del staff es obligatorio y tiene que ser un string',
         'string.empty': 'El telefono del staff no puede estar vacío',
         'string.base':  'El telefono del staff debe ser un string de 10 digitos y no puede empezar con 0'
     }),
 
-    address: Joi.string().max(50),
+    address: Joi.string().max(50).allow(''),
 
     role: Joi.string().valid('STAFF_ROLE', 'ADMIN_ROLE', 'SUPER_ROLE').required().messages({
         'any.required': 'El rol del usuario es obligatorio y tiene que ser un string',
         'string.empty': 'El rol del usuario no puede estar vacío',
         'any.only': 'El rol del usuario debe ser USER_ROLE, ADMIN_ROLE o SUPER_ROLE'
     }),
-
-    password: Joi.string().min(8).regex(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/)
 });
 
 module.exports = { staffSchema, staffUpdateSchema };

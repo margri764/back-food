@@ -12,8 +12,8 @@ class Server{
 
     constructor(){
         this.app = express();
-        this.port = 8100;
-        // this.port = process.env.PORT;
+        // this.port = 8100;
+        this.port = process.env.PORT;
         this.conectarDB();
         this.middlewares();
         this.routes();
@@ -27,8 +27,8 @@ class Server{
     
     middlewares(){
 
-        // const whiteList = [process.env.ORIGIN1, "https://fooodapp.shop" ];
-        const whiteList = [process.env.ORIGIN2];
+        const whiteList = [process.env.ORIGIN1, "https://fooodapp.shop" ];
+        // const whiteList = [process.env.ORIGIN2];
         this.app.use(express.json());
         this.app.use(cookieParser());  
         this.app.use(cors(

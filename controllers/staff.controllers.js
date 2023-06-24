@@ -120,15 +120,13 @@ const staffUpdate= async (req, res) => {
 try {
 
     const { id } = req.params;
-    const { role, phone, address, password } = req.body;
-    const salt = bcryptjs.genSaltSync();
-    const passwordEncripted = bcryptjs.hashSync(password,salt);
+    const { role, phone, address } = req.body;
+
 
     const tempStaff = {
         role: role,
         phone: phone,
         address: address,
-        password : passwordEncripted
     }   
       
     const staff = await Staff.findByIdAndUpdate( id, tempStaff ,{new:true})

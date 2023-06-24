@@ -254,72 +254,6 @@ const getUserHistoryPurchaseOrders= async ( req , res ) => {
  
 }
 
-// son las ordenes que recibe el dashboard para editar y demas
-// const getStaffOrder = async ( req , res ) => {
-
-//     const user = req.userAuth
-
-
-    
-//     try {
-//         const purchaseOrder = await PurchaseOrder.find({ user: user._id }) 
-//         .populate( {
-//             path: 'order', 
-//             populate: [ 
-//                         {
-//                           path: 'product',
-//                           model: "Product",
-//                         },
-//                         {
-//                           path: 'product._id',
-//                           model: "Product",
-//                         },
-//                         {
-//                           path: 'fries._id',
-//                           model: "Product",
-//                         },
-//                         {
-//                           path: 'drink',
-//                           model: "Product",
-//                         },
-//                         {
-//                           path: 'drink._id',
-//                           model: "Product",
-//                         },
-//                         {
-//                           path: 'user',
-//                           model: "User",
-//                         },
-//                       ],
-//            })
-    
-//         if(!purchaseOrder){
-    
-//             return res.status(400).json ({
-//                 success : false,
-//                 msg : `No se encontraron ordenes para el usuario ${user.firstName} ${user.lastName} `
-//             })
-//         }
-       
-//         res.json({ 
-//             success : true,
-//             purchaseOrder
-    
-//         });
-        
-//     } catch (error) {
-//         console.log('error desde getStaffOrder: ', error);
-//         return res.status(500).json ({
-//             success : false,
-//             msg : `Ooops algo salió mal al intentar obtener las ordenes de compra `
-//         })
-
-//     }
-
- 
-// }
-
-// creo q no va xq tengo la "editOrderStatus en StaffOrder.controller"
 const editOrder= async ( req , res ) => {
     try {
 
@@ -327,14 +261,6 @@ const editOrder= async ( req , res ) => {
 
     const purchaseOrder = await PurchaseOrder.findByIdAndUpdate(id, {statusOrder: status}, {new:true})
 
-    if(!purchaseOrder){
-
-        return res.status(400).json({
-            success : false,
-            msg: "No existe la orden q se intenta editar"
-        })
-
-    }
 
         res.json({ 
             success : true,

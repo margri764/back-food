@@ -1,8 +1,6 @@
-
 const PurchaseOrder = require('../models/purchaseOrder');
 const checkStatus  = require('../helpers/check_status');
 const { customDate }  = require('../helpers/format-date');
-
 
 const editOrderStatus = async ( req , res ) => {
  
@@ -25,7 +23,7 @@ const editOrderStatus = async ( req , res ) => {
          checkStatus(status);
         
          let finished = false;
-         if(status == "COMPLETADO") {
+         if(status === "COMPLETADO" || status === "ELIMINADO") {
             finished = true
          }
 
@@ -219,8 +217,7 @@ const getStaffOrdersByQuery = async ( req , res ) => {
  
      }
  
- }
-
+}
 
 module.exports = { 
                     getStaffOrders,
