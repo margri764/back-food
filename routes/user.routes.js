@@ -25,7 +25,6 @@ router.get('/',[
 router.get('/getAllUser',[
     requireToken,
 ], getAllUsers);
-
  
 
 router.post("/setting", [

@@ -47,7 +47,6 @@ router.patch('/deleteStaff/:id',[
     requireToken,
     multiRole("SUPER_ROLE","ADMIN_ROLE"),
     check('id','No es un id valido de mongoDB').isMongoId(),
-    check('role').custom( isStaffRoleValid ),
     checkFields
 ], deleteStaff);
 
@@ -121,9 +120,9 @@ router.delete('/hourlyRate/:id',[
 ], deleteHourlyRateById)
 
 
-router.delete('/:id',[
+router.delete('/userDelete/:id',[
     requireToken,
-    multiRole ('SUPER_ROLE',' ADMIN_ROLE'),
+    multiRole ('SUPER_ROLE','ADMIN_ROLE'),
     check('id','No es un id valido de mongoDB').isMongoId(),
     check('id').custom( checkId ),
     checkFields

@@ -64,7 +64,5 @@ const getUserSearch = async (req, res) => {
     }
 };
 
-
-
   
 module.exports = { getUserSearch }

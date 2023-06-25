@@ -67,7 +67,12 @@ const multiRole= (...roles) => {
         })
     }
 
-    if(!roles.includes(req.userAuth.role)){
+    const userRole = req.userAuth.role;
+    console.log(userRole);
+    console.log(roles);
+
+
+    if(!roles.includes(userRole)){
 
         return res.status(403).json({
             msg: `Esta accion requiere de un Usuario con estos roles: ${roles}`
